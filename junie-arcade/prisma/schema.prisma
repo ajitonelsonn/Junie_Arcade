@@ -50,3 +50,12 @@ model DailyLeaderboard {
 
   @@unique([date, gameType])
 }
+
+model Country {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  flag      String
+  createdAt DateTime @default(now())
+
+  @@index([name])
+}
