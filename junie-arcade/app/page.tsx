@@ -51,8 +51,19 @@ export default function Home() {
     }
   }, [])
 
+  const heroImages = [
+    '/assets/images/hero/Jinx_Render.webp',
+    '/assets/images/hero/Yasuo_Render.webp',
+    '/assets/images/hero/Lux_Render.webp',
+    '/assets/images/hero/Ezreal_Render.webp',
+    '/assets/images/hero/Jett_Artwork_Full.webp',
+    '/assets/images/hero/Phoenix_Artwork_Full.webp',
+    '/assets/images/hero/Reyna_Artwork_Full.webp',
+    '/assets/images/hero/Sage_Artwork_Full.webp',
+  ]
+
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
       {/* Dynamic Background */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/bg-space.jpg')] opacity-20 bg-cover bg-center mix-blend-overlay" />
@@ -79,6 +90,45 @@ export default function Home() {
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
           className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px]" 
         />
+
+        {/* Floating Hero Characters - Decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
+          {heroImages.map((img, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ 
+                opacity: [0, 0.7, 0],
+                scale: [0.8, 1, 1.2],
+                x: i % 2 === 0 ? [0, 60, 0] : [0, -60, 0],
+                y: [0, -120, 0]
+              }}
+              transition={{ 
+                duration: 20, 
+                repeat: Infinity,
+                delay: i * 3,
+                ease: "linear"
+              }}
+              className={`absolute ${
+                i === 0 ? 'top-[10%] left-[5%]' : 
+                i === 1 ? 'top-[20%] right-[10%]' : 
+                i === 2 ? 'top-[40%] left-[15%]' : 
+                i === 3 ? 'top-[60%] right-[5%]' :
+                i === 4 ? 'bottom-[10%] left-[10%]' :
+                i === 5 ? 'bottom-[20%] right-[20%]' :
+                i === 6 ? 'bottom-[40%] left-[5%]' :
+                'bottom-[60%] right-[15%]'
+              } w-72 h-[450px]`}
+            >
+              <Image 
+                src={img} 
+                alt="Hero" 
+                fill 
+                className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" 
+              />
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <div className="relative z-10">
@@ -111,11 +161,79 @@ export default function Home() {
         </nav>
 
         {/* Hero Section */}
-        <header className="px-8 pt-12 pb-20 text-center max-w-5xl mx-auto">
+        <header className="px-8 pt-24 pb-20 text-center max-w-5xl mx-auto relative">
+          {/* Junie Mascot Animation */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-64 h-64">
+            <motion.div
+              animate={{ 
+                y: [0, -20, 0],
+                rotate: [0, 10, -10, 0]
+              }}
+              transition={{ 
+                duration: 5, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="relative w-full h-full"
+            >
+              <Image 
+                src="/assets/images/junie/junie-happy.png" 
+                alt="Junie Mascot" 
+                fill
+                className="object-contain drop-shadow-[0_0_30px_rgba(34,211,238,0.6)]"
+              />
+            </motion.div>
+            
+            {/* Secondary Junie Animation - Idle/Floating */}
+            <motion.div
+              initial={{ x: -150, opacity: 0 }}
+              animate={{ 
+                x: [-150, -120, -150],
+                opacity: 0.8,
+                rotate: [-5, 5, -5]
+              }}
+              transition={{ 
+                duration: 6, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="absolute top-20 left-0 w-24 h-24"
+            >
+              <Image 
+                src="/assets/images/junie/junie-idle.png" 
+                alt="Junie Idle" 
+                fill
+                className="object-contain"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ x: 150, opacity: 0 }}
+              animate={{ 
+                x: [150, 120, 150],
+                opacity: 0.8,
+                rotate: [5, -5, 5]
+              }}
+              transition={{ 
+                duration: 7, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="absolute top-20 right-0 w-24 h-24"
+            >
+              <Image 
+                src="/assets/images/junie/junie-jump.png" 
+                alt="Junie Jump" 
+                fill
+                className="object-contain"
+              />
+            </motion.div>
+          </div>
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
