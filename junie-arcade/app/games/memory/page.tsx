@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Card {
   id: number
@@ -31,6 +31,7 @@ export default function MemoryMatchPage() {
   const [flippedIndices, setFlippedIndices] = useState<number[]>([])
   const [matchedPairs, setMatchedPairs] = useState(0)
   const [score, setScore] = useState(0)
+  const [moves, setMoves] = useState(0)
   const [timeLeft, setTimeLeft] = useState(120)
   const [gameOver, setGameOver] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -47,7 +48,7 @@ export default function MemoryMatchPage() {
       if (playPromise !== undefined) {
         playPromise.catch(e => console.error("Error playing menu music:", e))
       }
-      
+
       return () => {
         if (playPromise !== null) {
           playPromise.then(() => {
@@ -150,9 +151,11 @@ export default function MemoryMatchPage() {
     if (matchedPairs === 8) {
       setGameOver(true)
       const timeBonus = timeLeft * 10
-      setScore((prev) => prev + timeBonus + 200)
+      const accuracyBonus = Math.floor((16 / moves) * 100)
+      setScore((prev) => prev + timeBonus + accuracyBonus + 200)
+      playSound('/assets/sounds/sfx/success.mp3', 0.7)
     }
-  }, [matchedPairs, timeLeft])
+  }, [matchedPairs, timeLeft, moves])
 
   const initializeGame = () => {
     const shuffled = [...cardImages, ...cardImages]
@@ -165,6 +168,7 @@ export default function MemoryMatchPage() {
     setCards(shuffled)
     setFlippedIndices([])
     setMatchedPairs(0)
+    setMoves(0)
     setScore(0)
     setTimeLeft(120)
     setGameOver(false)
@@ -186,6 +190,7 @@ export default function MemoryMatchPage() {
     playSound('/assets/sounds/sfx/click.mp3', 0.4)
 
     if (newFlipped.length === 2) {
+      setMoves((prev) => prev + 1)
       const [first, second] = newFlipped
 
       if (cards[first].imageUrl === cards[second].imageUrl) {
@@ -225,7 +230,6 @@ export default function MemoryMatchPage() {
           time: 120 - timeLeft
         })
       })
-      // Success animation then redirect
       setTimeout(() => {
         router.push('/')
       }, 1500)
@@ -235,134 +239,457 @@ export default function MemoryMatchPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/bg-arena.jpg')] bg-cover bg-center" />
-      <div className="absolute inset-0 bg-purple-900/40 backdrop-blur-[2px]" />
+  const heroImages = [
+    '/assets/images/hero/Jinx_Render.webp',
+    '/assets/images/hero/Lux_Render.webp',
+    '/assets/images/hero/Reyna_Artwork_Full.webp',
+    '/assets/images/hero/Sage_Artwork_Full.webp',
+    '/assets/images/hero/Jett_Artwork_Full.webp',
+    '/assets/images/hero/Phoenix_Artwork_Full.webp',
+  ]
 
-      <div className="relative z-10 p-8 max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl">
-            🧠 MEMORY MATCH
-          </h1>
-          <p className="text-2xl text-white/90">
-            Find all the pairs!
-          </p>
+  return (
+    <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-fuchsia-500/30 overflow-hidden">
+      {/* Animated Background - Matching Home Page Style */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/bg-arena.jpg')] opacity-30 bg-cover bg-center mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
+
+        {/* Animated Orbs */}
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2],
+            x: [0, 110, 0],
+            y: [0, 65, 0]
+          }}
+          transition={{ duration: 21, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-purple-600/30 rounded-full blur-[140px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1.3, 1, 1.3],
+            opacity: [0.3, 0.5, 0.3],
+            x: [0, -95, 0],
+            y: [0, 85, 0]
+          }}
+          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+          className="absolute top-1/2 -right-40 w-[600px] h-[600px] bg-fuchsia-500/30 rounded-full blur-[120px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{ duration: 17, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-0 left-1/2 w-[500px] h-[500px] bg-pink-600/20 rounded-full blur-[100px]"
+        />
+
+        {/* Floating Hero Characters - Decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+          {heroImages.map((img, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{
+                opacity: [0, 0.6, 0],
+                scale: [0.8, 1, 1.2],
+                x: i % 2 === 0 ? [0, 55, 0] : [0, -55, 0],
+                y: [0, -105, 0]
+              }}
+              transition={{
+                duration: 17,
+                repeat: Infinity,
+                delay: i * 2.8,
+                ease: "linear"
+              }}
+              className={`absolute ${
+                i === 0 ? 'top-[14%] left-[7%]' :
+                i === 1 ? 'top-[26%] right-[11%]' :
+                i === 2 ? 'top-[46%] left-[6%]' :
+                i === 3 ? 'top-[66%] right-[7%]' :
+                i === 4 ? 'bottom-[16%] left-[13%]' :
+                'bottom-[32%] right-[11%]'
+              } w-64 h-[400px]`}
+            >
+              <Image
+                src={img}
+                alt="Hero"
+                fill
+                className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+              />
+            </motion.div>
+          ))}
         </div>
 
-        {!gameStarted && (
-          <div className="bg-white/20 backdrop-blur-md rounded-3xl p-12 text-center border-2 border-white/30 max-w-md mx-auto">
-            <h2 className="text-3xl font-bold text-white mb-6">Enter Your Name</h2>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Your username"
-              className="w-full px-6 py-4 rounded-full text-2xl text-center mb-6 border-2 border-white/50 bg-white/90 focus:outline-none focus:ring-4 focus:ring-white/50"
-              maxLength={20}
-            />
-            <button
-              onClick={initializeGame}
-              disabled={!username.trim()}
-              className="bg-white text-pink-600 font-bold py-4 px-12 rounded-full text-2xl hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              START GAME
-            </button>
-          </div>
-        )}
+        {/* Floating Junie Mascots */}
+        <motion.div
+          animate={{
+            y: [0, -32, 0],
+            rotate: [0, 14, -14, 0],
+            x: [0, 22, 0]
+          }}
+          transition={{
+            duration: 7.5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute top-[19%] left-[3.5%] w-32 h-32 pointer-events-none opacity-60"
+        >
+          <Image
+            src="/assets/images/junie/junie-happy.png"
+            alt="Junie Happy"
+            fill
+            className="object-contain drop-shadow-[0_0_20px_rgba(192,38,211,0.6)]"
+          />
+        </motion.div>
 
-        {gameStarted && !gameOver && (
-          <div>
-            <div className="flex justify-between items-center mb-8 bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30">
-              <div className="text-3xl font-bold text-white">
-                Score: {score}
-              </div>
-              <div className="text-3xl font-bold text-white">
-                Pairs: {matchedPairs}/8
-              </div>
-              <div className={`text-3xl font-bold ${timeLeft < 20 ? 'text-red-300' : 'text-white'}`}>
-                Time: {timeLeft}s
-              </div>
+        <motion.div
+          animate={{
+            y: [0, -26, 0],
+            rotate: [0, -9, 9, 0],
+            x: [0, -17, 0]
+          }}
+          transition={{
+            duration: 6.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.9
+          }}
+          className="absolute bottom-[26%] right-[4.5%] w-28 h-28 pointer-events-none opacity-50"
+        >
+          <Image
+            src="/assets/images/junie/junie-idle.png"
+            alt="Junie Idle"
+            fill
+            className="object-contain drop-shadow-[0_0_20px_rgba(236,72,153,0.5)]"
+          />
+        </motion.div>
+
+        <motion.div
+          animate={{
+            y: [0, -21, 0],
+            rotate: [0, 9, -9, 0],
+            scale: [1, 1.09, 1]
+          }}
+          transition={{
+            duration: 5.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1.8
+          }}
+          className="absolute top-[57%] left-[9%] w-24 h-24 pointer-events-none opacity-50"
+        >
+          <Image
+            src="/assets/images/junie/junie-jump.png"
+            alt="Junie Jump"
+            fill
+            className="object-contain drop-shadow-[0_0_15px_rgba(192,38,211,0.4)]"
+          />
+        </motion.div>
+      </div>
+
+      <div className="relative z-10">
+        {/* Header */}
+        <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <Link href="/" className="flex items-center gap-3 group">
+              <span className="text-3xl">←</span>
+              <span className="text-sm font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">Back to Arena</span>
+            </Link>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <Image src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" width={70} height={24} className="brightness-110" />
+              <div className="h-6 w-px bg-white/20" />
+              <Image src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" width={70} height={24} className="opacity-90" />
+            </div>
+            <div className="text-right hidden md:block">
+              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sky's the Limit</div>
+              <div className="text-xs font-bold text-white">Hackathon 2026</div>
+            </div>
+          </motion.div>
+        </nav>
+
+        {/* Main Content */}
+        <div className="px-8 pb-20 max-w-7xl mx-auto">
+          {/* Title Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-fuchsia-500"></span>
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-400">Pattern Recognition</span>
             </div>
 
-            <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto">
-              {cards.map((card, index) => (
-                <motion.div
-                  key={card.id}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="aspect-[3/4] cursor-pointer"
-                  onClick={() => handleCardClick(index)}
-                >
-                  <div className="relative w-full h-full">
-                    {(flippedIndices.includes(index) || card.matched) ? (
-                      <Image
-                        src={card.imageUrl}
-                        alt="Card"
-                        fill
-                        className="object-cover rounded-xl border-4 border-white shadow-xl"
-                      />
-                    ) : (
-                      <Image
-                        src="/assets/images/cards/card-back.png"
-                        alt="Card back"
-                        fill
-                        className="object-cover rounded-xl border-4 border-white shadow-xl"
-                      />
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
+            <h1 className="text-7xl md:text-8xl font-black mb-4 tracking-tighter leading-none">
+              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600">
+                MEMORY MATCH
+              </span>
+            </h1>
 
-        {gameOver && (
-          <div className="bg-white/20 backdrop-blur-md rounded-3xl p-12 text-center border-2 border-white/30 max-w-md mx-auto">
-            <h2 className="text-4xl font-black text-white mb-4">
-              {matchedPairs === 8 ? 'PERFECT!' : 'TIME UP!'}
-            </h2>
-            <p className="text-6xl font-black text-white mb-4">{score}</p>
-            <p className="text-2xl text-white/90 mb-8">
-              Pairs: {matchedPairs}/8
+            <p className="text-xl text-slate-400 font-medium max-w-2xl mx-auto">
+              <span className="text-white">Link the identities</span> of champions across the multiverse.
+              <span className="text-fuchsia-400"> Pattern recognition at scale.</span>
             </p>
-            <div className="space-y-4">
-              <motion.button
-                onClick={handleSaveScore}
-                disabled={isSaving}
-                whileHover={!isSaving ? { scale: 1.05 } : {}}
-                whileTap={!isSaving ? { scale: 0.95 } : {}}
-                animate={isSaving ? { 
-                  backgroundColor: ["#ffffff", "#ec4899", "#ffffff"],
-                  transition: { repeat: Infinity, duration: 1.5 }
-                } : {}}
-                className="w-full bg-white text-pink-600 font-bold py-4 px-8 rounded-full text-xl flex items-center justify-center gap-3 disabled:cursor-not-allowed"
-              >
-                {isSaving ? (
-                  <>
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                      className="inline-block w-6 h-6 border-4 border-pink-600 border-t-transparent rounded-full"
-                    />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Score'
-                )}
-              </motion.button>
-              <Link href="/">
-                <button 
-                  disabled={isSaving}
-                  className="w-full bg-white/30 text-white font-bold py-4 px-8 rounded-full text-xl hover:bg-white/40 transition-colors disabled:opacity-50"
+          </motion.div>
+
+          {/* Username Input Screen */}
+          {!gameStarted && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="max-w-lg mx-auto"
+            >
+              <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/10 shadow-2xl">
+                <div className="text-center mb-8">
+                  <div className="inline-block p-6 bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 rounded-2xl mb-6">
+                    <span className="text-6xl">🧠</span>
+                  </div>
+                  <h2 className="text-3xl font-black text-white mb-2">Sync Neural Network</h2>
+                  <p className="text-slate-400 text-sm">Initialize memory matrix protocol</p>
+                </div>
+
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && username.trim() && initializeGame()}
+                  placeholder="Neural ID"
+                  className="w-full px-6 py-4 rounded-2xl text-lg text-center mb-6 border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all"
+                  maxLength={20}
+                  autoFocus
+                />
+
+                <motion.button
+                  onClick={initializeGame}
+                  disabled={!username.trim()}
+                  whileHover={username.trim() ? { scale: 1.02 } : {}}
+                  whileTap={username.trim() ? { scale: 0.98 } : {}}
+                  className="w-full bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(217,70,239,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
-                  Back to Menu
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
+                  Initialize Matrix
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Game Screen */}
+          {gameStarted && !gameOver && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {/* Stats Bar */}
+              <div className="flex justify-between items-center gap-4 mb-8 max-w-5xl mx-auto">
+                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Score</div>
+                  <div className="text-3xl font-black text-white">{score.toLocaleString()}</div>
+                </div>
+
+                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Pairs</div>
+                  <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-500">
+                    {matchedPairs}/8
+                  </div>
+                </div>
+
+                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Moves</div>
+                  <div className="text-3xl font-black text-white">{moves}</div>
+                </div>
+
+                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Time</div>
+                  <div className={`text-3xl font-black transition-colors ${timeLeft < 20 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+                    {timeLeft}s
+                  </div>
+                </div>
+              </div>
+
+              {/* Cards Grid */}
+              <div className="grid grid-cols-4 gap-4 max-w-4xl mx-auto">
+                <AnimatePresence>
+                  {cards.map((card, index) => (
+                    <motion.div
+                      key={card.id}
+                      initial={{ opacity: 0, scale: 0.8, rotateY: -180 }}
+                      animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                      transition={{ delay: index * 0.05, type: "spring", stiffness: 200, damping: 20 }}
+                      whileHover={{ scale: card.matched ? 1 : 1.05 }}
+                      whileTap={{ scale: card.matched ? 1 : 0.95 }}
+                      className="aspect-[3/4] cursor-pointer"
+                      onClick={() => handleCardClick(index)}
+                    >
+                      <div className="relative w-full h-full perspective-1000">
+                        <motion.div
+                          className="relative w-full h-full"
+                          animate={{
+                            rotateY: (flippedIndices.includes(index) || card.matched) ? 180 : 0
+                          }}
+                          transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 20 }}
+                          style={{ transformStyle: "preserve-3d" }}
+                        >
+                          {/* Card Back */}
+                          <div className="absolute inset-0 backface-hidden">
+                            <div className="relative w-full h-full bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 rounded-2xl border-2 border-white/20 backdrop-blur-sm overflow-hidden">
+                              <Image
+                                src="/assets/images/cards/card-back.png"
+                                alt="Card back"
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Card Front */}
+                          <div className="absolute inset-0 backface-hidden" style={{ transform: "rotateY(180deg)" }}>
+                            <div className={`relative w-full h-full rounded-2xl border-4 overflow-hidden transition-all ${
+                              card.matched ? 'border-green-400 shadow-[0_0_30px_rgba(34,197,94,0.6)]' : 'border-white/30'
+                            }`}>
+                              <Image
+                                src={card.imageUrl}
+                                alt="Card"
+                                fill
+                                className="object-cover"
+                              />
+                              {card.matched && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="absolute inset-0 bg-green-500/20 backdrop-blur-[1px] flex items-center justify-center"
+                                >
+                                  <span className="text-6xl">✓</span>
+                                </motion.div>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Game Over Screen */}
+          {gameOver && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="max-w-2xl mx-auto"
+            >
+              <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/10 shadow-2xl text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                  className="inline-block p-8 bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 rounded-3xl mb-8"
+                >
+                  <span className="text-8xl">{matchedPairs === 8 ? '🏆' : '⏱️'}</span>
+                </motion.div>
+
+                <h2 className="text-5xl font-black text-white mb-6">
+                  {matchedPairs === 8 ? 'Neural Sync Complete!' : 'Time Expired!'}
+                </h2>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <div className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">Final Score</div>
+                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-500">
+                      {score.toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <div className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">Pairs</div>
+                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-500">
+                      {matchedPairs}/8
+                    </div>
+                  </div>
+                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <div className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">Moves</div>
+                    <div className="text-4xl font-black text-white">{moves}</div>
+                  </div>
+                </div>
+
+                {/* Performance Badge */}
+                {matchedPairs === 8 && moves <= 20 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="mb-8 inline-block"
+                  >
+                    <div className="bg-gradient-to-r from-purple-400 to-fuchsia-500 text-black font-black px-6 py-3 rounded-full text-sm uppercase tracking-wider">
+                      🌟 Perfect Memory
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="space-y-4">
+                  <motion.button
+                    onClick={handleSaveScore}
+                    disabled={isSaving}
+                    whileHover={!isSaving ? { scale: 1.02 } : {}}
+                    whileTap={!isSaving ? { scale: 0.98 } : {}}
+                    animate={isSaving ? {
+                      backgroundImage: [
+                        "linear-gradient(to right, #c084fc, #d946ef, #ec4899)",
+                        "linear-gradient(to right, #d946ef, #ec4899, #c084fc)",
+                        "linear-gradient(to right, #ec4899, #c084fc, #d946ef)",
+                        "linear-gradient(to right, #c084fc, #d946ef, #ec4899)"
+                      ]
+                    } : {}}
+                    transition={isSaving ? { repeat: Infinity, duration: 2 } : {}}
+                    className="w-full bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600 text-white font-black py-5 px-8 rounded-2xl text-xl flex items-center justify-center gap-3 uppercase tracking-wider hover:shadow-[0_0_30px_rgba(217,70,239,0.5)] transition-all disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? (
+                      <>
+                        <motion.span
+                          animate={{ rotate: 360 }}
+                          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                          className="inline-block w-6 h-6 border-4 border-white border-t-transparent rounded-full"
+                        />
+                        Saving to Leaderboard...
+                      </>
+                    ) : (
+                      <>
+                        <span>💾</span>
+                        Save to Leaderboard
+                      </>
+                    )}
+                  </motion.button>
+
+                  <Link href="/">
+                    <motion.button
+                      disabled={isSaving}
+                      whileHover={!isSaving ? { scale: 1.02 } : {}}
+                      whileTap={!isSaving ? { scale: 0.98 } : {}}
+                      className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-5 px-8 rounded-2xl text-lg uppercase tracking-wider border border-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Return to Arena
+                    </motion.button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
       </div>
     </div>
   )
