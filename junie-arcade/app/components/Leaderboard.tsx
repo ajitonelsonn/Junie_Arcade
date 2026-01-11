@@ -13,16 +13,20 @@ interface LeaderboardEntry {
 export default function Leaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'OVERALL' | 'REFLEX_ARENA' | 'JUMP_MASTER' | 'MEMORY_MATCH'>('OVERALL')
 
   useEffect(() => {
     fetchLeaderboard()
     const interval = setInterval(fetchLeaderboard, 10000)
     return () => clearInterval(interval)
-  }, [])
+  }, [activeTab])
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await fetch('/api/leaderboard?limit=10')
+      setLoading(true)
+      const limit = activeTab === 'OVERALL' ? 5 : 10
+      const gameTypeParam = activeTab === 'OVERALL' ? '' : `&gameType=${activeTab}`
+      const response = await fetch(`/api/leaderboard?limit=${limit}${gameTypeParam}`)
       const data = await response.json()
       setEntries(data)
       setLoading(false)
@@ -83,78 +87,105 @@ export default function Leaderboard() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-4">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-          className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full"
-        />
-        <div className="text-white/60 font-medium animate-pulse">Synchronizing Data...</div>
-      </div>
-    )
-  }
+  const tabs = [
+    { id: 'OVERALL', label: 'Overall Top 5', icon: '🏆' },
+    { id: 'REFLEX_ARENA', label: 'Reflex', icon: '⚡' },
+    { id: 'JUMP_MASTER', label: 'Jump', icon: '🚀' },
+    { id: 'MEMORY_MATCH', label: 'Memory', icon: '🧠' },
+  ] as const
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-md">
-      <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/10 text-xs font-black uppercase tracking-widest text-slate-500">
-        <div className="col-span-1">Rank</div>
-        <div className="col-span-6">Player</div>
-        <div className="col-span-5 text-right">Score</div>
+    <div className="flex flex-col gap-6">
+      {/* Tab Navigation */}
+      <div className="flex flex-wrap gap-2 p-1.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl w-fit">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${
+              activeTab === tab.id
+                ? 'bg-white text-slate-900 shadow-[0_0_20px_rgba(255,255,255,0.2)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span>{tab.icon}</span>
+            <span className="uppercase tracking-widest">{tab.label}</span>
+          </button>
+        ))}
       </div>
-      
-      <div className="divide-y divide-white/5">
-        <AnimatePresence mode='popLayout'>
-          {entries.map((entry, index) => {
-            const style = getRankStyle(entry.rank)
-            return (
-              <motion.div
-                layout
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: index * 0.05 }}
-                key={`${entry.username}-${entry.gameType}`}
-                className={`grid grid-cols-12 gap-4 items-center px-6 py-5 group hover:bg-white/[0.03] transition-colors`}
-              >
-                <div className="col-span-1">
-                  <span className={`text-xl font-black ${style.text}`}>
-                    {style.medal}
-                  </span>
-                </div>
-                
-                <div className="col-span-6 flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform`}>
-                    {getGameEmoji(entry.gameType)}
-                  </div>
-                  <div>
-                    <div className="text-white font-black text-lg tracking-tight group-hover:text-cyan-400 transition-colors">
-                      {entry.username}
-                    </div>
-                    <div className={`text-xs font-bold uppercase tracking-wider ${getGameColor(entry.gameType)} opacity-80`}>
-                      {entry.gameType.replace('_', ' ')}
-                    </div>
-                  </div>
-                </div>
 
-                <div className="col-span-5 text-right">
-                  <div className={`text-2xl font-black tabular-nums tracking-tighter ${entry.rank <= 3 ? style.text : 'text-white'}`}>
-                    {entry.score.toLocaleString()}
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })}
-        </AnimatePresence>
-      </div>
-      
-      {entries.length === 0 && (
-        <div className="py-20 text-center">
-          <div className="text-4xl mb-4">🌑</div>
-          <div className="text-slate-400 font-medium">No champions yet. Claim your spot.</div>
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-md">
+        <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/10 text-xs font-black uppercase tracking-widest text-slate-500">
+          <div className="col-span-1">Rank</div>
+          <div className="col-span-6">Player</div>
+          <div className="col-span-5 text-right">Score</div>
         </div>
-      )}
+        
+        <div className="min-h-[400px]">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full"
+              />
+              <div className="text-white/60 font-medium animate-pulse">Synchronizing Data...</div>
+            </div>
+          ) : (
+            <div className="divide-y divide-white/5">
+              <AnimatePresence mode='popLayout'>
+                {entries.map((entry, index) => {
+                  const style = getRankStyle(entry.rank)
+                  return (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ delay: index * 0.05 }}
+                      key={`${entry.username}-${entry.gameType}-${entry.rank}`}
+                      className={`grid grid-cols-12 gap-4 items-center px-6 py-5 group hover:bg-white/[0.03] transition-colors`}
+                    >
+                      <div className="col-span-1">
+                        <span className={`text-xl font-black ${style.text}`}>
+                          {style.medal}
+                        </span>
+                      </div>
+                      
+                      <div className="col-span-6 flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform`}>
+                          {getGameEmoji(entry.gameType)}
+                        </div>
+                        <div>
+                          <div className="text-white font-black text-lg tracking-tight group-hover:text-cyan-400 transition-colors">
+                            {entry.username}
+                          </div>
+                          <div className={`text-xs font-bold uppercase tracking-wider ${getGameColor(entry.gameType)} opacity-80`}>
+                            {entry.gameType.replace('_', ' ')}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="col-span-5 text-right">
+                        <div className={`text-2xl font-black tabular-nums tracking-tighter ${entry.rank <= 3 ? style.text : 'text-white'}`}>
+                          {entry.score.toLocaleString()}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </AnimatePresence>
+            </div>
+          )}
+          
+          {!loading && entries.length === 0 && (
+            <div className="py-20 text-center">
+              <div className="text-4xl mb-4">🌑</div>
+              <div className="text-slate-400 font-medium">No champions yet. Claim your spot.</div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

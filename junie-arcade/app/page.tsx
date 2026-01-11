@@ -99,8 +99,14 @@ export default function Home() {
             className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400"
           >
             <span className="text-white">Arena</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Tournament</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Prizes</span>
+            <a 
+              href="https://cloud9.devpost.com/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-white cursor-pointer transition-colors"
+            >
+              Tournament
+            </a>
           </motion.div>
         </nav>
 
