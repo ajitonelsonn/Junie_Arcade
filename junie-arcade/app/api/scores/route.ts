@@ -4,16 +4,28 @@ import { prisma } from '@/app/lib/prisma'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { username, gameType, score, accuracy, time, maxCombo, distance } = body
+    const { username, country, gameType, score, accuracy, time, maxCombo, distance } = body
 
     // Find or create player
     let player = await prisma.player.findFirst({
-      where: { username }
+      where: {
+        username,
+        country: country || null
+      }
     })
 
     if (!player) {
       player = await prisma.player.create({
-        data: { username }
+        data: {
+          username,
+          country: country || null
+        }
+      })
+    } else if (player.country !== country) {
+      // Update player's country if it changed
+      player = await prisma.player.update({
+        where: { id: player.id },
+        data: { country: country || null }
       })
     }
 

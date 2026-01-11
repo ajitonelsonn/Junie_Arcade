@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -25,8 +25,13 @@ const cardImages = [
 
 export default function MemoryMatchPage() {
   const router = useRouter()
+  const countryDropdownRef = useRef<HTMLDivElement>(null)
   const [gameStarted, setGameStarted] = useState(false)
   const [username, setUsername] = useState('')
+  const [country, setCountry] = useState('')
+  const [countries, setCountries] = useState<Array<{ name: string; flag: string }>>([])
+  const [countrySearch, setCountrySearch] = useState('')
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const [cards, setCards] = useState<Card[]>([])
   const [flippedIndices, setFlippedIndices] = useState<number[]>([])
   const [matchedPairs, setMatchedPairs] = useState(0)
@@ -35,6 +40,37 @@ export default function MemoryMatchPage() {
   const [timeLeft, setTimeLeft] = useState(120)
   const [gameOver, setGameOver] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+
+  // Fetch countries on mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch('/api/countries')
+        const data = await response.json()
+        setCountries(data)
+      } catch (error) {
+        console.error('Failed to fetch countries:', error)
+      }
+    }
+    fetchCountries()
+  }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setShowCountryDropdown(false)
+      }
+    }
+
+    if (showCountryDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showCountryDropdown])
 
   // Menu music for the entry screen
   useEffect(() => {
@@ -158,6 +194,8 @@ export default function MemoryMatchPage() {
   }, [matchedPairs, timeLeft, moves])
 
   const initializeGame = () => {
+    if (!username.trim() || !country) return
+
     const shuffled = [...cardImages, ...cardImages]
       .sort(() => Math.random() - 0.5)
       .map((img, index) => ({
@@ -216,7 +254,7 @@ export default function MemoryMatchPage() {
   }
 
   const handleSaveScore = async () => {
-    if (!username || isSaving) return
+    if (!username || !country || isSaving) return
     setIsSaving(true)
 
     try {
@@ -225,6 +263,7 @@ export default function MemoryMatchPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username,
+          country,
           gameType: 'MEMORY_MATCH',
           score,
           time: 120 - timeLeft
@@ -462,22 +501,62 @@ export default function MemoryMatchPage() {
                   <p className="text-slate-400 text-sm">Initialize memory matrix protocol</p>
                 </div>
 
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && username.trim() && initializeGame()}
-                  placeholder="Neural ID"
-                  className="w-full px-6 py-4 rounded-2xl text-lg text-center mb-6 border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all"
-                  maxLength={20}
-                  autoFocus
-                />
+                <div className="space-y-4 mb-6">
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Neural ID"
+                    className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all"
+                    maxLength={20}
+                    autoFocus
+                  />
+
+                  <div className="relative" ref={countryDropdownRef}>
+                    <input
+                      type="text"
+                      value={countrySearch}
+                      onChange={(e) => {
+                        setCountrySearch(e.target.value)
+                        setShowCountryDropdown(true)
+                      }}
+                      onFocus={() => setShowCountryDropdown(true)}
+                      placeholder={country ? `${countries.find(c => c.name === country)?.flag} ${country}` : "Search your country"}
+                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all"
+                    />
+                    {showCountryDropdown && (
+                      <div className="absolute z-50 w-full mt-2 max-h-60 overflow-y-auto bg-slate-900/95 backdrop-blur-xl border-2 border-white/10 rounded-2xl shadow-2xl">
+                        {countries
+                          .filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase()))
+                          .slice(0, 50)
+                          .map((c) => (
+                            <button
+                              key={c.name}
+                              type="button"
+                              onClick={() => {
+                                setCountry(c.name)
+                                setCountrySearch('')
+                                setShowCountryDropdown(false)
+                              }}
+                              className="w-full px-6 py-3 text-left hover:bg-fuchsia-500/20 transition-colors text-white flex items-center gap-3"
+                            >
+                              <span className="text-2xl">{c.flag}</span>
+                              <span>{c.name}</span>
+                            </button>
+                          ))}
+                        {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).length === 0 && (
+                          <div className="px-6 py-4 text-center text-slate-400">No countries found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
                 <motion.button
                   onClick={initializeGame}
-                  disabled={!username.trim()}
-                  whileHover={username.trim() ? { scale: 1.02 } : {}}
-                  whileTap={username.trim() ? { scale: 0.98 } : {}}
+                  disabled={!username.trim() || !country}
+                  whileHover={username.trim() && country ? { scale: 1.02 } : {}}
+                  whileTap={username.trim() && country ? { scale: 0.98 } : {}}
                   className="w-full bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(217,70,239,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   Initialize Matrix

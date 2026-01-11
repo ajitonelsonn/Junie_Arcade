@@ -22,6 +22,7 @@ enum GameType {
 model Player {
   id        String   @id @default(cuid())
   username  String
+  country   String?
   createdAt DateTime @default(now())
   scores    Score[]
 }
