@@ -1,7 +1,56 @@
+'use client'
+
 import GameCard from './components/GameCard'
+import Leaderboard from './components/Leaderboard'
 import Image from 'next/image'
+import { useEffect } from 'react'
 
 export default function Home() {
+  useEffect(() => {
+    const menuMusic = new Audio('/assets/sounds/music/music-menu.mp3')
+    menuMusic.loop = true
+    menuMusic.volume = 0.3
+    let isPlaying = false
+    let playPromise: Promise<void> | null = null
+    
+    const playAttempt = () => {
+      if (!isPlaying) {
+        playPromise = menuMusic.play()
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              isPlaying = true
+            })
+            .catch(err => {
+              console.log("Autoplay blocked, waiting for user interaction")
+            })
+        }
+      }
+    }
+
+    playAttempt()
+    
+    // Fallback for autoplay policy
+    window.addEventListener('click', playAttempt, { once: true })
+
+    return () => {
+      if (playPromise !== undefined && playPromise !== null) {
+        playPromise.then(() => {
+          menuMusic.pause()
+          menuMusic.src = ""
+        }).catch(() => {
+          // If play was rejected, we can still try to pause/cleanup
+          menuMusic.pause()
+          menuMusic.src = ""
+        })
+      } else {
+        menuMusic.pause()
+        menuMusic.src = ""
+      }
+      window.removeEventListener('click', playAttempt)
+    }
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500">
       <div className="relative overflow-hidden">
@@ -65,9 +114,7 @@ export default function Home() {
               <h2 className="text-4xl font-bold text-white mb-6 text-center">
                 🏆 Today's Top Players
               </h2>
-              <div className="text-center text-white/80 text-lg">
-                Play your first game to see the leaderboard!
-              </div>
+              <Leaderboard />
             </div>
           </div>
         </main>

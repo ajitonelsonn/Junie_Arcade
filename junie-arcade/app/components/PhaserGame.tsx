@@ -1,21 +1,27 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import Phaser from 'phaser'
+import { useEffect, useRef, useState } from 'react'
 
 interface PhaserGameProps {
-  config: Phaser.Types.Core.GameConfig
+  config: any // Use any for now to avoid importing Phaser at top level for types
   className?: string
 }
 
 export default function PhaserGame({ config, className }: PhaserGameProps) {
   const gameRef = useRef<HTMLDivElement>(null)
-  const phaserGameRef = useRef<Phaser.Game | null>(null)
+  const phaserGameRef = useRef<any>(null)
+  const [Phaser, setPhaser] = useState<any>(null)
 
   useEffect(() => {
-    if (!gameRef.current || phaserGameRef.current) return
+    import('phaser').then((P) => {
+      setPhaser(P)
+    })
+  }, [])
 
-    const gameConfig: Phaser.Types.Core.GameConfig = {
+  useEffect(() => {
+    if (!gameRef.current || phaserGameRef.current || !Phaser) return
+
+    const gameConfig = {
       ...config,
       parent: gameRef.current,
     }
@@ -28,7 +34,7 @@ export default function PhaserGame({ config, className }: PhaserGameProps) {
         phaserGameRef.current = null
       }
     }
-  }, [config])
+  }, [config, Phaser])
 
   return <div ref={gameRef} className={className} />
 }

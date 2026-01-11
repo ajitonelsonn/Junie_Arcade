@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 
 interface Card {
@@ -23,6 +24,7 @@ const cardImages = [
 ]
 
 export default function MemoryMatchPage() {
+  const router = useRouter()
   const [gameStarted, setGameStarted] = useState(false)
   const [username, setUsername] = useState('')
   const [cards, setCards] = useState<Card[]>([])
@@ -31,22 +33,118 @@ export default function MemoryMatchPage() {
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(120)
   const [gameOver, setGameOver] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Menu music for the entry screen
+  useEffect(() => {
+    if (!gameStarted && !gameOver) {
+      const menuMusic = new Audio('/assets/sounds/music/music-menu.mp3')
+      menuMusic.loop = true
+      menuMusic.volume = 0.3
+      let playPromise: Promise<void> | null = null
+
+      playPromise = menuMusic.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(e => console.error("Error playing menu music:", e))
+      }
+      
+      return () => {
+        if (playPromise !== null) {
+          playPromise.then(() => {
+            menuMusic.pause()
+            menuMusic.src = ""
+          }).catch(() => {
+            menuMusic.pause()
+            menuMusic.src = ""
+          })
+        } else {
+          menuMusic.pause()
+          menuMusic.src = ""
+        }
+      }
+    }
+  }, [gameStarted, gameOver])
+
+  // Audio helpers
+  const playSound = (path: string, volume = 0.5) => {
+    const audio = new Audio(path)
+    audio.volume = volume
+    const playPromise = audio.play()
+    if (playPromise !== undefined) {
+      playPromise.catch(e => console.error("Error playing sound:", e))
+    }
+  }
 
   useEffect(() => {
     if (gameStarted && !gameOver) {
+      const bgm = new Audio('/assets/sounds/music/music-game.mp3')
+      bgm.loop = true
+      bgm.volume = 0.4
+      let playPromise: Promise<void> | null = null
+
+      playPromise = bgm.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(e => console.error("Error playing BGM:", e))
+      }
+
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             setGameOver(true)
+            playSound('/assets/sounds/sfx/gameover.mp3', 0.6)
             return 0
           }
           return prev - 1
         })
       }, 1000)
 
-      return () => clearInterval(timer)
+      return () => {
+        clearInterval(timer)
+        if (playPromise !== null) {
+          playPromise.then(() => {
+            bgm.pause()
+            bgm.src = ""
+          }).catch(() => {
+            bgm.pause()
+            bgm.src = ""
+          })
+        } else {
+          bgm.pause()
+          bgm.src = ""
+        }
+      }
     }
   }, [gameStarted, gameOver])
+
+  // Victory music on game over
+  useEffect(() => {
+    if (!gameOver || !gameStarted) return
+
+    const victoryMusic = new Audio('/assets/sounds/music/music-victory.mp3')
+    victoryMusic.loop = true
+    victoryMusic.volume = 0.4
+    let playPromise: Promise<void> | null = null
+
+    playPromise = victoryMusic.play()
+    if (playPromise !== undefined) {
+      playPromise.catch(e => console.error("Error playing victory music:", e))
+    }
+
+    return () => {
+      if (playPromise !== null) {
+        playPromise.then(() => {
+          victoryMusic.pause()
+          victoryMusic.src = ""
+        }).catch(() => {
+          victoryMusic.pause()
+          victoryMusic.src = ""
+        })
+      } else {
+        victoryMusic.pause()
+        victoryMusic.src = ""
+      }
+    }
+  }, [gameOver, gameStarted])
 
   useEffect(() => {
     if (matchedPairs === 8) {
@@ -85,6 +183,7 @@ export default function MemoryMatchPage() {
 
     const newFlipped = [...flippedIndices, index]
     setFlippedIndices(newFlipped)
+    playSound('/assets/sounds/sfx/click.mp3', 0.4)
 
     if (newFlipped.length === 2) {
       const [first, second] = newFlipped
@@ -92,6 +191,7 @@ export default function MemoryMatchPage() {
       if (cards[first].imageUrl === cards[second].imageUrl) {
         // Match found
         setTimeout(() => {
+          playSound('/assets/sounds/sfx/success.mp3', 0.5)
           const newCards = [...cards]
           newCards[first].matched = true
           newCards[second].matched = true
@@ -103,6 +203,7 @@ export default function MemoryMatchPage() {
       } else {
         // No match
         setTimeout(() => {
+          playSound('/assets/sounds/sfx/error.mp3', 0.4)
           setFlippedIndices([])
         }, 1000)
       }
@@ -110,7 +211,8 @@ export default function MemoryMatchPage() {
   }
 
   const handleSaveScore = async () => {
-    if (!username) return
+    if (!username || isSaving) return
+    setIsSaving(true)
 
     try {
       await fetch('/api/scores', {
@@ -123,15 +225,23 @@ export default function MemoryMatchPage() {
           time: 120 - timeLeft
         })
       })
-      alert('Score saved!')
+      // Success animation then redirect
+      setTimeout(() => {
+        router.push('/')
+      }, 1500)
     } catch (error) {
       console.error('Failed to save score:', error)
+      setIsSaving(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/bg-arena.jpg')] bg-cover bg-center" />
+      <div className="absolute inset-0 bg-purple-900/40 backdrop-blur-[2px]" />
+
+      <div className="relative z-10 p-8 max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl">
             🧠 MEMORY MATCH
@@ -218,20 +328,35 @@ export default function MemoryMatchPage() {
               Pairs: {matchedPairs}/8
             </p>
             <div className="space-y-4">
-              <button
+              <motion.button
                 onClick={handleSaveScore}
-                className="w-full bg-white text-pink-600 font-bold py-4 px-8 rounded-full text-xl hover:scale-105 transition-transform"
+                disabled={isSaving}
+                whileHover={!isSaving ? { scale: 1.05 } : {}}
+                whileTap={!isSaving ? { scale: 0.95 } : {}}
+                animate={isSaving ? { 
+                  backgroundColor: ["#ffffff", "#ec4899", "#ffffff"],
+                  transition: { repeat: Infinity, duration: 1.5 }
+                } : {}}
+                className="w-full bg-white text-pink-600 font-bold py-4 px-8 rounded-full text-xl flex items-center justify-center gap-3 disabled:cursor-not-allowed"
               >
-                Save Score
-              </button>
-              <button
-                onClick={initializeGame}
-                className="w-full bg-white/30 text-white font-bold py-4 px-8 rounded-full text-xl hover:bg-white/40 transition-colors"
-              >
-                Play Again
-              </button>
+                {isSaving ? (
+                  <>
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                      className="inline-block w-6 h-6 border-4 border-pink-600 border-t-transparent rounded-full"
+                    />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Score'
+                )}
+              </motion.button>
               <Link href="/">
-                <button className="w-full bg-white/30 text-white font-bold py-4 px-8 rounded-full text-xl hover:bg-white/40 transition-colors">
+                <button 
+                  disabled={isSaving}
+                  className="w-full bg-white/30 text-white font-bold py-4 px-8 rounded-full text-xl hover:bg-white/40 transition-colors disabled:opacity-50"
+                >
                   Back to Menu
                 </button>
               </Link>

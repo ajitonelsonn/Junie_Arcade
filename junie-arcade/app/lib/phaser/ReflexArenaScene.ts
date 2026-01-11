@@ -1,4 +1,4 @@
-import Phaser from 'phaser'
+import * as Phaser from 'phaser'
 
 interface Target {
   sprite: Phaser.GameObjects.Image
@@ -131,7 +131,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: sprite,
-      scale: 1,
+      scale: 0.5, // Reduced from 1 to 0.5 for better UI
       duration: 200,
       ease: 'Back.easeOut'
     })
@@ -146,14 +146,6 @@ export default class ReflexArenaScene extends Phaser.Scene {
     }
 
     this.targets.push(target)
-
-    // Speed up spawning over time
-    if (this.timeLeft < 40 && this.spawnTimer.delay > 600) {
-      this.spawnTimer.delay = 800
-    }
-    if (this.timeLeft < 20 && this.spawnTimer.delay > 400) {
-      this.spawnTimer.delay = 600
-    }
   }
 
   private onTargetClick(target: Target) {
@@ -220,8 +212,8 @@ export default class ReflexArenaScene extends Phaser.Scene {
     this.targets.forEach(target => target.sprite.destroy())
     this.targets = []
 
-    // Show final score
-    const finalText = this.add.text(this.scale.width / 2, this.scale.height / 2,
+    // Show final score briefly
+    this.add.text(this.scale.width / 2, this.scale.height / 2,
       `GAME OVER!\nFinal Score: ${this.score}`, {
       fontSize: '48px',
       color: '#ffffff',
@@ -229,9 +221,9 @@ export default class ReflexArenaScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5)
 
-    // Call onGameEnd callback
+    // Call onGameEnd callback immediately (React will handle the UI)
     if (this.onGameEnd) {
-      this.time.delayedCall(2000, () => {
+      this.time.delayedCall(1500, () => {
         if (this.onGameEnd) {
           this.onGameEnd(this.score)
         }

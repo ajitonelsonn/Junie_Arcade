@@ -1,48 +1,123 @@
 'use client'
 
-import { useState } from 'react'
-import dynamic from 'next/dynamic'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import JumpMasterScene from '@/app/lib/phaser/JumpMasterScene'
+import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+import { motion } from 'framer-motion'
 
-const PhaserGame = dynamic(() => import('@/app/components/PhaserGame'), {
-  ssr: false
-})
+const PhaserGame = dynamic(() => import('@/app/components/PhaserGame'), { ssr: false })
 
 export default function JumpMasterPage() {
+  const router = useRouter()
   const [gameStarted, setGameStarted] = useState(false)
-  const [finalScore, setFinalScore] = useState<{ score: number; distance: number } | null>(null)
+  const [gameOver, setGameOver] = useState(false)
   const [username, setUsername] = useState('')
+  const [score, setScore] = useState(0)
+  const [distance, setDistance] = useState(0)
+  const [isSaving, setIsSaving] = useState(false)
+  const [JumpMasterScene, setJumpMasterScene] = useState<any>(null)
 
-  const gameConfig: Phaser.Types.Core.GameConfig = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    backgroundColor: '#87CEEB',
-    scene: JumpMasterScene,
-    callbacks: {
-      postBoot: (game) => {
-        game.scene.start('JumpMasterScene', {
-          onGameEnd: handleGameEnd
-        })
+  useEffect(() => {
+    import('@/app/lib/phaser/JumpMasterScene').then((mod) => {
+      setJumpMasterScene(() => mod.default)
+    })
+  }, [])
+
+  // Menu music for the entry screen
+  useEffect(() => {
+    if (!gameStarted && !gameOver) {
+      const menuMusic = new Audio('/assets/sounds/music/music-menu.mp3')
+      menuMusic.loop = true
+      menuMusic.volume = 0.3
+      let playPromise: Promise<void> | null = null
+
+      playPromise = menuMusic.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(e => console.error("Error playing menu music:", e))
+      }
+      
+      return () => {
+        if (playPromise !== null) {
+          playPromise.then(() => {
+            menuMusic.pause()
+            menuMusic.src = ""
+          }).catch(() => {
+            menuMusic.pause()
+            menuMusic.src = ""
+          })
+        } else {
+          menuMusic.pause()
+          menuMusic.src = ""
+        }
       }
     }
+  }, [gameStarted, gameOver])
+
+  // Victory music for the game over screen
+  useEffect(() => {
+    if (gameOver) {
+      const victoryMusic = new Audio('/assets/sounds/music/music-victory.mp3')
+      victoryMusic.loop = true
+      victoryMusic.volume = 0.4
+      let playPromise: Promise<void> | null = null
+
+      playPromise = victoryMusic.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(e => console.error("Error playing victory music:", e))
+      }
+      
+      return () => {
+        if (playPromise !== null) {
+          playPromise.then(() => {
+            victoryMusic.pause()
+            victoryMusic.src = ""
+          }).catch(() => {
+            victoryMusic.pause()
+            victoryMusic.src = ""
+          })
+        } else {
+          victoryMusic.pause()
+          victoryMusic.src = ""
+        }
+      }
+    }
+  }, [gameOver])
+
+  const handleGameEnd = (finalScore: number, finalDistance: number) => {
+    setScore(finalScore)
+    setDistance(finalDistance)
+    setGameOver(true)
+    setGameStarted(false)
   }
 
-  const handleGameEnd = (score: number, distance: number) => {
-    setFinalScore({ score, distance })
-    setGameStarted(false)
+  const phaserConfig: any = {
+    type: 0, // Phaser.AUTO is 0
+    width: 800,
+    height: 500,
+    backgroundColor: '#87ceeb',
+    parent: 'phaser-game-container',
+    physics: {
+      default: 'arcade',
+      arcade: {
+        gravity: { x: 0, y: 0 },
+        debug: false
+      }
+    }
   }
 
   const handleStart = () => {
     if (username.trim()) {
       setGameStarted(true)
-      setFinalScore(null)
+      setGameOver(false)
+      setScore(0)
+      setDistance(0)
     }
   }
 
   const handleSaveScore = async () => {
-    if (!finalScore || !username) return
+    if (!username || isSaving) return
+    setIsSaving(true)
 
     try {
       await fetch('/api/scores', {
@@ -51,19 +126,28 @@ export default function JumpMasterPage() {
         body: JSON.stringify({
           username,
           gameType: 'JUMP_MASTER',
-          score: finalScore.score,
-          distance: finalScore.distance
+          score,
+          distance
         })
       })
-      alert('Score saved!')
+      // Success animation then redirect
+      setTimeout(() => {
+        router.push('/')
+      }, 1500)
     } catch (error) {
       console.error('Failed to save score:', error)
+      alert('Failed to save score')
+      setIsSaving(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-400 via-cyan-500 to-blue-500 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/bg-space.jpg')] bg-cover bg-center" />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+
+      <div className="relative z-10 p-8 max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl">
             🚀 JUMP MASTER
@@ -73,7 +157,7 @@ export default function JumpMasterPage() {
           </p>
         </div>
 
-        {!gameStarted && !finalScore && (
+        {!gameStarted && !gameOver && (
           <div className="bg-white/20 backdrop-blur-md rounded-3xl p-12 text-center border-2 border-white/30 max-w-md mx-auto">
             <h2 className="text-3xl font-bold text-white mb-6">Enter Your Name</h2>
             <input
@@ -94,34 +178,65 @@ export default function JumpMasterPage() {
           </div>
         )}
 
-        {gameStarted && (
-          <div className="flex justify-center">
-            <div className="bg-white/20 backdrop-blur-md rounded-3xl p-6 border-2 border-white/30">
-              <PhaserGame config={gameConfig} className="rounded-2xl overflow-hidden shadow-2xl" />
+        {gameStarted && !gameOver && JumpMasterScene && (
+          <div className="flex flex-col items-center">
+            <div id="phaser-game-container" className="rounded-3xl overflow-hidden border-4 border-white/30 shadow-2xl">
+              <PhaserGame 
+                config={{
+                  ...phaserConfig,
+                  scene: [
+                    {
+                      key: 'BootScene',
+                      create: function(this: any) {
+                        this.scene.start('JumpMasterScene', { onGameEnd: handleGameEnd });
+                      }
+                    },
+                    JumpMasterScene
+                  ]
+                }} 
+              />
+            </div>
+            <div className="text-center mt-6 text-white text-xl font-bold bg-black/20 px-8 py-3 rounded-full backdrop-blur-sm">
+              Press SPACE or CLICK to Jump!
             </div>
           </div>
         )}
 
-        {finalScore !== null && (
+        {gameOver && (
           <div className="bg-white/20 backdrop-blur-md rounded-3xl p-12 text-center border-2 border-white/30 max-w-md mx-auto">
             <h2 className="text-4xl font-black text-white mb-4">GAME OVER!</h2>
-            <p className="text-5xl font-black text-white mb-2">{finalScore.score}</p>
-            <p className="text-2xl text-white/90 mb-8">Distance: {finalScore.distance}m</p>
+            <p className="text-5xl font-black text-white mb-2">{score}</p>
+            <p className="text-2xl text-white/90 mb-8">Distance: {distance}m</p>
             <div className="space-y-4">
-              <button
+              <motion.button
                 onClick={handleSaveScore}
-                className="w-full bg-white text-cyan-600 font-bold py-4 px-8 rounded-full text-xl hover:scale-105 transition-transform"
+                disabled={isSaving}
+                whileHover={!isSaving ? { scale: 1.05 } : {}}
+                whileTap={!isSaving ? { scale: 0.95 } : {}}
+                animate={isSaving ? { 
+                  backgroundColor: ["#ffffff", "#22c55e", "#ffffff"],
+                  transition: { repeat: Infinity, duration: 1.5 }
+                } : {}}
+                className="w-full bg-white text-cyan-600 font-bold py-4 px-8 rounded-full text-xl flex items-center justify-center gap-3 disabled:cursor-not-allowed"
               >
-                Save Score
-              </button>
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full bg-white/30 text-white font-bold py-4 px-8 rounded-full text-xl hover:bg-white/40 transition-colors"
-              >
-                Play Again
-              </button>
+                {isSaving ? (
+                  <>
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                      className="inline-block w-6 h-6 border-4 border-cyan-600 border-t-transparent rounded-full"
+                    />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Score'
+                )}
+              </motion.button>
               <Link href="/">
-                <button className="w-full bg-white/30 text-white font-bold py-4 px-8 rounded-full text-xl hover:bg-white/40 transition-colors">
+                <button 
+                  disabled={isSaving}
+                  className="w-full bg-white/30 text-white font-bold py-4 px-8 rounded-full text-xl hover:bg-white/40 transition-colors disabled:opacity-50"
+                >
                   Back to Menu
                 </button>
               </Link>
