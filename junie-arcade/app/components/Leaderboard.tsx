@@ -8,12 +8,29 @@ interface LeaderboardEntry {
   username: string
   score: number
   gameType: string
+  country?: string | null
+  totalPoints?: number
+  gamesPlayed?: number
 }
 
 export default function Leaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'OVERALL' | 'REFLEX_ARENA' | 'JUMP_MASTER' | 'MEMORY_MATCH'>('OVERALL')
+  const [activeTab, setActiveTab] = useState<'overall' | 'reflex' | 'jump' | 'memory'>('overall')
+  const [countries, setCountries] = useState<Array<{ name: string; flag: string }>>([])
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch('/api/countries')
+        const data = await response.json()
+        setCountries(data)
+      } catch (error) {
+        console.error('Failed to fetch countries:', error)
+      }
+    }
+    fetchCountries()
+  }, [])
 
   useEffect(() => {
     fetchLeaderboard()
@@ -24,16 +41,45 @@ export default function Leaderboard() {
   const fetchLeaderboard = async () => {
     try {
       setLoading(true)
-      const limit = activeTab === 'OVERALL' ? 5 : 10
-      const gameTypeParam = activeTab === 'OVERALL' ? '' : `&gameType=${activeTab}`
-      const response = await fetch(`/api/leaderboard?limit=${limit}${gameTypeParam}`)
+      const response = await fetch(`/api/leaderboard?view=${activeTab}`)
       const data = await response.json()
-      setEntries(data)
+
+      // Transform data based on view type
+      if (activeTab === 'overall') {
+        // Overall leaderboard with champion points
+        const transformedEntries = data.leaderboard.slice(0, 5).map((player: any, index: number) => ({
+          rank: index + 1,
+          username: player.username,
+          score: player.totalPoints,
+          gameType: 'OVERALL',
+          country: player.country,
+          totalPoints: player.totalPoints,
+          gamesPlayed: player.gamesPlayed
+        }))
+        setEntries(transformedEntries)
+      } else {
+        // Individual game leaderboard
+        const transformedEntries = data.leaderboard.slice(0, 10).map((entry: any) => ({
+          rank: entry.rank,
+          username: entry.username,
+          score: entry.score,
+          gameType: data.gameType || activeTab.toUpperCase(),
+          country: entry.country
+        }))
+        setEntries(transformedEntries)
+      }
       setLoading(false)
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error)
+      setEntries([])
       setLoading(false)
     }
+  }
+
+  const getCountryFlag = (countryName: string | null | undefined) => {
+    if (!countryName) return null
+    const country = countries.find(c => c.name === countryName)
+    return country?.flag || null
   }
 
   const getGameEmoji = (gameType: string) => {
@@ -41,6 +87,7 @@ export default function Leaderboard() {
       case 'REFLEX_ARENA': return '⚡'
       case 'JUMP_MASTER': return '🚀'
       case 'MEMORY_MATCH': return '🧠'
+      case 'OVERALL': return '🏆'
       default: return '🎮'
     }
   }
@@ -50,6 +97,7 @@ export default function Leaderboard() {
       case 'REFLEX_ARENA': return 'text-yellow-400'
       case 'JUMP_MASTER': return 'text-cyan-400'
       case 'MEMORY_MATCH': return 'text-purple-400'
+      case 'OVERALL': return 'text-emerald-400'
       default: return 'text-slate-400'
     }
   }
@@ -88,11 +136,11 @@ export default function Leaderboard() {
   }
 
   const tabs = [
-    { id: 'OVERALL', label: 'Overall Top 5', icon: '🏆' },
-    { id: 'REFLEX_ARENA', label: 'Reflex', icon: '⚡' },
-    { id: 'JUMP_MASTER', label: 'Jump', icon: '🚀' },
-    { id: 'MEMORY_MATCH', label: 'Memory', icon: '🧠' },
-  ] as const
+    { id: 'overall' as const, label: 'Overall Top 5', icon: '🏆' },
+    { id: 'reflex' as const, label: 'Reflex', icon: '⚡' },
+    { id: 'jump' as const, label: 'Jump', icon: '🚀' },
+    { id: 'memory' as const, label: 'Memory', icon: '🧠' },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
@@ -157,8 +205,13 @@ export default function Leaderboard() {
                           {getGameEmoji(entry.gameType)}
                         </div>
                         <div>
-                          <div className="text-white font-black text-lg tracking-tight group-hover:text-cyan-400 transition-colors">
-                            {entry.username}
+                          <div className="flex items-center gap-2">
+                            {getCountryFlag(entry.country) && (
+                              <span className="text-xl">{getCountryFlag(entry.country)}</span>
+                            )}
+                            <div className="text-white font-black text-lg tracking-tight group-hover:text-cyan-400 transition-colors">
+                              {entry.username}
+                            </div>
                           </div>
                           <div className={`text-xs font-bold uppercase tracking-wider ${getGameColor(entry.gameType)} opacity-80`}>
                             {entry.gameType.replace('_', ' ')}
@@ -168,8 +221,13 @@ export default function Leaderboard() {
 
                       <div className="col-span-5 text-right">
                         <div className={`text-2xl font-black tabular-nums tracking-tighter ${entry.rank <= 3 ? style.text : 'text-white'}`}>
-                          {entry.score.toLocaleString()}
+                          {entry.gameType === 'OVERALL' ? `${entry.score} pts` : entry.score.toLocaleString()}
                         </div>
+                        {entry.gameType === 'OVERALL' && entry.gamesPlayed && (
+                          <div className="text-xs text-slate-500 font-medium mt-1">
+                            {entry.gamesPlayed}/3 games
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   )
