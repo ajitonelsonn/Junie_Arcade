@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import GameOverCard from '@/app/components/GameOverCard'
 import FlagIcon from '@/app/components/FlagIcon'
+import MobileWarningModal from '@/app/components/MobileWarningModal'
+import { isMobilePhone } from '@/app/utils/deviceDetection'
 
 interface Card {
   id: number
@@ -42,6 +44,14 @@ export default function MemoryMatchPage() {
   const [timeLeft, setTimeLeft] = useState(120)
   const [gameOver, setGameOver] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [showMobileWarning, setShowMobileWarning] = useState(false)
+
+  // Check for mobile phone on mount
+  useEffect(() => {
+    if (isMobilePhone()) {
+      setShowMobileWarning(true)
+    }
+  }, [])
 
   // Fetch countries on mount
   useEffect(() => {
@@ -703,6 +713,14 @@ export default function MemoryMatchPage() {
           )}
         </div>
       </div>
+
+      {/* Mobile Warning Modal */}
+      <MobileWarningModal
+        isOpen={showMobileWarning}
+        gameName="Memory Match"
+        gradient="from-purple-400 via-fuchsia-500 to-pink-600"
+        onClose={() => router.push('/')}
+      />
     </div>
   )
 }

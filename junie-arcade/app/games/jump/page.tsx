@@ -8,6 +8,8 @@ import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import GameOverCard from '@/app/components/GameOverCard'
 import FlagIcon from '@/app/components/FlagIcon'
+import MobileWarningModal from '@/app/components/MobileWarningModal'
+import { isMobilePhone } from '@/app/utils/deviceDetection'
 
 const PhaserGame = dynamic(() => import('@/app/components/PhaserGame'), { ssr: false })
 
@@ -25,6 +27,14 @@ export default function JumpMasterPage() {
   const [distance, setDistance] = useState(0)
   const [isSaving, setIsSaving] = useState(false)
   const [JumpMasterScene, setJumpMasterScene] = useState<any>(null)
+  const [showMobileWarning, setShowMobileWarning] = useState(false)
+
+  // Check for mobile phone on mount
+  useEffect(() => {
+    if (isMobilePhone()) {
+      setShowMobileWarning(true)
+    }
+  }, [])
 
   useEffect(() => {
     import('@/app/lib/phaser/JumpMasterScene').then((mod) => {
@@ -539,6 +549,14 @@ export default function JumpMasterPage() {
           )}
         </div>
       </div>
+
+      {/* Mobile Warning Modal */}
+      <MobileWarningModal
+        isOpen={showMobileWarning}
+        gameName="Jump Master"
+        gradient="from-cyan-400 via-blue-500 to-indigo-600"
+        onClose={() => router.push('/')}
+      />
     </div>
   )
 }

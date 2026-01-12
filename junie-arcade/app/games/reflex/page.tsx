@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import GameOverCard from '@/app/components/GameOverCard'
 import FlagIcon from '@/app/components/FlagIcon'
+import MobileWarningModal from '@/app/components/MobileWarningModal'
+import { isMobilePhone } from '@/app/utils/deviceDetection'
 
 interface Target {
   id: number
@@ -58,6 +60,14 @@ export default function ReflexArenaPage() {
   const [nextId, setNextId] = useState(0)
   const [nextScoreId, setNextScoreId] = useState(0)
   const [isSaving, setIsSaving] = useState(false)
+  const [showMobileWarning, setShowMobileWarning] = useState(false)
+
+  // Check for mobile phone on mount
+  useEffect(() => {
+    if (isMobilePhone()) {
+      setShowMobileWarning(true)
+    }
+  }, [])
 
   // Fetch countries on mount
   useEffect(() => {
@@ -774,6 +784,14 @@ export default function ReflexArenaPage() {
           )}
         </div>
       </div>
+
+      {/* Mobile Warning Modal */}
+      <MobileWarningModal
+        isOpen={showMobileWarning}
+        gameName="Reflex Arena"
+        gradient="from-yellow-400 via-orange-500 to-red-500"
+        onClose={() => router.push('/')}
+      />
     </div>
   )
 }
