@@ -31,12 +31,24 @@ export default function GameOverCard({
   const [selfieData, setSelfieData] = useState<string | null>(null)
   const [countries, setCountries] = useState<Array<{ name: string; flag: string }>>([])
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
+  const [hasAutoSaved, setHasAutoSaved] = useState(false)
+  
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
   const [selectedJunie, setSelectedJunie] = useState<string>('')
+
+  useEffect(() => {
+    // Auto-save score to database when game is over
+    if (!hasAutoSaved) {
+      onSaveScore()
+      setHasAutoSaved(true)
+    }
+  }, [hasAutoSaved, onSaveScore])
 
   useEffect(() => {
     const junies = [
@@ -159,6 +171,46 @@ export default function GameOverCard({
       streamRef.current = null
     }
     setShowCamera(false)
+  }
+
+  const saveCardToS3 = async () => {
+    if (!cardRef.current) return
+    setIsUploading(true)
+
+    try {
+      const { toPng } = await import('html-to-image')
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        backgroundColor: '#0f1923',
+        pixelRatio: 2,
+        filter: (node) => {
+          if (node instanceof HTMLElement && node.dataset.exportHide === 'true') {
+            return false
+          }
+          return true
+        },
+      })
+
+      const filename = `card-${username}-${score}-${Date.now()}.png`
+      const response = await fetch('/api/upload-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: dataUrl, filename }),
+      })
+
+      const data = await response.json()
+      if (data.url) {
+        setUploadedUrl(data.url)
+        console.log('Card uploaded successfully:', data.url)
+      } else {
+        throw new Error(data.error || 'Upload failed')
+      }
+    } catch (error) {
+      console.error('Failed to upload card:', error)
+      alert('Failed to save card to cloud. Please try again.')
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const downloadCard = async () => {
@@ -704,7 +756,7 @@ export default function GameOverCard({
     }
   }
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const shareUrl = uploadedUrl || (typeof window !== 'undefined' ? window.location.origin : '')
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`
 
   return (
@@ -881,20 +933,25 @@ export default function GameOverCard({
               {/* Action Buttons with Valorant Style */}
               <div data-export-hide="true" className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                 <button
-                  onClick={onSaveScore}
-                  disabled={isSaving}
+                  onClick={saveCardToS3}
+                  disabled={isUploading || !!uploadedUrl}
                   className={`group relative overflow-hidden bg-[#ff4655] py-4 transition-all hover:brightness-110 disabled:opacity-50`}
                 >
                   <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.15em] text-sm">
-                    {isSaving ? (
+                    {isUploading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Syncing...
+                        Uploading...
+                      </>
+                    ) : uploadedUrl ? (
+                      <>
+                        <span>✅</span>
+                        Card Saved
                       </>
                     ) : (
                       <>
                         <span>💾</span>
-                        Save Record
+                        Save Card
                       </>
                     )}
                   </div>
@@ -903,7 +960,7 @@ export default function GameOverCard({
 
                 <button
                   onClick={downloadCard}
-                  disabled={isDownloading}
+                  disabled={isDownloading || !uploadedUrl}
                   className="group relative overflow-hidden border border-white/20 py-4 transition-all hover:bg-white/5 disabled:opacity-50"
                 >
                   <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.15em] text-sm">
@@ -954,9 +1011,10 @@ export default function GameOverCard({
                         // Could add a "Copied!" toast here
                       }}
                       data-export-hide="true"
-                      className="text-[10px] font-black text-white/60 hover:text-white uppercase tracking-widest border border-white/20 px-4 py-2 transition-colors"
+                      className="text-[10px] font-black text-white/60 hover:text-white uppercase tracking-widest border border-white/20 px-4 py-2 transition-colors disabled:opacity-30"
+                      disabled={!uploadedUrl}
                     >
-                      Copy Access URL
+                      {uploadedUrl ? 'Copy Access URL' : 'Save Card to Generate URL'}
                     </button>
                   </div>
                 </motion.div>

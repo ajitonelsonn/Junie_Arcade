@@ -270,11 +270,10 @@ export default function MemoryMatchPage() {
           time: 120 - timeLeft
         })
       })
-      setTimeout(() => {
-        router.push('/')
-      }, 1500)
+      // No longer redirecting automatically here, as it's auto-saved in GameOverCard
     } catch (error) {
-      console.error('Failed to save score:', error)
+      console.error('Failed to auto-save score:', error)
+    } finally {
       setIsSaving(false)
     }
   }

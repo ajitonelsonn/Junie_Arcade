@@ -27,7 +27,6 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.load.image("junie-jump", "/assets/images/junie/junie-jump.png");
     this.load.image("junie-sad", "/assets/images/junie/junie-sad.png");
     this.load.image("junie-happy", "/assets/images/junie/junie-happy.png");
-    this.load.image("junie-idle", "/assets/images/junie/junie-idle.png");
     this.load.image("background", "/assets/images/backgrounds/bg-space.jpg");
     this.load.image("bug", "/assets/images/targets/target-bug.png");
     this.load.image("coin", "/assets/images/targets/target-coin.png");
@@ -85,16 +84,14 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.player = this.physics.add.sprite(
       150,
       this.scale.height - 200,
-      "junie-idle"
+      "junie-run-1"
     );
     this.player.setScale(0.35); // Reduced from 0.5
     
-    // Start animation after a short delay to use idle
-    this.time.delayedCall(500, () => {
-        if (!this.isGameOver) {
-            this.player.play("run");
-        }
-    });
+    // Start animation immediately
+    if (!this.isGameOver) {
+        this.player.play("run");
+    }
 
     this.player.setCollideWorldBounds(true);
     this.player.setGravityY(1600); // Increased from 1200 for even faster fall
