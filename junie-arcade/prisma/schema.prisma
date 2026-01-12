@@ -28,16 +28,16 @@ model Player {
 }
 
 model Score {
-  id          String   @id @default(cuid())
-  playerId    String
-  player      Player   @relation(fields: [playerId], references: [id])
-  gameType    GameType
-  score       Int
-  accuracy    Float?
-  time        Float?
-  maxCombo    Int?
-  distance    Float?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id])
+  gameType  GameType
+  score     Int
+  accuracy  Float?
+  time      Float?
+  maxCombo  Int?
+  distance  Float?
+  createdAt DateTime @default(now())
 
   @@index([gameType, score])
   @@index([createdAt])
@@ -59,4 +59,16 @@ model Country {
   createdAt DateTime @default(now())
 
   @@index([name])
+}
+
+model GalleryItem {
+  id        String   @id @default(cuid())
+  url       String
+  username  String
+  score     Int
+  gameType  GameType
+  country   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }

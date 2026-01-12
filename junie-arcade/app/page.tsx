@@ -3,6 +3,7 @@
 import GameCard from './components/GameCard'
 import Leaderboard from './components/Leaderboard'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 
@@ -148,7 +149,8 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400"
           >
-            <span className="text-white">Arena</span>
+            <Link href="/" className="text-white hover:text-white transition-colors">Arena</Link>
+            <Link href="/gallery" className="hover:text-white cursor-pointer transition-colors">Gallery</Link>
             <a 
               href="https://cloud9.devpost.com/" 
               target="_blank" 

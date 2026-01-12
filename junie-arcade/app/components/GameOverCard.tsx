@@ -239,7 +239,14 @@ export default function GameOverCard({
       const response = await fetch('/api/upload-card', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: dataUrl, filename }),
+        body: JSON.stringify({ 
+          image: dataUrl, 
+          filename,
+          username,
+          score,
+          gameType,
+          country
+        }),
       })
 
       const data = await response.json()

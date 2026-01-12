@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
+import { prisma } from "@/app/lib/prisma";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || "us-east-1",
@@ -11,7 +12,7 @@ const s3Client = new S3Client({
 
 export async function POST(request: Request) {
   try {
-    const { image, filename } = await request.json();
+    const { image, filename, username, score, gameType, country } = await request.json();
 
     if (!image) {
       return NextResponse.json({ error: "No image data provided" }, { status: 400 });
@@ -35,6 +36,19 @@ export async function POST(request: Request) {
     await s3Client.send(command);
 
     const publicUrl = `https://${bucketName}.s3.${process.env.AWS_REGION || "us-east-1"}.amazonaws.com/${key}`;
+
+    // Save to database if metadata is provided
+    if (username && score !== undefined && gameType) {
+      await prisma.galleryItem.create({
+        data: {
+          url: publicUrl,
+          username,
+          score: parseInt(score.toString()),
+          gameType,
+          country: country || null,
+        },
+      });
+    }
 
     return NextResponse.json({ url: publicUrl });
   } catch (error: any) {
