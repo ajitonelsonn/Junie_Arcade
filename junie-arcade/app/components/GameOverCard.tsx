@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 
 interface GameOverCardProps {
@@ -41,6 +41,31 @@ export default function GameOverCard({
   const streamRef = useRef<MediaStream | null>(null)
 
   const [selectedJunie, setSelectedJunie] = useState<string>('')
+  const [selectedHero, setSelectedHero] = useState<string>('')
+  const [junieIndex, setJunieIndex] = useState(0)
+  const [heroIndex, setHeroIndex] = useState(0)
+
+  const junies = [
+    'junie-happy.png', 'junie-jump.png', 'junie-run-1.png', 'junie-run-3.png',
+    'junie-idle.png', 'junie-run-2.png', 'junie-sad.png'
+  ]
+
+  const heroes = [
+    'Ezreal_Render.webp', 'Jett_Artwork_Full.webp', 'Jinx_Render.webp', 
+    'Lux_Render.webp', 'Phoenix_Artwork_Full.webp', 'Reyna_Artwork_Full.webp', 
+    'Sage_Artwork_Full.webp', 'Yasuo_Render.webp'
+  ]
+
+  useEffect(() => {
+    // Selection that is unique for this specific game over instance
+    const initialJunieIdx = Math.floor(Math.random() * junies.length)
+    const initialHeroIdx = Math.floor(Math.random() * heroes.length)
+    
+    setJunieIndex(initialJunieIdx)
+    setHeroIndex(initialHeroIdx)
+    setSelectedJunie(junies[initialJunieIdx])
+    setSelectedHero(heroes[initialHeroIdx])
+  }, [])
 
   useEffect(() => {
     // Auto-save score to database when game is over
@@ -49,14 +74,6 @@ export default function GameOverCard({
       setHasAutoSaved(true)
     }
   }, [hasAutoSaved, onSaveScore])
-
-  useEffect(() => {
-    const junies = [
-      'junie-happy.png', 'junie-jump.png', 'junie-run-1.png', 'junie-run-3.png',
-      'junie-idle.png', 'junie-run-2.png', 'junie-sad.png'
-    ]
-    setSelectedJunie(junies[Math.floor(Math.random() * junies.length)])
-  }, [])
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -344,17 +361,30 @@ export default function GameOverCard({
 
         // Draw everything - inspired by Valorant/League of Legends
         const drawComplete = async () => {
-          // Mascot background (large, subtle)
+          // Hero background (subtle, large)
+          if (selectedHero) {
+            try {
+              const heroImg = await loadImage(`/assets/images/hero/${selectedHero}`)
+              const heroHeight = canvas.height * 0.9
+              const heroWidth = (heroImg.width / heroImg.height) * heroHeight
+              ctx.globalAlpha = 0.12
+              ctx.drawImage(heroImg, canvas.width - heroWidth + 100, (canvas.height - heroHeight) / 2, heroWidth, heroHeight)
+              ctx.globalAlpha = 1
+            } catch (err) {
+              console.log('Hero image failed to load for fallback')
+            }
+          }
+
+          // Small Mascot background (top left)
           if (selectedJunie) {
             try {
               const mascotImg = await loadImage(`/assets/images/junie/${selectedJunie}`)
-              const mascotHeight = canvas.height * 0.8
-              const mascotWidth = (mascotImg.width / mascotImg.height) * mascotHeight
-              ctx.globalAlpha = 0.08
-              ctx.drawImage(mascotImg, canvas.width - mascotWidth + 50, (canvas.height - mascotHeight) / 2, mascotWidth, mascotHeight)
+              const mascotSize = 120
+              ctx.globalAlpha = 0.15
+              ctx.drawImage(mascotImg, 50, 150, mascotSize, mascotSize)
               ctx.globalAlpha = 1
             } catch (err) {
-              console.log('Mascot image failed to load for fallback')
+              console.log('Small mascot image failed to load for fallback')
             }
           }
 
@@ -770,16 +800,37 @@ export default function GameOverCard({
         data-card-clone="true"
         className="bg-[#0f1923] border border-white/10 shadow-2xl overflow-hidden relative"
       >
-        {/* Junie Mascot Background */}
-        {selectedJunie && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.08]">
-            <img 
-              src={`/assets/images/junie/${selectedJunie}`} 
-              alt="Mascot background" 
-              className="absolute -right-10 top-1/2 -translate-y-1/2 h-[80%] object-contain"
-            />
-          </div>
-        )}
+        {/* Hero and Small Mascot Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <AnimatePresence mode="wait">
+            {selectedHero && (
+              <motion.img 
+                key={selectedHero}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 0.12, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.5 }}
+                src={`/assets/images/hero/${selectedHero}`} 
+                alt="Hero background" 
+                className="absolute -right-16 top-1/2 -translate-y-1/2 h-[90%] object-contain grayscale-0"
+              />
+            )}
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            {selectedJunie && (
+              <motion.img 
+                key={selectedJunie}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 0.15, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 1 }}
+                src={`/assets/images/junie/${selectedJunie}`} 
+                alt="Small mascot accent" 
+                className="absolute left-8 top-32 w-24 h-24 object-contain brightness-125"
+              />
+            )}
+          </AnimatePresence>
+        </div>
         <div className="absolute top-0 left-0 w-32 h-32 border-l border-t border-[#ff4655]/30 -translate-x-16 -translate-y-16 pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-32 h-32 border-r border-b border-[#ff4655]/30 translate-x-16 translate-y-16 pointer-events-none" />
         <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
@@ -795,9 +846,22 @@ export default function GameOverCard({
             <motion.div 
               initial={{ rotate: -10, scale: 0.8 }}
               animate={{ rotate: 0, scale: 1 }}
-              className="text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+              className="text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] relative"
             >
               {getGameEmoji()}
+              
+              {/* Dynamic floating mascot next to title */}
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={selectedJunie}
+                  initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.5, x: -20 }}
+                  src={`/assets/images/junie/${selectedJunie}`}
+                  alt="Dynamic Junie"
+                  className="absolute -top-6 -right-6 w-12 h-12 object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                />
+              </AnimatePresence>
             </motion.div>
             <div>
               <h2 className="text-sm font-black text-[#ff4655] uppercase tracking-[0.3em] mb-1">Mission Accomplished</h2>
