@@ -155,8 +155,8 @@ export default function JumpMasterPage() {
 
   const phaserConfig: any = {
     type: 0, // Phaser.AUTO is 0
-    width: 800,
-    height: 500,
+    width: 1000,
+    height: 450,
     backgroundColor: "#87ceeb",
     parent: "phaser-game-container",
     physics: {
@@ -408,14 +408,14 @@ export default function JumpMasterPage() {
         </nav>
 
         {/* Main Content */}
-        <div className="px-8 pb-20 max-w-7xl mx-auto">
+        <div className="px-8 pb-4 max-w-7xl mx-auto">
           {/* Title Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            className="text-center mb-3"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-2 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
@@ -425,13 +425,13 @@ export default function JumpMasterPage() {
               </span>
             </div>
 
-            <h1 className="text-7xl md:text-8xl font-black mb-4 tracking-tighter leading-none">
+            <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tighter leading-none">
               <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600">
                 JUMP MASTER
               </span>
             </h1>
 
-            <p className="text-xl text-slate-400 font-medium max-w-2xl mx-auto">
+            <p className="text-sm text-slate-400 font-medium max-w-2xl mx-auto">
               <span className="text-white">Traverse the digital void.</span>{" "}
               Master momentum as you navigate
               <span className="text-cyan-400">
@@ -565,10 +565,10 @@ export default function JumpMasterPage() {
               animate={{ opacity: 1 }}
               className="flex flex-col items-center"
             >
-              <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl max-w-4xl">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-3 border border-white/10 shadow-2xl max-w-5xl mx-auto">
                 <div
                   id="phaser-game-container"
-                  className="rounded-2xl overflow-hidden border-2 border-white/10 shadow-inner"
+                  className="rounded-xl overflow-hidden border-2 border-white/10 shadow-inner"
                 >
                   <PhaserGame
                     config={{
@@ -591,10 +591,10 @@ export default function JumpMasterPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-center mt-6 text-white text-lg font-bold bg-white/5 px-8 py-4 rounded-2xl backdrop-blur-sm border border-white/10"
+                  className="text-center mt-3 text-white text-sm font-bold bg-white/5 px-6 py-2 rounded-xl backdrop-blur-sm border border-white/10"
                 >
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl">⌨️</span>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-lg">⌨️</span>
                     <span>
                       Press{" "}
                       <span className="text-cyan-400 font-black">SPACE</span> or{" "}

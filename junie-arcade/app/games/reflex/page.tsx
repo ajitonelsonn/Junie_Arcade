@@ -544,14 +544,14 @@ export default function ReflexArenaPage() {
         </nav>
 
         {/* Main Content */}
-        <div className="px-8 pb-20 max-w-7xl mx-auto">
+        <div className="px-8 pb-4 max-w-7xl mx-auto">
           {/* Title Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            className="text-center mb-3"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-2 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
@@ -561,13 +561,13 @@ export default function ReflexArenaPage() {
               </span>
             </div>
 
-            <h1 className="text-7xl md:text-8xl font-black mb-4 tracking-tighter leading-none">
+            <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tighter leading-none">
               <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500">
                 REFLEX ARENA
               </span>
             </h1>
 
-            <p className="text-xl text-slate-400 font-medium max-w-2xl mx-auto">
+            <p className="text-sm text-slate-400 font-medium max-w-2xl mx-auto">
               <span className="text-white">Neutralize bugs,</span> avoid traps,
               and sync with the system.
               <span className="text-orange-400">
@@ -697,26 +697,26 @@ export default function ReflexArenaPage() {
           {gameStarted && !gameOver && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               {/* Stats Bar */}
-              <div className="flex justify-between items-center gap-4 mb-6 max-w-5xl mx-auto">
-                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+              <div className="flex justify-between items-center gap-2 mb-2 max-w-5xl mx-auto">
+                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-xl p-2 border border-white/10">
+                  <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-0.5">
                     Score
                   </div>
-                  <div className="text-3xl font-black text-white">
+                  <div className="text-xl font-black text-white">
                     {score.toLocaleString()}
                   </div>
                 </div>
 
-                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-xl p-2 border border-white/10">
+                  <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-0.5">
                     Combo
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <motion.div
                       key={combo}
                       initial={{ scale: 1.5 }}
                       animate={{ scale: 1 }}
-                      className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500"
+                      className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500"
                     >
                       {combo}x
                     </motion.div>
@@ -724,7 +724,7 @@ export default function ReflexArenaPage() {
                       <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="text-lg"
+                        className="text-sm"
                       >
                         🔥
                       </motion.span>
@@ -732,12 +732,12 @@ export default function ReflexArenaPage() {
                   </div>
                 </div>
 
-                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-xl p-2 border border-white/10">
+                  <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-0.5">
                     Time
                   </div>
                   <div
-                    className={`text-3xl font-black transition-colors ${
+                    className={`text-xl font-black transition-colors ${
                       timeLeft < 10
                         ? "text-red-400 animate-pulse"
                         : "text-white"
@@ -751,7 +751,7 @@ export default function ReflexArenaPage() {
               {/* Game Arena */}
               <div
                 id="game-arena"
-                className="relative bg-gradient-to-br from-slate-900/50 to-slate-800/50 backdrop-blur-sm rounded-3xl h-[650px] overflow-hidden border-2 border-white/10 shadow-2xl max-w-5xl mx-auto"
+                className="relative bg-gradient-to-br from-slate-900/50 to-slate-800/50 backdrop-blur-sm rounded-2xl h-[52vh] overflow-hidden border-2 border-white/10 shadow-2xl max-w-6xl mx-auto"
               >
                 {/* Grid Pattern Overlay */}
                 <div
@@ -799,8 +799,8 @@ export default function ReflexArenaPage() {
                         <Image
                           src={target.image}
                           alt="Target"
-                          width={90}
-                          height={90}
+                          width={60}
+                          height={60}
                           className="transition-all"
                         />
                         {target.type === "good" && (
