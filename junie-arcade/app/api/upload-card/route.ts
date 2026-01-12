@@ -17,18 +17,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No image data provided" }, { status: 400 });
     }
 
-    // Remove the data:image/png;base64, prefix
+    // Remove the data:image/(png|jpeg|webp);base64, prefix
     const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
     const buffer = Buffer.from(base64Data, "base64");
 
     const bucketName = process.env.S3_BUCKET_NAME || "junies-arcade";
     const key = `cards/${filename || `card-${Date.now()}.png`}`;
+    const contentType = filename?.endsWith('.jpg') || filename?.endsWith('.jpeg') ? "image/jpeg" : "image/png";
 
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: key,
       Body: buffer,
-      ContentType: "image/png",
+      ContentType: contentType,
     });
 
     await s3Client.send(command);

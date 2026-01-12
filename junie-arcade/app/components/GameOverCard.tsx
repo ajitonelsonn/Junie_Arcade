@@ -29,6 +29,7 @@ export default function GameOverCard({
 }: GameOverCardProps) {
   const [showCamera, setShowCamera] = useState(false)
   const [selfieData, setSelfieData] = useState<string | null>(null)
+  const [tempSelfie, setTempSelfie] = useState<string | null>(null)
   const [countries, setCountries] = useState<Array<{ name: string; flag: string }>>([])
   const [isDownloading, setIsDownloading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -44,6 +45,13 @@ export default function GameOverCard({
   const [selectedHero, setSelectedHero] = useState<string>('')
   const [junieIndex, setJunieIndex] = useState(0)
   const [heroIndex, setHeroIndex] = useState(0)
+
+  // Pre-load html-to-image for faster first save/download
+  useEffect(() => {
+    import('html-to-image').then(() => {
+      console.log('html-to-image pre-loaded')
+    })
+  }, [])
 
   const junies = [
     'junie-happy.png', 'junie-jump.png', 'junie-run-1.png', 'junie-run-3.png',
@@ -140,11 +148,13 @@ export default function GameOverCard({
 
   const startCamera = async () => {
     try {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: isMobile ? 720 : 1080 },
+          height: { ideal: isMobile ? 1280 : 1350 },
+          aspectRatio: { ideal: 0.8 } // 4:5 ratio
         }
       })
       streamRef.current = stream
@@ -176,9 +186,25 @@ export default function GameOverCard({
       if (ctx) {
         ctx.drawImage(video, 0, 0)
         const imageData = canvas.toDataURL('image/png')
-        setSelfieData(imageData)
-        stopCamera()
+        setTempSelfie(imageData)
+        // Don't stop camera yet, let user confirm
       }
+    }
+  }
+
+  const confirmSelfie = () => {
+    if (tempSelfie) {
+      setSelfieData(tempSelfie)
+      setTempSelfie(null)
+      stopCamera()
+    }
+  }
+
+  const retakeSelfie = () => {
+    setTempSelfie(null)
+    // Camera is still running in background or we can restart it if we stopped it
+    if (!streamRef.current) {
+      startCamera()
     }
   }
 
@@ -188,6 +214,7 @@ export default function GameOverCard({
       streamRef.current = null
     }
     setShowCamera(false)
+    setTempSelfie(null)
   }
 
   const saveCardToS3 = async () => {
@@ -195,11 +222,11 @@ export default function GameOverCard({
     setIsUploading(true)
 
     try {
-      const { toPng } = await import('html-to-image')
-      const dataUrl = await toPng(cardRef.current, {
-        cacheBust: true,
+      const { toJpeg } = await import('html-to-image')
+      const dataUrl = await toJpeg(cardRef.current, {
         backgroundColor: '#0f1923',
-        pixelRatio: 2,
+        pixelRatio: 1.5,
+        quality: 0.85,
         filter: (node) => {
           if (node instanceof HTMLElement && node.dataset.exportHide === 'true') {
             return false
@@ -208,7 +235,7 @@ export default function GameOverCard({
         },
       })
 
-      const filename = `card-${username}-${score}-${Date.now()}.png`
+      const filename = `card-${username}-${score}-${Date.now()}.jpg`
       const response = await fetch('/api/upload-card', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -249,9 +276,8 @@ export default function GameOverCard({
 
       // Capture the card as PNG using html-to-image
       const dataUrl = await toPng(cardRef.current, {
-        cacheBust: true,
         backgroundColor: '#0f1923',
-        pixelRatio: 2,
+        pixelRatio: 1.5,
         filter: (node) => {
           // Hide elements with 'data-export-hide' attribute
           if (node instanceof HTMLElement && node.dataset.exportHide === 'true') {
@@ -888,35 +914,6 @@ export default function GameOverCard({
                   </div>
                 )}
 
-                {showCamera && (
-                  <div className="absolute inset-0">
-                    <video
-                      ref={videoRef}
-                      className="w-full h-full object-cover grayscale brightness-110 contrast-125"
-                      autoPlay
-                      playsInline
-                      muted
-                    />
-                    <div className="absolute inset-0 border-[20px] border-[#0f1923]/80 pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#ff4655]/20 to-transparent pointer-events-none" />
-                    <canvas ref={canvasRef} className="hidden" />
-                    <div data-export-hide="true" className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 px-6">
-                      <button
-                        onClick={takeSelfie}
-                        className="flex-1 bg-white text-black font-black py-3 uppercase tracking-widest text-xs skew-x-[-10deg]"
-                      >
-                        <span className="inline-block skew-x-[10deg]">Capture</span>
-                      </button>
-                      <button
-                        onClick={stopCamera}
-                        className="flex-1 bg-[#ff4655] text-white font-black py-3 uppercase tracking-widest text-xs skew-x-[-10deg]"
-                      >
-                        <span className="inline-block skew-x-[10deg]">Abort</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-
                 {selfieData && (
                   <div className="absolute inset-0">
                     <img
@@ -936,6 +933,87 @@ export default function GameOverCard({
                   </div>
                 )}
               </div>
+              
+              {/* Camera Modal Overlay */}
+              <AnimatePresence>
+                {showCamera && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 md:p-8"
+                  >
+                    <div className="relative h-[85vh] aspect-[4/5] bg-slate-900 border border-white/10 overflow-hidden shadow-2xl">
+                      {!tempSelfie ? (
+                        <div className="absolute inset-0">
+                          <video
+                            ref={videoRef}
+                            className="w-full h-full object-cover grayscale brightness-110 contrast-125"
+                            autoPlay
+                            playsInline
+                            muted
+                          />
+                          <div className="absolute inset-0 border-[20px] md:border-[40px] border-[#0f1923]/80 pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#ff4655]/20 to-transparent pointer-events-none" />
+                          <canvas ref={canvasRef} className="hidden" />
+                          
+                          {/* Camera Controls */}
+                          <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 px-6">
+                            <button
+                              onClick={takeSelfie}
+                              className="w-full max-w-xs py-4 bg-white text-black font-black uppercase tracking-[0.2em] text-sm skew-x-[-10deg] hover:bg-[#ff4655] hover:text-white transition-colors"
+                            >
+                              <span className="inline-block skew-x-[10deg]">Capture Victory</span>
+                            </button>
+                            <button
+                              onClick={stopCamera}
+                              className="w-full max-w-xs py-3 bg-[#ff4655]/20 text-white/70 font-black uppercase tracking-[0.2em] text-[10px] skew-x-[-10deg] hover:bg-[#ff4655] hover:text-white transition-colors"
+                            >
+                              <span className="inline-block skew-x-[10deg]">Abort Mission</span>
+                            </button>
+                          </div>
+                          
+                          {/* Decorative Elements */}
+                          <div className="absolute top-10 left-10 text-white/40 font-black text-xs uppercase tracking-[0.5em]">
+                            System Status: Ready
+                          </div>
+                          <div className="absolute top-10 right-10 text-[#ff4655] font-black text-xs uppercase tracking-[0.5em] animate-pulse">
+                            • Live Feed
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0">
+                          <img
+                            src={tempSelfie}
+                            alt="Temp selfie"
+                            className="w-full h-full object-cover brightness-110 contrast-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0f1923] via-transparent to-transparent opacity-60" />
+                          
+                          <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 px-6">
+                            <button
+                              onClick={confirmSelfie}
+                              className="w-full max-w-xs py-4 bg-[#00ff9d] text-black font-black uppercase tracking-[0.2em] text-sm skew-x-[-10deg] hover:brightness-110 transition-all"
+                            >
+                              <span className="inline-block skew-x-[10deg]">Confirm Identity</span>
+                            </button>
+                            <button
+                              onClick={retakeSelfie}
+                              className="w-full max-w-xs py-3 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-[10px] skew-x-[-10deg] hover:bg-white/20 transition-all backdrop-blur-md"
+                            >
+                              <span className="inline-block skew-x-[10deg]">Recapture</span>
+                            </button>
+                          </div>
+                          
+                          <div className="absolute top-10 left-10 text-[#00ff9d] font-black text-xs uppercase tracking-[0.5em]">
+                            Image Captured
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               
               {/* Player Name Overlay */}
               <div className="absolute -bottom-4 -right-4 bg-[#ff4655] p-4 skew-x-[-10deg] shadow-xl">
