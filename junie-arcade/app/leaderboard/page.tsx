@@ -90,9 +90,9 @@ export default function LeaderboardPage() {
         {/* Navigation */}
         <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
           <Link href="/" className="flex items-center gap-4">
-            <Image src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" width={100} height={35} className="brightness-110" />
+            <Image src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" width={100} height={35} style={{ width: 'auto', height: 'auto' }} className="brightness-110" />
             <div className="h-6 w-px bg-white/20" />
-            <Image src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" width={100} height={35} className="opacity-90 hover:opacity-100 transition-opacity" />
+            <Image src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" width={100} height={35} style={{ width: 'auto', height: 'auto' }} className="opacity-90 hover:opacity-100 transition-opacity" />
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400">
             <Link href="/" className="hover:text-white transition-colors">Arena</Link>
@@ -181,8 +181,8 @@ export default function LeaderboardPage() {
         <footer className="border-t border-white/5 bg-[#020617]/80 backdrop-blur-xl py-16">
           <div className="container mx-auto px-8 text-center">
             <div className="flex justify-center items-center gap-12 mb-10 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
-              <Image src="/assets/images/logos/cloud9-logo.png" alt="C9" width={80} height={25} />
-              <Image src="/assets/images/logos/jetbrains-logo.png" alt="JB" width={80} height={25} />
+              <Image src="/assets/images/logos/cloud9-logo.png" alt="C9" width={80} height={25} style={{ width: 'auto', height: 'auto' }} />
+              <Image src="/assets/images/logos/jetbrains-logo.png" alt="JB" width={80} height={25} style={{ width: 'auto', height: 'auto' }} />
             </div>
             <p className="text-slate-500 text-sm font-medium uppercase tracking-[0.3em] mb-4">
               © 2026 Cloud9 x JetBrains Hackathon

@@ -66,9 +66,9 @@ export default function GalleryPage() {
         {/* Navigation */}
         <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
           <Link href="/" className="flex items-center gap-4">
-            <Image src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" width={100} height={35} className="brightness-110" />
+            <Image src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" width={100} height={35} style={{ width: 'auto', height: 'auto' }} className="brightness-110" />
             <div className="h-6 w-px bg-white/20" />
-            <Image src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" width={100} height={35} className="opacity-90" />
+            <Image src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" width={100} height={35} style={{ width: 'auto', height: 'auto' }} className="opacity-90" />
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400">
             <Link href="/" className="hover:text-white transition-colors">Arena</Link>

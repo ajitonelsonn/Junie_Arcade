@@ -245,7 +245,7 @@ export default function Leaderboard() {
             <div className="relative flex items-center gap-3 font-black uppercase tracking-[0.2em] text-xs">
               {tab.logo ? (
                 <div className={`w-5 h-5 relative transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : 'group-hover:scale-110 opacity-70 group-hover:opacity-100'}`}>
-                  <Image src={tab.logo} alt={tab.label} fill className="object-contain" />
+                  <Image src={tab.logo} alt={tab.label} fill sizes="20px" className="object-contain" />
                 </div>
               ) : (
                 <span className={activeTab === tab.id ? '' : 'opacity-70'}>{tab.icon}</span>
@@ -310,10 +310,11 @@ export default function Leaderboard() {
                       {/* Hero Silhouette for Top 3 */}
                       {entry.rank <= 3 && (
                         <div className="absolute right-0 top-0 bottom-0 w-32 opacity-[0.08] pointer-events-none group-hover:opacity-20 transition-opacity">
-                          <Image 
-                            src={getHeroForRank(entry.rank)} 
-                            alt="Hero Background" 
-                            fill 
+                          <Image
+                            src={getHeroForRank(entry.rank)}
+                            alt="Hero Background"
+                            fill
+                            sizes="128px"
                             className="object-contain object-right"
                           />
                         </div>

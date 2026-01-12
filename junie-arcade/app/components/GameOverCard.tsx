@@ -37,6 +37,8 @@ export default function GameOverCard({
   const [isUploading, setIsUploading] = useState(false)
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
   const [hasAutoSaved, setHasAutoSaved] = useState(false)
+  const [countdown, setCountdown] = useState<number | null>(null)
+  const [captureCountdown, setCaptureCountdown] = useState<number | null>(null)
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -96,6 +98,26 @@ export default function GameOverCard({
       }
     }
     fetchCountries()
+  }, [])
+
+  // Auto-start camera with 5-second countdown when game over card appears
+  useEffect(() => {
+    setCountdown(5)
+
+    // Start countdown
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdownInterval)
+          // Auto-start camera when countdown reaches 0
+          startCamera()
+          return null
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(countdownInterval)
   }, [])
 
   const getCountryCode = () => {
@@ -179,19 +201,30 @@ export default function GameOverCard({
   }
 
   const takeSelfie = () => {
-    if (videoRef.current && canvasRef.current) {
-      const canvas = canvasRef.current
-      const video = videoRef.current
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        ctx.drawImage(video, 0, 0)
-        const imageData = canvas.toDataURL('image/png')
-        setTempSelfie(imageData)
-        // Don't stop camera yet, let user confirm
-      }
-    }
+    setCaptureCountdown(5)
+
+    const countdownInterval = setInterval(() => {
+      setCaptureCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdownInterval)
+          // Take the photo
+          if (videoRef.current && canvasRef.current) {
+            const canvas = canvasRef.current
+            const video = videoRef.current
+            canvas.width = video.videoWidth
+            canvas.height = video.videoHeight
+            const ctx = canvas.getContext('2d')
+            if (ctx) {
+              ctx.drawImage(video, 0, 0)
+              const imageData = canvas.toDataURL('image/png')
+              setTempSelfie(imageData)
+            }
+          }
+          return null
+        }
+        return prev - 1
+      })
+    }, 1000)
   }
 
   const confirmSelfie = () => {
@@ -915,20 +948,42 @@ export default function GameOverCard({
               <div className="aspect-[4/5] bg-slate-900 border border-white/10 overflow-hidden relative">
                 {!selfieData && !showCamera && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                    <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center mb-4 bg-white/5">
-                      <span className="text-4xl">👤</span>
-                    </div>
-                    <h3 className="text-white font-black uppercase tracking-wider mb-2">Access Granted</h3>
-                    <p className="text-slate-500 text-xs mb-6">Capture your victory pose to immortalize this moment in the arena.</p>
-                    <motion.button
-                      onClick={startCamera}
-                      data-export-hide="true"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-6 py-3 bg-[#ff4655] text-white font-black uppercase tracking-widest text-xs skew-x-[-10deg]"
-                    >
-                      <span className="inline-block skew-x-[10deg]">Initiate Capture</span>
-                    </motion.button>
+                    {countdown !== null ? (
+                      // Countdown display (auto start)
+                      <div className="flex flex-col items-center">
+                        <div className="w-32 h-32 rounded-full border-4 border-[#ff4655] flex items-center justify-center mb-4 bg-[#ff4655]/10 relative">
+                          <motion.span
+                            key={countdown}
+                            initial={{ scale: 1.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="text-7xl font-black text-[#ff4655]"
+                          >
+                            {countdown}
+                          </motion.span>
+                          <div className="absolute inset-0 rounded-full border-4 border-[#ff4655] animate-ping opacity-20" />
+                        </div>
+                        <h3 className="text-white font-black uppercase tracking-wider mb-2">Camera Starting...</h3>
+                        <p className="text-slate-400 text-xs">Get ready for your victory shot!</p>
+                      </div>
+                    ) : (
+                      // Default state (no countdown)
+                      <>
+                        <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center mb-4 bg-white/5">
+                          <span className="text-4xl">👤</span>
+                        </div>
+                        <h3 className="text-white font-black uppercase tracking-wider mb-2">Access Granted</h3>
+                        <p className="text-slate-500 text-xs mb-6">Capture your victory pose to immortalize this moment in the arena.</p>
+                        <motion.button
+                          onClick={startCamera}
+                          data-export-hide="true"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-6 py-3 bg-[#ff4655] text-white font-black uppercase tracking-widest text-xs skew-x-[-10deg]"
+                        >
+                          <span className="inline-block skew-x-[10deg]">Initiate Capture</span>
+                        </motion.button>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -974,12 +1029,35 @@ export default function GameOverCard({
                           <div className="absolute inset-0 border-[20px] md:border-[40px] border-[#0f1923]/80 pointer-events-none" />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#ff4655]/20 to-transparent pointer-events-none" />
                           <canvas ref={canvasRef} className="hidden" />
-                          
+
+                          {/* Capture Countdown Overlay */}
+                          {captureCountdown !== null && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+                              <div className="flex flex-col items-center">
+                                <div className="w-48 h-48 rounded-full border-4 border-[#ff4655] flex items-center justify-center mb-4 bg-[#ff4655]/10 relative">
+                                  <motion.span
+                                    key={captureCountdown}
+                                    initial={{ scale: 1.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="text-9xl font-black text-[#ff4655]"
+                                  >
+                                    {captureCountdown}
+                                  </motion.span>
+                                  <div className="absolute inset-0 rounded-full border-4 border-[#ff4655] animate-ping opacity-20" />
+                                </div>
+                                <h3 className="text-white font-black uppercase tracking-wider text-xl mb-2">Get Ready!</h3>
+                                <p className="text-slate-300 text-sm">Strike your best pose...</p>
+                              </div>
+                            </div>
+                          )}
+
                           {/* Camera Controls */}
                           <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 px-6">
                             <button
                               onClick={takeSelfie}
-                              className="w-full max-w-xs py-4 bg-white text-black font-black uppercase tracking-[0.2em] text-sm skew-x-[-10deg] hover:bg-[#ff4655] hover:text-white transition-colors"
+                              disabled={captureCountdown !== null}
+                              className="w-full max-w-xs py-4 bg-white text-black font-black uppercase tracking-[0.2em] text-sm skew-x-[-10deg] hover:bg-[#ff4655] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <span className="inline-block skew-x-[10deg]">Capture Victory</span>
                             </button>
@@ -990,7 +1068,7 @@ export default function GameOverCard({
                               <span className="inline-block skew-x-[10deg]">Abort Mission</span>
                             </button>
                           </div>
-                          
+
                           {/* Decorative Elements */}
                           <div className="absolute top-10 left-10 text-white/40 font-black text-xs uppercase tracking-[0.5em]">
                             System Status: Ready

@@ -134,6 +134,7 @@ export default function Home() {
                 src={img}
                 alt="Hero"
                 fill
+                sizes="288px"
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
             </motion.div>
@@ -154,6 +155,7 @@ export default function Home() {
               alt="Cloud9"
               width={100}
               height={35}
+              style={{ width: 'auto', height: 'auto' }}
               className="brightness-110"
             />
             <div className="h-6 w-px bg-white/20" />
@@ -162,6 +164,7 @@ export default function Home() {
               alt="JetBrains"
               width={100}
               height={35}
+              style={{ width: 'auto', height: 'auto' }}
               className="opacity-90 hover:opacity-100 transition-opacity"
             />
           </motion.div>
@@ -219,6 +222,8 @@ export default function Home() {
                 src="/assets/images/junie/junie-happy.png"
                 alt="Junie Mascot"
                 fill
+                sizes="256px"
+                priority
                 className="object-contain drop-shadow-[0_0_30px_rgba(34,211,238,0.6)]"
               />
             </motion.div>
@@ -242,6 +247,7 @@ export default function Home() {
                 src="/assets/images/junie/junie-idle.png"
                 alt="Junie Idle"
                 fill
+                sizes="96px"
                 className="object-contain"
               />
             </motion.div>
@@ -264,6 +270,7 @@ export default function Home() {
                 src="/assets/images/junie/junie-jump.png"
                 alt="Junie Jump"
                 fill
+                sizes="96px"
                 className="object-contain"
               />
             </motion.div>
@@ -400,12 +407,14 @@ export default function Home() {
                 alt="C9"
                 width={80}
                 height={25}
+                style={{ width: 'auto', height: 'auto' }}
               />
               <Image
                 src="/assets/images/logos/jetbrains-logo.png"
                 alt="JB"
                 width={80}
                 height={25}
+                style={{ width: 'auto', height: 'auto' }}
               />
             </div>
             <p className="text-slate-500 text-sm font-medium uppercase tracking-[0.3em] mb-4">

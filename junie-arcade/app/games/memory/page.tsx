@@ -356,6 +356,7 @@ export default function MemoryMatchPage() {
                 src={img}
                 alt="Hero"
                 fill
+                sizes="256px"
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
             </motion.div>
@@ -380,6 +381,7 @@ export default function MemoryMatchPage() {
             src="/assets/images/junie/junie-happy.png"
             alt="Junie Happy"
             fill
+            sizes="128px"
             className="object-contain drop-shadow-[0_0_20px_rgba(192,38,211,0.6)]"
           />
         </motion.div>
@@ -402,6 +404,7 @@ export default function MemoryMatchPage() {
             src="/assets/images/junie/junie-idle.png"
             alt="Junie Idle"
             fill
+            sizes="112px"
             className="object-contain drop-shadow-[0_0_20px_rgba(236,72,153,0.5)]"
           />
         </motion.div>
@@ -424,6 +427,7 @@ export default function MemoryMatchPage() {
             src="/assets/images/junie/junie-jump.png"
             alt="Junie Jump"
             fill
+            sizes="96px"
             className="object-contain drop-shadow-[0_0_15px_rgba(192,38,211,0.4)]"
           />
         </motion.div>
@@ -447,9 +451,9 @@ export default function MemoryMatchPage() {
             className="flex items-center gap-4"
           >
             <div className="flex items-center gap-3">
-              <Image src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" width={70} height={24} className="brightness-110" />
+              <Image src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" width={70} height={24} style={{ width: 'auto', height: 'auto' }} className="brightness-110" />
               <div className="h-6 w-px bg-white/20" />
-              <Image src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" width={70} height={24} className="opacity-90" />
+              <Image src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" width={70} height={24} style={{ width: 'auto', height: 'auto' }} className="opacity-90" />
             </div>
             <div className="text-right hidden md:block">
               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sky's the Limit</div>
@@ -497,10 +501,11 @@ export default function MemoryMatchPage() {
                 <div className="text-center mb-8">
                   <div className="inline-block p-6 bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 rounded-2xl mb-6">
                     <div className="w-20 h-20 relative">
-                      <Image 
-                        src="/assets/images/logos/game_logo/memory_match.png" 
-                        alt="Memory Match" 
-                        fill 
+                      <Image
+                        src="/assets/images/logos/game_logo/memory_match.png"
+                        alt="Memory Match"
+                        fill
+                        sizes="80px"
                         className="object-contain filter drop-shadow-[0_0_15px_rgba(217,70,239,0.4)]"
                       />
                     </div>
@@ -641,6 +646,7 @@ export default function MemoryMatchPage() {
                                 src="/assets/images/cards/card-back.png"
                                 alt="Card back"
                                 fill
+                                sizes="(max-width: 768px) 25vw, 200px"
                                 className="object-cover"
                               />
                             </div>
@@ -655,6 +661,7 @@ export default function MemoryMatchPage() {
                                 src={card.imageUrl}
                                 alt="Card"
                                 fill
+                                sizes="(max-width: 768px) 25vw, 200px"
                                 className="object-cover"
                               />
                               {card.matched && (

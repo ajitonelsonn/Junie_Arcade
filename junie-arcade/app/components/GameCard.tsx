@@ -42,10 +42,11 @@ export default function GameCard({ title, description, icon, href, gradient, gam
                 transition={{ duration: 0.5 }}
                 className="relative w-full h-full"
               >
-                <Image 
-                  src={gameLogo} 
-                  alt={title} 
-                  fill 
+                <Image
+                  src={gameLogo}
+                  alt={title}
+                  fill
+                  sizes="(max-width: 768px) 200px, 80px"
                   className="object-contain filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
                 />
               </motion.div>
