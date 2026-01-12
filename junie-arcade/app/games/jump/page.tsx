@@ -394,7 +394,14 @@ export default function JumpMasterPage() {
               <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/10 shadow-2xl">
                 <div className="text-center mb-8">
                   <div className="inline-block p-6 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl mb-6">
-                    <span className="text-6xl">🚀</span>
+                    <div className="w-20 h-20 relative">
+                      <Image 
+                        src="/assets/images/logos/game_logo/jump_master.png" 
+                        alt="Jump Master" 
+                        fill 
+                        className="object-contain filter drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+                      />
+                    </div>
                   </div>
                   <h2 className="text-3xl font-black text-white mb-2">Initialize Runner</h2>
                   <p className="text-slate-400 text-sm">Enter credentials to begin deployment</p>

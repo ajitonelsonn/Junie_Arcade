@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 interface GameCardProps {
@@ -10,9 +11,10 @@ interface GameCardProps {
   href: string
   gradient: string
   brandIcon?: string
+  gameLogo?: string
 }
 
-export default function GameCard({ title, description, icon, href, gradient }: GameCardProps) {
+export default function GameCard({ title, description, icon, href, gradient, gameLogo }: GameCardProps) {
   return (
     <Link href={href}>
       <motion.div
@@ -32,17 +34,32 @@ export default function GameCard({ title, description, icon, href, gradient }: G
           {/* Decorative Glow */}
           <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[100px] opacity-20 group-hover:opacity-40 transition-opacity duration-700 bg-gradient-to-br ${gradient}`} />
 
-          {/* Icon */}
-          <div className="mb-6">
-            <motion.div
-              whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-              transition={{ duration: 0.5 }}
-              className="inline-block"
-            >
-              <div className={`text-7xl filter drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] transform transition-transform duration-500`}>
-                {icon}
-              </div>
-            </motion.div>
+          {/* Icon / Logo */}
+          <div className="mb-6 h-20 flex items-center">
+            {gameLogo ? (
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.5 }}
+                className="relative w-full h-full"
+              >
+                <Image 
+                  src={gameLogo} 
+                  alt={title} 
+                  fill 
+                  className="object-contain filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block"
+              >
+                <div className={`text-7xl filter drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] transform transition-transform duration-500`}>
+                  {icon}
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Title */}

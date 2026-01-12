@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface GameOverCardProps {
   username: string
@@ -101,12 +102,12 @@ export default function GameOverCard({
     return countryData?.flag || '🌍'
   }
 
-  const getGameEmoji = () => {
+  const getGameLogo = () => {
     switch (gameType) {
-      case 'REFLEX_ARENA': return '⚡'
-      case 'JUMP_MASTER': return '🚀'
-      case 'MEMORY_MATCH': return '🧠'
-      default: return '🎮'
+      case 'REFLEX_ARENA': return '/assets/images/logos/game_logo/reflex_arena.png'
+      case 'JUMP_MASTER': return '/assets/images/logos/game_logo/jump_master.png'
+      case 'MEMORY_MATCH': return '/assets/images/logos/game_logo/memory_match.png'
+      default: return null
     }
   }
 
@@ -864,9 +865,18 @@ export default function GameOverCard({
             <motion.div 
               initial={{ rotate: -10, scale: 0.8 }}
               animate={{ rotate: 0, scale: 1 }}
-              className="text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] relative"
+              className="w-24 h-24 relative drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
             >
-              {getGameEmoji()}
+              {getGameLogo() ? (
+                <Image 
+                  src={getGameLogo()!} 
+                  alt={getGameTitle()} 
+                  fill 
+                  className="object-contain"
+                />
+              ) : (
+                <span className="text-7xl">🎮</span>
+              )}
               
               {/* Dynamic floating mascot next to title */}
               <AnimatePresence mode="wait">

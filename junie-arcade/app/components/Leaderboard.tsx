@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 
 interface LeaderboardEntry {
   rank: number
@@ -82,13 +83,13 @@ export default function Leaderboard() {
     return country?.flag || null
   }
 
-  const getGameEmoji = (gameType: string) => {
+  const getGameLogo = (gameType: string) => {
     switch (gameType) {
-      case 'REFLEX_ARENA': return '⚡'
-      case 'JUMP_MASTER': return '🚀'
-      case 'MEMORY_MATCH': return '🧠'
-      case 'OVERALL': return '🏆'
-      default: return '🎮'
+      case 'REFLEX_ARENA': return '/assets/images/logos/game_logo/reflex_arena.png'
+      case 'JUMP_MASTER': return '/assets/images/logos/game_logo/jump_master.png'
+      case 'MEMORY_MATCH': return '/assets/images/logos/game_logo/memory_match.png'
+      case 'OVERALL': return null // Will fallback to trophy
+      default: return null
     }
   }
 
@@ -136,10 +137,10 @@ export default function Leaderboard() {
   }
 
   const tabs = [
-    { id: 'overall' as const, label: 'Overall Top 5', icon: '🏆' },
-    { id: 'reflex' as const, label: 'Reflex', icon: '⚡' },
-    { id: 'jump' as const, label: 'Jump', icon: '🚀' },
-    { id: 'memory' as const, label: 'Memory', icon: '🧠' },
+    { id: 'overall' as const, label: 'Overall Top 5', icon: '🏆', logo: null },
+    { id: 'reflex' as const, label: 'Reflex', icon: '⚡', logo: '/assets/images/logos/game_logo/reflex_arena.png' },
+    { id: 'jump' as const, label: 'Jump', icon: '🚀', logo: '/assets/images/logos/game_logo/jump_master.png' },
+    { id: 'memory' as const, label: 'Memory', icon: '🧠', logo: '/assets/images/logos/game_logo/memory_match.png' },
   ]
 
   return (
@@ -156,7 +157,13 @@ export default function Leaderboard() {
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <span>{tab.icon}</span>
+            {tab.logo ? (
+              <div className="w-5 h-5 relative">
+                <Image src={tab.logo} alt={tab.label} fill className="object-contain" />
+              </div>
+            ) : (
+              <span>{tab.icon}</span>
+            )}
             <span className="uppercase tracking-widest">{tab.label}</span>
           </button>
         ))}
@@ -201,8 +208,17 @@ export default function Leaderboard() {
                       </div>
                       
                       <div className="col-span-6 flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform`}>
-                          {getGameEmoji(entry.gameType)}
+                        <div className={`w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform relative overflow-hidden`}>
+                          {getGameLogo(entry.gameType) ? (
+                            <Image 
+                              src={getGameLogo(entry.gameType)!} 
+                              alt={entry.gameType} 
+                              fill 
+                              className="p-2 object-contain"
+                            />
+                          ) : (
+                            <span>🏆</span>
+                          )}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
