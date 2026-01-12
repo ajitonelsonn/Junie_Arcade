@@ -172,6 +172,12 @@ export default function GameOverCard({
 
   const startCamera = async () => {
     try {
+      // Stop any existing stream first
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop())
+        streamRef.current = null
+      }
+
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -186,14 +192,14 @@ export default function GameOverCard({
 
       // Wait a bit for React to render the video element
       setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
+        if (videoRef.current && streamRef.current) {
+          videoRef.current.srcObject = streamRef.current
           videoRef.current.play().catch((err) => {
             console.error('Error playing video:', err)
             alert('Unable to start camera preview.')
           })
         }
-      }, 100)
+      }, 200)
     } catch (error) {
       console.error('Error accessing camera:', error)
       alert('Unable to access camera. Please check permissions.')
@@ -237,10 +243,21 @@ export default function GameOverCard({
 
   const retakeSelfie = () => {
     setTempSelfie(null)
-    // Camera is still running in background or we can restart it if we stopped it
-    if (!streamRef.current) {
-      startCamera()
-    }
+    setCaptureCountdown(null)
+    // Give React time to unmount the image and mount the video element
+    setTimeout(() => {
+      if (videoRef.current && streamRef.current) {
+        videoRef.current.srcObject = streamRef.current
+        videoRef.current.play().catch((err) => {
+          console.error('Error resuming video:', err)
+          // If playback fails, try to restart the camera completely
+          startCamera()
+        })
+      } else {
+        // If refs are missing, restart camera
+        startCamera()
+      }
+    }, 100)
   }
 
   const stopCamera = () => {
@@ -995,14 +1012,21 @@ export default function GameOverCard({
                       className="w-full h-full object-cover brightness-110 contrast-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f1923] via-transparent to-transparent opacity-60" />
-                    <div data-export-hide="true" className="absolute bottom-4 left-4 right-4">
-                      <button
-                        onClick={() => { setSelfieData(null); startCamera(); }}
-                        className="w-full py-2 bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md transition-all"
-                      >
-                        Recapture Subject
-                      </button>
-                    </div>
+                    {!uploadedUrl && (
+                      <div data-export-hide="true" className="absolute top-4 right-4 z-10">
+                        <motion.button
+                          onClick={async () => {
+                            setSelfieData(null);
+                            await startCamera();
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="group px-4 py-2 bg-white hover:bg-white/90 text-black text-xs font-black uppercase tracking-wider backdrop-blur-xl transition-all rounded-full shadow-[0_0_20px_rgba(255,255,255,0.3)] border border-white/50"
+                        >
+                          <span className="group-hover:tracking-widest transition-all">Retake</span>
+                        </motion.button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1030,24 +1054,26 @@ export default function GameOverCard({
                           <div className="absolute inset-0 bg-gradient-to-t from-[#ff4655]/20 to-transparent pointer-events-none" />
                           <canvas ref={canvasRef} className="hidden" />
 
-                          {/* Capture Countdown Overlay */}
+                          {/* Capture Countdown Overlay - Bottom Position */}
                           {captureCountdown !== null && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+                            <div className="absolute bottom-0 left-0 right-0 pb-24 z-50">
                               <div className="flex flex-col items-center">
-                                <div className="w-48 h-48 rounded-full border-4 border-[#ff4655] flex items-center justify-center mb-4 bg-[#ff4655]/10 relative">
+                                <div className="w-32 h-32 rounded-full border-4 border-[#ff4655] flex items-center justify-center mb-3 bg-[#ff4655]/10 relative backdrop-blur-sm">
                                   <motion.span
                                     key={captureCountdown}
                                     initial={{ scale: 1.5, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ duration: 0.3 }}
-                                    className="text-9xl font-black text-[#ff4655]"
+                                    className="text-7xl font-black text-[#ff4655]"
                                   >
                                     {captureCountdown}
                                   </motion.span>
                                   <div className="absolute inset-0 rounded-full border-4 border-[#ff4655] animate-ping opacity-20" />
                                 </div>
-                                <h3 className="text-white font-black uppercase tracking-wider text-xl mb-2">Get Ready!</h3>
-                                <p className="text-slate-300 text-sm">Strike your best pose...</p>
+                                <div className="bg-black/80 backdrop-blur-md px-6 py-2 rounded-full">
+                                  <h3 className="text-white font-black uppercase tracking-wider text-lg mb-1">Get Ready!</h3>
+                                  <p className="text-slate-300 text-xs text-center">Strike your best pose...</p>
+                                </div>
                               </div>
                             </div>
                           )}

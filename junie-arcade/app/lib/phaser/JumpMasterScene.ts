@@ -11,6 +11,7 @@ export default class JumpMasterScene extends Phaser.Scene {
   private collectibles!: any;
   private onGameEnd?: (score: number, distance: number) => void;
   private ground!: any;
+  private hasDoubleJump = false; // Track if double jump is available
 
   constructor() {
     super({ key: "JumpMasterScene" });
@@ -94,7 +95,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     }
 
     this.player.setCollideWorldBounds(true);
-    this.player.setGravityY(1600); // Increased from 1200 for even faster fall
+    this.player.setGravityY(1800); // Increased for faster fall
 
     // Collisions
     this.physics.add.collider(this.player, this.ground);
@@ -221,6 +222,9 @@ export default class JumpMasterScene extends Phaser.Scene {
 
     // Reset animation if landed
     if (this.player.body?.touching.down) {
+      // Reset double jump when landing
+      this.hasDoubleJump = false;
+
       if (!this.player.anims.isPlaying || this.player.anims.currentAnim?.key !== "run") {
         this.player.play("run", true);
       }
@@ -236,10 +240,18 @@ export default class JumpMasterScene extends Phaser.Scene {
   private jump() {
     if (this.isGameOver) return;
 
+    // First jump - from ground
     if (this.player.body?.touching.down) {
-      this.player.setVelocityY(-900); // Increased from -750 to match higher gravity
+      this.player.setVelocityY(-950); // Faster first jump
+      this.hasDoubleJump = true; // Enable double jump after first jump
       this.sound.play("jump", { volume: 0.5 });
       // update() loop will handle the texture change to "junie-jump"
+    }
+    // Double jump - in the air
+    else if (this.hasDoubleJump && !this.player.body?.touching.down) {
+      this.player.setVelocityY(-950); // Same power as first jump for consistent height
+      this.hasDoubleJump = false; // Use up the double jump
+      this.sound.play("jump", { volume: 0.6 }); // Slightly louder for double jump
     }
   }
 
