@@ -1,0 +1,923 @@
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+
+interface GameOverCardProps {
+  username: string
+  country: string
+  score: number
+  gameType: 'REFLEX_ARENA' | 'JUMP_MASTER' | 'MEMORY_MATCH'
+  stats: {
+    label: string
+    value: string | number
+    color?: string
+  }[]
+  onSaveScore: () => void
+  isSaving: boolean
+}
+
+export default function GameOverCard({
+  username,
+  country,
+  score,
+  gameType,
+  stats,
+  onSaveScore,
+  isSaving
+}: GameOverCardProps) {
+  const [showCamera, setShowCamera] = useState(false)
+  const [selfieData, setSelfieData] = useState<string | null>(null)
+  const [countries, setCountries] = useState<Array<{ name: string; flag: string }>>([])
+  const [showQR, setShowQR] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch('/api/countries')
+        const data = await response.json()
+        setCountries(data)
+      } catch (error) {
+        console.error('Failed to fetch countries:', error)
+      }
+    }
+    fetchCountries()
+  }, [])
+
+  const getCountryFlag = () => {
+    const countryData = countries.find(c => c.name === country)
+    return countryData?.flag || '🌍'
+  }
+
+  const getGameEmoji = () => {
+    switch (gameType) {
+      case 'REFLEX_ARENA': return '⚡'
+      case 'JUMP_MASTER': return '🚀'
+      case 'MEMORY_MATCH': return '🧠'
+      default: return '🎮'
+    }
+  }
+
+  const getGameTitle = () => {
+    switch (gameType) {
+      case 'REFLEX_ARENA': return 'Reflex Arena'
+      case 'JUMP_MASTER': return 'Jump Master'
+      case 'MEMORY_MATCH': return 'Memory Match'
+      default: return 'Game'
+    }
+  }
+
+  const getGameColor = () => {
+    switch (gameType) {
+      case 'REFLEX_ARENA': return 'from-[#ff4655] to-[#ff4655]/80' // Valorant Red
+      case 'JUMP_MASTER': return 'from-[#00eeff] to-[#00eeff]/80' // Cyber Cyan
+      case 'MEMORY_MATCH': return 'from-[#c284f9] to-[#c284f9]/80' // LoL Magic Purple
+      default: return 'from-slate-500 to-gray-500'
+    }
+  }
+
+  const getGameGlow = () => {
+    switch (gameType) {
+      case 'REFLEX_ARENA': return 'shadow-[#ff4655]/20'
+      case 'JUMP_MASTER': return 'shadow-[#00eeff]/20'
+      case 'MEMORY_MATCH': return 'shadow-[#c284f9]/20'
+      default: return 'shadow-white/10'
+    }
+  }
+
+  const getAccentColor = () => {
+    switch (gameType) {
+      case 'REFLEX_ARENA': return 'text-[#ff4655]'
+      case 'JUMP_MASTER': return 'text-[#00eeff]'
+      case 'MEMORY_MATCH': return 'text-[#c284f9]'
+      default: return 'text-white'
+    }
+  }
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      })
+      streamRef.current = stream
+      setShowCamera(true)
+
+      // Wait a bit for React to render the video element
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          videoRef.current.play().catch((err) => {
+            console.error('Error playing video:', err)
+            alert('Unable to start camera preview.')
+          })
+        }
+      }, 100)
+    } catch (error) {
+      console.error('Error accessing camera:', error)
+      alert('Unable to access camera. Please check permissions.')
+    }
+  }
+
+  const takeSelfie = () => {
+    if (videoRef.current && canvasRef.current) {
+      const canvas = canvasRef.current
+      const video = videoRef.current
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.drawImage(video, 0, 0)
+        const imageData = canvas.toDataURL('image/png')
+        setSelfieData(imageData)
+        stopCamera()
+      }
+    }
+  }
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+    setShowCamera(false)
+  }
+
+  const downloadCard = async () => {
+    if (!cardRef.current) {
+      console.error('Card ref is not available')
+      return
+    }
+
+    setIsDownloading(true)
+    console.log('Starting download...')
+
+    try {
+      // Dynamically import html2canvas
+      console.log('Importing html2canvas...')
+      const html2canvas = (await import('html2canvas')).default
+      console.log('html2canvas loaded successfully')
+
+      // Get game-specific colors
+      const gameColors: Record<string, string> = {
+        'REFLEX_ARENA': '#f97316', // Orange
+        'JUMP_MASTER': '#06b6d4', // Cyan
+        'MEMORY_MATCH': '#d946ef', // Fuchsia
+      }
+      const headerColor = gameColors[gameType] || '#06b6d4'
+
+      console.log('Capturing card with html2canvas...')
+
+      // Wrap in try-catch to handle oklab parsing errors
+      let canvas: HTMLCanvasElement
+      try {
+        // Capture the card as canvas
+        canvas = await html2canvas(cardRef.current, {
+          backgroundColor: '#0f172a',
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          ignoreElements: (element) => {
+            // Skip elements that might cause issues
+            return false
+          },
+          onclone: (clonedDoc) => {
+            console.log('Cloning document...')
+            // Replace all gradient backgrounds with solid colors
+            const clonedCard = clonedDoc.querySelector('[data-card-clone]') as HTMLElement
+            if (clonedCard) {
+              // Main card background
+              clonedCard.style.background = '#0f172a !important'
+              clonedCard.style.backgroundColor = '#0f172a !important'
+              clonedCard.style.backgroundImage = 'none !important'
+
+              // Header gradient -> solid color
+              const header = clonedCard.querySelector('[data-card-header]') as HTMLElement
+              if (header) {
+                header.style.background = `${headerColor} !important`
+                header.style.backgroundColor = `${headerColor} !important`
+                header.style.backgroundImage = 'none !important'
+              }
+
+              // Force remove ALL gradients and problematic CSS
+              const allElements = clonedCard.querySelectorAll('*')
+              allElements.forEach((el) => {
+                const htmlElement = el as HTMLElement
+
+                // Force override all background properties
+                htmlElement.style.backgroundImage = 'none'
+                htmlElement.style.backdropFilter = 'none'
+                // @ts-ignore - webkit prefix
+                htmlElement.style.webkitBackdropFilter = 'none'
+
+                // Remove any class that might have gradients
+                const classesToRemove = ['bg-gradient', 'bg-linear', 'backdrop-blur']
+                classesToRemove.forEach(cls => {
+                  if (htmlElement.className && typeof htmlElement.className === 'string') {
+                    htmlElement.className = htmlElement.className.split(' ')
+                      .filter(c => !c.includes(cls))
+                      .join(' ')
+                  }
+                })
+              })
+            }
+          }
+        })
+      } catch (parseError: any) {
+        console.error('html2canvas parsing error:', parseError)
+
+        // If it's the oklab error, create a modern professional version manually
+        if (parseError?.message?.includes?.('oklab') || parseError?.message?.includes?.('color function')) {
+          console.log('Creating ultra-modern professional card design...')
+
+          // Create a premium, high-quality canvas (landscape format)
+          canvas = document.createElement('canvas')
+          canvas.width = 1920
+          canvas.height = 1080
+          const ctx = canvas.getContext('2d')
+
+          if (!ctx) {
+            throw new Error('Could not get canvas context')
+          }
+
+          // Helper function to draw rounded rectangle
+          const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
+            ctx.beginPath()
+            ctx.moveTo(x + r, y)
+            ctx.lineTo(x + w - r, y)
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+            ctx.lineTo(x + w, y + h - r)
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+            ctx.lineTo(x + r, y + h)
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+            ctx.lineTo(x, y + r)
+            ctx.quadraticCurveTo(x, y, x + r, y)
+            ctx.closePath()
+          }
+
+          // Get game colors
+          const gameColors = {
+            primary: gameType === 'REFLEX_ARENA' ? '#f97316' : gameType === 'JUMP_MASTER' ? '#06b6d4' : '#d946ef',
+            secondary: gameType === 'REFLEX_ARENA' ? '#fb923c' : gameType === 'JUMP_MASTER' ? '#0ea5e9' : '#f0abfc',
+            dark: gameType === 'REFLEX_ARENA' ? '#ea580c' : gameType === 'JUMP_MASTER' ? '#0284c7' : '#c026d3'
+          }
+
+          // Premium dark background with noise texture
+          const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+          bgGradient.addColorStop(0, '#0a0f1e')
+          bgGradient.addColorStop(0.5, '#111827')
+          bgGradient.addColorStop(1, '#0a0f1e')
+          ctx.fillStyle = bgGradient
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+          // Subtle grid pattern
+          ctx.globalAlpha = 0.02
+          ctx.strokeStyle = '#ffffff'
+          ctx.lineWidth = 1
+          for (let i = 0; i < canvas.width; i += 50) {
+            ctx.beginPath()
+            ctx.moveTo(i, 0)
+            ctx.lineTo(i, canvas.height)
+            ctx.stroke()
+          }
+          for (let j = 0; j < canvas.height; j += 50) {
+            ctx.beginPath()
+            ctx.moveTo(0, j)
+            ctx.lineTo(canvas.width, j)
+            ctx.stroke()
+          }
+          ctx.globalAlpha = 1
+
+          // Top accent gradient bar
+          const topGradient = ctx.createLinearGradient(0, 0, canvas.width, 0)
+          topGradient.addColorStop(0, gameColors.primary)
+          topGradient.addColorStop(0.5, gameColors.secondary)
+          topGradient.addColorStop(1, gameColors.primary)
+          ctx.fillStyle = topGradient
+          ctx.fillRect(0, 0, canvas.width, 8)
+
+          // Load and draw all images first
+          const loadImage = (src: string): Promise<HTMLImageElement> => {
+            return new Promise((resolve, reject) => {
+              const img = new Image()
+              img.crossOrigin = 'anonymous'
+              img.onload = () => resolve(img)
+              img.onerror = reject
+              img.src = src
+            })
+          }
+
+          // Draw everything - inspired by Valorant/League of Legends
+          const drawComplete = async () => {
+            // Diagonal accent lines (Valorant style)
+            ctx.globalAlpha = 0.1
+            ctx.strokeStyle = gameColors.primary
+            ctx.lineWidth = 3
+            for (let i = -canvas.height; i < canvas.width; i += 80) {
+              ctx.beginPath()
+              ctx.moveTo(i, 0)
+              ctx.lineTo(i + canvas.height, canvas.height)
+              ctx.stroke()
+            }
+            ctx.globalAlpha = 1
+
+            try {
+              // Load all images including Junie mascot
+              const [junieLogo, cloud9Logo, jetbrainsLogo, junieMascot] = await Promise.all([
+                loadImage('/assets/images/logos/junie-logo.png'),
+                loadImage('/assets/images/logos/cloud9-logo.png'),
+                loadImage('/assets/images/logos/jetbrains-logo.png'),
+                loadImage('/assets/images/junie/junie-happy.png')
+              ]).catch(() => [null, null, null, null])
+
+              // Top section with logos and branding
+              if (junieLogo) {
+                ctx.globalAlpha = 0.9
+                ctx.drawImage(junieLogo, 30, 30, 90, 90)
+                ctx.globalAlpha = 1
+              }
+
+              // Sponsor logos (top right)
+              const logoY = 35
+              if (jetbrainsLogo) {
+                ctx.globalAlpha = 0.85
+                ctx.drawImage(jetbrainsLogo, canvas.width - 110, logoY, 70, 70)
+                ctx.globalAlpha = 1
+              }
+              if (cloud9Logo) {
+                ctx.globalAlpha = 0.85
+                ctx.drawImage(cloud9Logo, canvas.width - 200, logoY, 70, 70)
+                ctx.globalAlpha = 1
+              }
+
+              // Add Junie mascot (happy) on the left side
+              if (junieMascot) {
+                const mascotSize = 280
+                const mascotX = 60
+                const mascotY = canvas.height / 2 - mascotSize / 2
+
+                // Glow effect behind Junie
+                ctx.shadowColor = gameColors.primary
+                ctx.shadowBlur = 50
+                ctx.globalAlpha = 0.8
+                ctx.drawImage(junieMascot, mascotX, mascotY, mascotSize, mascotSize)
+                ctx.shadowBlur = 0
+                ctx.globalAlpha = 1
+              }
+            } catch (err) {
+              console.log('Images failed to load, continuing')
+            }
+
+            // Main title section (League/Valorant style)
+            const titleY = 140
+
+            // Large "VICTORY" text with glow
+            ctx.textAlign = 'center'
+            ctx.font = 'bold 110px system-ui, -apple-system, sans-serif'
+
+            // Text shadow/glow effect
+            ctx.shadowColor = gameColors.primary
+            ctx.shadowBlur = 50
+            ctx.fillStyle = '#ffffff'
+            ctx.fillText('VICTORY', canvas.width / 2, titleY)
+
+            // Second layer for stronger glow
+            ctx.shadowBlur = 30
+            ctx.fillText('VICTORY', canvas.width / 2, titleY)
+
+            ctx.shadowBlur = 0
+
+            // Accent line under VICTORY
+            const lineY = titleY + 20
+            ctx.strokeStyle = gameColors.primary
+            ctx.lineWidth = 4
+            ctx.beginPath()
+            ctx.moveTo(canvas.width / 2 - 200, lineY)
+            ctx.lineTo(canvas.width / 2 + 200, lineY)
+            ctx.stroke()
+
+            // Game type badge
+            ctx.font = 'bold 28px system-ui, -apple-system, sans-serif'
+            ctx.fillStyle = gameColors.secondary
+            ctx.fillText(getGameTitle().toUpperCase(), canvas.width / 2, lineY + 45)
+
+            // Champion photo section with hexagon frame (Valorant style)
+            let contentY = 260
+            if (selfieData) {
+              const selfieImg = new Image()
+              selfieImg.src = selfieData
+              await new Promise((resolve) => {
+                selfieImg.onload = () => {
+                  const photoSize = 320
+                  const photoX = (canvas.width - photoSize) / 2
+
+                  // Hexagonal glow background
+                  ctx.shadowColor = gameColors.primary
+                  ctx.shadowBlur = 60
+                  ctx.globalAlpha = 0.3
+                  ctx.fillStyle = gameColors.primary
+                  ctx.beginPath()
+                  for (let i = 0; i < 6; i++) {
+                    const angle = (Math.PI / 3) * i
+                    const x = photoX + photoSize / 2 + Math.cos(angle) * (photoSize / 2 + 20)
+                    const y = contentY + photoSize / 2 + Math.sin(angle) * (photoSize / 2 + 20)
+                    if (i === 0) ctx.moveTo(x, y)
+                    else ctx.lineTo(x, y)
+                  }
+                  ctx.closePath()
+                  ctx.fill()
+                  ctx.globalAlpha = 1
+                  ctx.shadowBlur = 0
+
+                  // Circular photo with enhanced border
+                  ctx.save()
+                  ctx.beginPath()
+                  ctx.arc(photoX + photoSize / 2, contentY + photoSize / 2, photoSize / 2, 0, Math.PI * 2)
+                  ctx.closePath()
+                  ctx.clip()
+                  ctx.drawImage(selfieImg, photoX, contentY, photoSize, photoSize)
+                  ctx.restore()
+
+                  // Double border ring effect
+                  ctx.strokeStyle = gameColors.primary
+                  ctx.lineWidth = 5
+                  ctx.beginPath()
+                  ctx.arc(photoX + photoSize / 2, contentY + photoSize / 2, photoSize / 2 + 3, 0, Math.PI * 2)
+                  ctx.stroke()
+
+                  ctx.strokeStyle = gameColors.secondary
+                  ctx.lineWidth = 3
+                  ctx.beginPath()
+                  ctx.arc(photoX + photoSize / 2, contentY + photoSize / 2, photoSize / 2 + 12, 0, Math.PI * 2)
+                  ctx.stroke()
+
+                  // Corner accent marks (Valorant style)
+                  const corners = [
+                    { x: photoX - 20, y: contentY - 20 },
+                    { x: photoX + photoSize + 20, y: contentY - 20 },
+                    { x: photoX - 20, y: contentY + photoSize + 20 },
+                    { x: photoX + photoSize + 20, y: contentY + photoSize + 20 }
+                  ]
+                  ctx.strokeStyle = gameColors.primary
+                  ctx.lineWidth = 3
+                  corners.forEach((corner, idx) => {
+                    const size = 25
+                    ctx.beginPath()
+                    if (idx === 0) { // Top-left
+                      ctx.moveTo(corner.x, corner.y + size)
+                      ctx.lineTo(corner.x, corner.y)
+                      ctx.lineTo(corner.x + size, corner.y)
+                    } else if (idx === 1) { // Top-right
+                      ctx.moveTo(corner.x - size, corner.y)
+                      ctx.lineTo(corner.x, corner.y)
+                      ctx.lineTo(corner.x, corner.y + size)
+                    } else if (idx === 2) { // Bottom-left
+                      ctx.moveTo(corner.x, corner.y - size)
+                      ctx.lineTo(corner.x, corner.y)
+                      ctx.lineTo(corner.x + size, corner.y)
+                    } else { // Bottom-right
+                      ctx.moveTo(corner.x - size, corner.y)
+                      ctx.lineTo(corner.x, corner.y)
+                      ctx.lineTo(corner.x, corner.y - size)
+                    }
+                    ctx.stroke()
+                  })
+
+                  contentY += photoSize + 50
+                  resolve(true)
+                }
+                selfieImg.onerror = () => resolve(false)
+              })
+            }
+
+            // Player info panel (League style)
+            const infoY = contentY
+
+            // Player name card
+            const nameCardHeight = 140
+            roundRect(50, infoY, canvas.width - 100, nameCardHeight, 15)
+            ctx.fillStyle = 'rgba(17, 24, 39, 0.85)'
+            ctx.fill()
+            ctx.strokeStyle = gameColors.primary
+            ctx.lineWidth = 2
+            ctx.stroke()
+
+            // "CHAMPION" label
+            ctx.fillStyle = gameColors.primary
+            ctx.font = 'bold 18px system-ui, -apple-system, sans-serif'
+            ctx.textAlign = 'center'
+            ctx.fillText('CHAMPION', canvas.width / 2, infoY + 35)
+
+            // Player name with flag (larger)
+            const flagEmoji = getCountryFlag() || ''
+            ctx.fillStyle = '#ffffff'
+            ctx.font = 'bold 52px system-ui, -apple-system, sans-serif'
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)'
+            ctx.shadowBlur = 15
+            ctx.fillText(`${flagEmoji} ${username}`, canvas.width / 2, infoY + 80)
+            ctx.shadowBlur = 0
+
+            // Country
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+            ctx.font = '22px system-ui, -apple-system, sans-serif'
+            ctx.fillText(country, canvas.width / 2, infoY + 115)
+
+            // Massive score display (Valorant style)
+            const scoreY = infoY + 170
+
+            // Score background panel
+            roundRect(50, scoreY, canvas.width - 100, 220, 15)
+            const scoreGradient = ctx.createLinearGradient(50, scoreY, canvas.width - 50, scoreY)
+            scoreGradient.addColorStop(0, 'rgba(17, 24, 39, 0.95)')
+            scoreGradient.addColorStop(0.5, 'rgba(30, 41, 59, 0.95)')
+            scoreGradient.addColorStop(1, 'rgba(17, 24, 39, 0.95)')
+            ctx.fillStyle = scoreGradient
+            ctx.fill()
+
+            // Score accent border
+            ctx.strokeStyle = gameColors.primary
+            ctx.lineWidth = 3
+            ctx.stroke()
+
+            // Top accent line inside
+            ctx.strokeStyle = gameColors.secondary
+            ctx.lineWidth = 2
+            ctx.beginPath()
+            ctx.moveTo(70, scoreY + 20)
+            ctx.lineTo(canvas.width - 70, scoreY + 20)
+            ctx.stroke()
+
+            // "FINAL SCORE" label
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
+            ctx.font = 'bold 20px system-ui, -apple-system, sans-serif'
+            ctx.fillText('FINAL SCORE', canvas.width / 2, scoreY + 55)
+
+            // The actual score - HUGE
+            ctx.fillStyle = '#ffffff'
+            ctx.font = 'bold 110px system-ui, -apple-system, sans-serif'
+            ctx.shadowColor = gameColors.primary
+            ctx.shadowBlur = 40
+            ctx.fillText(score.toLocaleString(), canvas.width / 2, scoreY + 145)
+            ctx.shadowBlur = 20
+            ctx.fillText(score.toLocaleString(), canvas.width / 2, scoreY + 145)
+            ctx.shadowBlur = 0
+
+            // "POINTS" label
+            ctx.fillStyle = gameColors.secondary
+            ctx.font = 'bold 26px system-ui, -apple-system, sans-serif'
+            ctx.fillText('POINTS', canvas.width / 2, scoreY + 185)
+
+            // Stats section (compact Valorant style)
+            const statsY = scoreY + 250
+            const statsPadding = 40
+            const statsWidth = canvas.width - (statsPadding * 2)
+            const statBoxHeight = 90
+            const statBoxMargin = 15
+
+            stats.forEach((stat, index) => {
+              const y = statsY + (index * (statBoxHeight + statBoxMargin))
+
+              // Stat box
+              roundRect(statsPadding, y, statsWidth, statBoxHeight, 10)
+              ctx.fillStyle = 'rgba(30, 41, 59, 0.6)'
+              ctx.fill()
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
+              ctx.lineWidth = 1
+              ctx.stroke()
+
+              // Accent line on left
+              ctx.fillStyle = gameColors.primary
+              ctx.fillRect(statsPadding, y, 5, statBoxHeight)
+
+              // Stat label
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
+              ctx.font = 'bold 15px system-ui, -apple-system, sans-serif'
+              ctx.textAlign = 'left'
+              ctx.fillText(stat.label.toUpperCase(), statsPadding + 25, y + 35)
+
+              // Stat value
+              ctx.fillStyle = '#ffffff'
+              ctx.font = 'bold 40px system-ui, -apple-system, sans-serif'
+              const statText = String(stat.value)
+              ctx.fillText(statText.length > 15 ? statText.substring(0, 13) + '...' : statText, statsPadding + 25, y + 70)
+            })
+
+            // Footer section
+            const footerY = canvas.height - 70
+
+            // Separator line
+            ctx.strokeStyle = gameColors.primary
+            ctx.lineWidth = 2
+            ctx.globalAlpha = 0.3
+            ctx.beginPath()
+            ctx.moveTo(40, footerY)
+            ctx.lineTo(canvas.width - 40, footerY)
+            ctx.stroke()
+            ctx.globalAlpha = 1
+
+            // Footer text
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+            ctx.font = 'bold 18px system-ui, -apple-system, sans-serif'
+            ctx.textAlign = 'center'
+            ctx.fillText("Generated with Junie's Arcade", canvas.width / 2, footerY + 30)
+
+            ctx.font = '14px system-ui, -apple-system, sans-serif'
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
+            const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            ctx.fillText(currentDate, canvas.width / 2, footerY + 52)
+          }
+
+          await drawComplete()
+          console.log('Ultra-modern professional card created successfully')
+        } else {
+          throw parseError
+        }
+      }
+
+      console.log('Canvas captured successfully, size:', canvas.width, 'x', canvas.height)
+
+      // Convert to blob and download
+      console.log('Converting to blob...')
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error('Failed to create blob')
+          alert('Unable to create image. Please try again.')
+          setIsDownloading(false)
+          return
+        }
+
+        console.log('Blob created, size:', blob.size)
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        const timestamp = new Date().getTime()
+        link.download = `junie-arcade-${username}-${score}-${timestamp}.png`
+        link.href = url
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        console.log('Download triggered successfully')
+
+        // Clean up
+        setTimeout(() => {
+          URL.revokeObjectURL(url)
+          setIsDownloading(false)
+          console.log('Download complete, cleaned up')
+        }, 100)
+      }, 'image/png')
+
+    } catch (error) {
+      console.error('Error downloading card:', error)
+      alert(`Unable to download card: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setIsDownloading(false)
+    }
+  }
+
+  const shareUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="max-w-3xl mx-auto"
+    >
+      <div
+        ref={cardRef}
+        data-card-clone="true"
+        className="bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden"
+      >
+        {/* Header with Game Branding */}
+        <div data-card-header="true" className={`bg-gradient-to-r ${getGameColor()} p-6 relative overflow-hidden`}>
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="text-6xl">{getGameEmoji()}</div>
+              <div>
+                <h2 className="text-3xl font-black text-white mb-1">Victory!</h2>
+                <p className="text-white/90 font-bold">{getGameTitle()}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-black text-white/80 uppercase tracking-widest">Score</div>
+              <div className="text-4xl font-black text-white">{score.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="p-8">
+          {/* Player Info & Selfie Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Player Info */}
+            <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+              <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">Champion</div>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-4xl">{getCountryFlag()}</span>
+                <div>
+                  <div className="text-2xl font-black text-white">{username}</div>
+                  <div className="text-sm text-slate-400 font-medium">{country}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Selfie Section */}
+            <div className="bg-white/5 rounded-2xl p-6 border border-white/10 relative">
+              <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">Champion Photo</div>
+              {!selfieData && !showCamera && (
+                <motion.button
+                  onClick={startCamera}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full h-32 bg-white/5 hover:bg-white/10 rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center gap-2 transition-all group"
+                >
+                  <span className="text-4xl group-hover:scale-110 transition-transform">📸</span>
+                  <span className="text-sm font-bold text-slate-400 group-hover:text-white transition-colors">Take Selfie</span>
+                </motion.button>
+              )}
+
+              {showCamera && (
+                <div className="relative">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-48 rounded-xl object-cover bg-black"
+                    autoPlay
+                    playsInline
+                    muted
+                  />
+                  <canvas ref={canvasRef} className="hidden" />
+                  <div className="flex gap-2 mt-3">
+                    <motion.button
+                      onClick={takeSelfie}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`flex-1 bg-gradient-to-r ${getGameColor()} text-white font-black py-2 px-4 rounded-xl text-sm`}
+                    >
+                      📸 Capture
+                    </motion.button>
+                    <motion.button
+                      onClick={stopCamera}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex-1 bg-red-500 text-white font-black py-2 px-4 rounded-xl text-sm"
+                    >
+                      ✕ Cancel
+                    </motion.button>
+                  </div>
+                </div>
+              )}
+
+              {selfieData && (
+                <div className="relative">
+                  <img
+                    src={selfieData}
+                    alt="Player selfie"
+                    className="w-full h-48 rounded-xl object-cover"
+                  />
+                  <button
+                    onClick={() => setSelfieData(null)}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold hover:bg-red-600 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white/5 rounded-2xl p-4 border border-white/10 text-center"
+              >
+                <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
+                  {stat.label}
+                </div>
+                <div className={`text-2xl font-black ${stat.color || 'text-white'}`}>
+                  {stat.value}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <motion.button
+              onClick={onSaveScore}
+              disabled={isSaving}
+              whileHover={!isSaving ? { scale: 1.02 } : {}}
+              whileTap={!isSaving ? { scale: 0.98 } : {}}
+              className={`bg-gradient-to-r ${getGameColor()} text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <span className="text-2xl">💾</span>
+              <span className="uppercase tracking-wider">
+                {isSaving ? 'Saving...' : 'Save to Leaderboard'}
+              </span>
+            </motion.button>
+
+            <motion.button
+              onClick={downloadCard}
+              disabled={isDownloading}
+              whileHover={!isDownloading ? { scale: 1.02 } : {}}
+              whileTap={!isDownloading ? { scale: 0.98 } : {}}
+              className="bg-white/10 hover:bg-white/20 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 border border-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="text-2xl">{isDownloading ? '⏳' : '⬇️'}</span>
+              <span className="uppercase tracking-wider">
+                {isDownloading ? 'Downloading...' : 'Download Card'}
+              </span>
+            </motion.button>
+          </div>
+
+          {/* QR Code Section */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-center"
+          >
+            <button
+              onClick={() => setShowQR(!showQR)}
+              className="text-slate-400 hover:text-white font-bold text-sm uppercase tracking-wider transition-colors mb-4"
+            >
+              {showQR ? '▲ Hide' : '▼ Show'} QR Code to Share
+            </button>
+
+            {showQR && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="bg-white/5 rounded-2xl p-6 border border-white/10"
+              >
+                <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                  <div className="bg-white p-4 rounded-xl">
+                    <img
+                      src={qrCodeUrl}
+                      alt="QR Code"
+                      className="w-48 h-48"
+                    />
+                  </div>
+                  <div className="text-left max-w-xs">
+                    <h3 className="text-lg font-black text-white mb-2">Share Your Victory!</h3>
+                    <p className="text-sm text-slate-400 mb-4">
+                      Scan this QR code to visit Junie's Arcade and challenge your friends!
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => navigator.clipboard.writeText(shareUrl)}
+                        className="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all"
+                      >
+                        📋 Copy Link
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+
+          {/* Return Button */}
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <Link href="/">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-white/5 hover:bg-white/10 text-white font-black py-4 px-6 rounded-2xl border border-white/10 uppercase tracking-wider transition-all"
+              >
+                ← Return to Arena
+              </motion.button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Junie's Arcade Branding */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7 }}
+        className="text-center mt-6"
+      >
+        <p className="text-slate-500 font-bold text-sm">
+          🎮 Generated with <span className={`bg-gradient-to-r ${getGameColor()} bg-clip-text text-transparent font-black`}>Junie's Arcade</span>
+        </p>
+      </motion.div>
+    </motion.div>
+  )
+}

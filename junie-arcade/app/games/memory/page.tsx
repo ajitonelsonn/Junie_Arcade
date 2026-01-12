@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import GameOverCard from '@/app/components/GameOverCard'
 
 interface Card {
   id: number
@@ -666,107 +667,20 @@ export default function MemoryMatchPage() {
 
           {/* Game Over Screen */}
           {gameOver && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="max-w-2xl mx-auto"
-            >
-              <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/10 shadow-2xl text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                  className="inline-block p-8 bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 rounded-3xl mb-8"
-                >
-                  <span className="text-8xl">{matchedPairs === 8 ? '🏆' : '⏱️'}</span>
-                </motion.div>
-
-                <h2 className="text-5xl font-black text-white mb-6">
-                  {matchedPairs === 8 ? 'Neural Sync Complete!' : 'Time Expired!'}
-                </h2>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">Final Score</div>
-                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-500">
-                      {score.toLocaleString()}
-                    </div>
-                  </div>
-                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">Pairs</div>
-                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-500">
-                      {matchedPairs}/8
-                    </div>
-                  </div>
-                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">Moves</div>
-                    <div className="text-4xl font-black text-white">{moves}</div>
-                  </div>
-                </div>
-
-                {/* Performance Badge */}
-                {matchedPairs === 8 && moves <= 20 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="mb-8 inline-block"
-                  >
-                    <div className="bg-gradient-to-r from-purple-400 to-fuchsia-500 text-black font-black px-6 py-3 rounded-full text-sm uppercase tracking-wider">
-                      🌟 Perfect Memory
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="space-y-4">
-                  <motion.button
-                    onClick={handleSaveScore}
-                    disabled={isSaving}
-                    whileHover={!isSaving ? { scale: 1.02 } : {}}
-                    whileTap={!isSaving ? { scale: 0.98 } : {}}
-                    animate={isSaving ? {
-                      backgroundImage: [
-                        "linear-gradient(to right, #c084fc, #d946ef, #ec4899)",
-                        "linear-gradient(to right, #d946ef, #ec4899, #c084fc)",
-                        "linear-gradient(to right, #ec4899, #c084fc, #d946ef)",
-                        "linear-gradient(to right, #c084fc, #d946ef, #ec4899)"
-                      ]
-                    } : {}}
-                    transition={isSaving ? { repeat: Infinity, duration: 2 } : {}}
-                    className="w-full bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600 text-white font-black py-5 px-8 rounded-2xl text-xl flex items-center justify-center gap-3 uppercase tracking-wider hover:shadow-[0_0_30px_rgba(217,70,239,0.5)] transition-all disabled:cursor-not-allowed"
-                  >
-                    {isSaving ? (
-                      <>
-                        <motion.span
-                          animate={{ rotate: 360 }}
-                          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                          className="inline-block w-6 h-6 border-4 border-white border-t-transparent rounded-full"
-                        />
-                        Saving to Leaderboard...
-                      </>
-                    ) : (
-                      <>
-                        <span>💾</span>
-                        Save to Leaderboard
-                      </>
-                    )}
-                  </motion.button>
-
-                  <Link href="/">
-                    <motion.button
-                      disabled={isSaving}
-                      whileHover={!isSaving ? { scale: 1.02 } : {}}
-                      whileTap={!isSaving ? { scale: 0.98 } : {}}
-                      className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-5 px-8 rounded-2xl text-lg uppercase tracking-wider border border-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Return to Arena
-                    </motion.button>
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
+            <GameOverCard
+              username={username}
+              country={country}
+              score={score}
+              gameType="MEMORY_MATCH"
+              stats={[
+                { label: 'Final Score', value: score.toLocaleString(), color: 'text-purple-400' },
+                { label: 'Pairs Matched', value: `${matchedPairs}/8`, color: 'text-fuchsia-400' },
+                { label: 'Moves', value: moves, color: 'text-white' },
+                ...(matchedPairs === 8 && moves <= 20 ? [{ label: 'Achievement', value: '🌟 Perfect', color: 'text-yellow-400' }] : [])
+              ]}
+              onSaveScore={handleSaveScore}
+              isSaving={isSaving}
+            />
           )}
         </div>
       </div>
