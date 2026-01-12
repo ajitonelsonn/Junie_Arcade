@@ -55,6 +55,7 @@ model DailyLeaderboard {
 model Country {
   id        String   @id @default(cuid())
   name      String   @unique
+  code      String   @default("US")
   flag      String
   createdAt DateTime @default(now())
 

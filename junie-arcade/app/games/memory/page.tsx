@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import GameOverCard from '@/app/components/GameOverCard'
+import FlagIcon from '@/app/components/FlagIcon'
 
 interface Card {
   id: number
@@ -30,7 +31,7 @@ export default function MemoryMatchPage() {
   const [gameStarted, setGameStarted] = useState(false)
   const [username, setUsername] = useState('')
   const [country, setCountry] = useState('')
-  const [countries, setCountries] = useState<Array<{ name: string; flag: string }>>([])
+  const [countries, setCountries] = useState<Array<{ name: string; flag: string; code: string }>>([])
   const [countrySearch, setCountrySearch] = useState('')
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const [cards, setCards] = useState<Card[]>([])
@@ -528,9 +529,14 @@ export default function MemoryMatchPage() {
                         setShowCountryDropdown(true)
                       }}
                       onFocus={() => setShowCountryDropdown(true)}
-                      placeholder={country ? `${countries.find(c => c.name === country)?.flag} ${country}` : "Search your country"}
+                      placeholder={country ? country : "Search your country"}
                       className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all"
                     />
+                    {country && (
+                      <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <FlagIcon code={countries.find(c => c.name === country)?.code || 'US'} className="w-8 h-5" />
+                      </div>
+                    )}
                     {showCountryDropdown && (
                       <div className="absolute z-50 w-full mt-2 max-h-60 overflow-y-auto bg-slate-900/95 backdrop-blur-xl border-2 border-white/10 rounded-2xl shadow-2xl">
                         {countries
@@ -547,7 +553,7 @@ export default function MemoryMatchPage() {
                               }}
                               className="w-full px-6 py-3 text-left hover:bg-fuchsia-500/20 transition-colors text-white flex items-center gap-3"
                             >
-                              <span className="text-2xl">{c.flag}</span>
+                              <FlagIcon code={c.code} className="w-8 h-5" animate={false} />
                               <span>{c.name}</span>
                             </button>
                           ))}

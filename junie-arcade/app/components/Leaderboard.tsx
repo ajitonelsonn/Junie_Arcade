@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
+import FlagIcon from './FlagIcon'
 
 interface LeaderboardEntry {
   rank: number
@@ -10,6 +11,7 @@ interface LeaderboardEntry {
   score: number
   gameType: string
   country?: string | null
+  countryCode?: string | null
   totalPoints?: number
   gamesPlayed?: number
   maxCombo?: number | null
@@ -22,7 +24,7 @@ export default function Leaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overall' | 'reflex' | 'jump' | 'memory'>('overall')
-  const [countries, setCountries] = useState<Array<{ name: string; flag: string }>>([])
+  const [countries, setCountries] = useState<Array<{ name: string; flag: string; code: string }>>([])
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -85,10 +87,25 @@ export default function Leaderboard() {
     }
   }
 
-  const getCountryFlag = (countryName: string | null | undefined) => {
+  const getCountryCode = (countryName: string | null | undefined) => {
     if (!countryName) return null
     const country = countries.find(c => c.name === countryName)
-    return country?.flag || null
+    return country?.code || null
+  }
+
+  const CountryFlag = ({ countryName }: { countryName: string | null | undefined }) => {
+    const countryCode = getCountryCode(countryName)
+    if (!countryCode) return null
+
+    // @ts-ignore - Dynamic flag component access
+    const FlagComponent = flags[countryCode]
+    if (!FlagComponent) return null
+
+    return (
+      <div className="w-7 h-5 rounded-sm overflow-hidden shadow-lg border border-white/20">
+        <FlagComponent className="w-full h-full object-cover" />
+      </div>
+    )
   }
 
   const getGameLogo = (gameType: string) => {
@@ -331,8 +348,8 @@ export default function Leaderboard() {
 
                         <div className="flex flex-col">
                           <div className="flex items-center gap-3 mb-1">
-                            {getCountryFlag(entry.country) && (
-                              <span className="text-xl filter saturate-150 drop-shadow-sm">{getCountryFlag(entry.country)}</span>
+                            {getCountryCode(entry.country) && (
+                              <FlagIcon code={getCountryCode(entry.country)!} className="w-5 h-3.5" />
                             )}
                             <div className="text-white font-black text-xl tracking-tight uppercase group-hover:text-[#ff4655] transition-colors duration-300 italic">
                               {entry.username}

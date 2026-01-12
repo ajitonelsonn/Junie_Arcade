@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
+import FlagIcon from './FlagIcon'
 
 interface GameOverCardProps {
   username: string
@@ -31,7 +32,7 @@ export default function GameOverCard({
   const [showCamera, setShowCamera] = useState(false)
   const [selfieData, setSelfieData] = useState<string | null>(null)
   const [tempSelfie, setTempSelfie] = useState<string | null>(null)
-  const [countries, setCountries] = useState<Array<{ name: string; flag: string }>>([])
+  const [countries, setCountries] = useState<Array<{ name: string; flag: string; code: string }>>([])
   const [isDownloading, setIsDownloading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
@@ -97,9 +98,9 @@ export default function GameOverCard({
     fetchCountries()
   }, [])
 
-  const getCountryFlag = () => {
+  const getCountryCode = () => {
     const countryData = countries.find(c => c.name === country)
-    return countryData?.flag || '🌍'
+    return countryData?.code || 'US'
   }
 
   const getGameLogo = () => {
@@ -622,12 +623,12 @@ export default function GameOverCard({
           ctx.fillText('CHAMPION', canvas.width / 2, infoY + 35)
 
           // Player name with flag (larger)
-          const flagEmoji = getCountryFlag() || ''
+          const flagEmoji = '' // getCountryFlag() || ''
           ctx.fillStyle = '#ffffff'
           ctx.font = 'bold 52px system-ui, -apple-system, sans-serif'
           ctx.shadowColor = 'rgba(0, 0, 0, 0.7)'
           ctx.shadowBlur = 15
-          ctx.fillText(`${flagEmoji} ${username}`, canvas.width / 2, infoY + 80)
+          ctx.fillText(`${username}`, canvas.width / 2, infoY + 80)
           ctx.shadowBlur = 0
 
           // Country
@@ -1032,10 +1033,9 @@ export default function GameOverCard({
                 )}
               </AnimatePresence>
               
-              {/* Player Name Overlay */}
               <div className="absolute -bottom-4 -right-4 bg-[#ff4655] p-4 skew-x-[-10deg] shadow-xl">
                 <div className="skew-x-[10deg] flex items-center gap-3">
-                  <span className="text-3xl">{getCountryFlag()}</span>
+                  <FlagIcon code={getCountryCode()} className="w-10 h-7" />
                   <div>
                     <div className="text-xs font-black text-black/60 uppercase tracking-widest leading-none">Champion</div>
                     <div className="text-xl font-black text-white uppercase tracking-tighter leading-tight">{username}</div>
