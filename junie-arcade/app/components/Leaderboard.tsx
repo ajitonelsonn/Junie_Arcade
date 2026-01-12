@@ -12,6 +12,10 @@ interface LeaderboardEntry {
   country?: string | null
   totalPoints?: number
   gamesPlayed?: number
+  maxCombo?: number | null
+  accuracy?: number | null
+  time?: number | null
+  distance?: number | null
 }
 
 export default function Leaderboard() {
@@ -65,7 +69,11 @@ export default function Leaderboard() {
           username: entry.username,
           score: entry.score,
           gameType: data.gameType || activeTab.toUpperCase(),
-          country: entry.country
+          country: entry.country,
+          maxCombo: entry.maxCombo,
+          accuracy: entry.accuracy,
+          time: entry.time,
+          distance: entry.distance
         }))
         setEntries(transformedEntries)
       }
@@ -335,9 +343,35 @@ export default function Leaderboard() {
                               </span>
                             )}
                           </div>
-                          <div className={`text-[10px] font-black uppercase tracking-[0.2em] ${getGameColor(entry.gameType)} opacity-60 flex items-center gap-2`}>
-                            <span className="w-2 h-2 rounded-full bg-current opacity-40 animate-pulse" />
-                            {entry.gameType.replace('_', ' ')}
+                          <div className={`text-[10px] font-black uppercase tracking-[0.2em] ${getGameColor(entry.gameType)} opacity-60 flex flex-wrap items-center gap-2 md:gap-4`}>
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-current opacity-40 animate-pulse" />
+                              {entry.gameType.replace('_', ' ')}
+                            </div>
+                            
+                            {/* Extra Values */}
+                            {entry.gameType !== 'OVERALL' && (
+                              <div className="flex items-center gap-3 border-l border-white/10 pl-3 md:pl-4">
+                                {entry.maxCombo !== null && entry.maxCombo !== undefined && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white/30 tracking-normal">COMBO:</span>
+                                    <span className="text-white/80">{entry.maxCombo}</span>
+                                  </div>
+                                )}
+                                {entry.accuracy !== null && entry.accuracy !== undefined && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white/30 tracking-normal">ACC:</span>
+                                    <span className="text-white/80">{entry.accuracy}%</span>
+                                  </div>
+                                )}
+                                {entry.distance !== null && entry.distance !== undefined && (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white/30 tracking-normal">DIST:</span>
+                                    <span className="text-white/80">{entry.distance}m</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

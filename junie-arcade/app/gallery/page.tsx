@@ -73,6 +73,7 @@ export default function GalleryPage() {
           <div className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400">
             <Link href="/" className="hover:text-white transition-colors">Arena</Link>
             <span className="text-white">Gallery</span>
+            <Link href="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link>
             <a href="https://cloud9.devpost.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Tournament</a>
           </div>
         </nav>
