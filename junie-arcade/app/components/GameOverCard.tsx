@@ -385,7 +385,7 @@ export default function GameOverCard({
         // Load and draw all images first
         const loadImage = (src: string): Promise<HTMLImageElement> => {
           return new Promise((resolve, reject) => {
-            const img = new Image()
+            const img = document.createElement('img')
             img.crossOrigin = 'anonymous'
             img.onload = () => resolve(img)
             img.onerror = reject
@@ -517,7 +517,7 @@ export default function GameOverCard({
           // Champion photo section with hexagon frame (Valorant style)
           let contentY = 260
           if (selfieData) {
-            const selfieImg = new Image()
+            const selfieImg = document.createElement('img')
             selfieImg.src = selfieData
             await new Promise((resolve) => {
               selfieImg.onload = () => {
