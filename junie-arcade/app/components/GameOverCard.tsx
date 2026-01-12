@@ -700,22 +700,7 @@ export default function GameOverCard({
             ctx.textAlign = 'right'
             ctx.fillText('SECURE CODE', canvas.width - 60, qrY - 25)
             
-            // Branding Logos
-            const brandY = qrY + qrSize + 50
-            if (cloud9Logo) {
-              ctx.globalAlpha = 0.8
-              ctx.drawImage(cloud9Logo, qrX, brandY, 70, 70)
-            }
-            if (jetbrainsLogo) {
-              ctx.globalAlpha = 0.8
-              ctx.drawImage(jetbrainsLogo, qrX + 110, brandY, 70, 70)
-            }
-            
-            ctx.globalAlpha = 1
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
-            ctx.font = 'bold 18px system-ui, -apple-system, sans-serif'
-            ctx.textAlign = 'center'
-            ctx.fillText('x', qrX + 90, brandY + 40)
+            // Note: Branding logos are displayed at the top of the card
           } catch (err) {
             console.log('QR/Branding failed to load for fallback')
           }
