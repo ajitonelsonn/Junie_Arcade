@@ -11,8 +11,10 @@
   "dependencies": {
     "@prisma/client": "^6.19.1",
     "framer-motion": "^12.25.0",
+    "html2canvas": "^1.4.1",
     "next": "16.1.1",
     "phaser": "^3.90.0",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "socket.io": "^4.8.3",
