@@ -38,7 +38,7 @@ npm run dev
 
 ### 4. Play! (∞ minutes)
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [https://www.juniearcade.fun](https://www.juniearcade.fun)
 
 ## Troubleshooting
 

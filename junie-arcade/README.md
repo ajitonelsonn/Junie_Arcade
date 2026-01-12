@@ -74,7 +74,7 @@ A 3-in-1 mini-game arcade platform built for the **Cloud9 x JetBrains Hackathon 
 
 6. **Open your browser**
 
-   Navigate to [http://localhost:3000](http://localhost:3000)
+   Navigate to [https://www.juniearcade.fun](https://www.juniearcade.fun)
 
 ## 🎯 How to Play
 
