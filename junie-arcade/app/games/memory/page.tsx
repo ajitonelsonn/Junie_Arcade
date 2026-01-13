@@ -547,7 +547,7 @@ export default function MemoryMatchPage() {
                               key={c.name}
                               type="button"
                               onClick={() => {
-                                setCountry(c.name);
+                                setCountry(c.code);
                                 setCountrySearch("");
                                 setShowCountryDropdown(false);
                               }}
@@ -591,6 +591,19 @@ export default function MemoryMatchPage() {
           {/* Game Screen */}
           {gameStarted && !gameOver && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[calc(100vh-180px)] flex flex-col">
+              {/* Player Info Bar */}
+              <div className="flex items-center justify-center gap-2 mb-3 max-w-7xl mx-auto">
+                <div className="bg-white/5 backdrop-blur-xl rounded-xl px-4 py-2 border border-white/10 flex items-center gap-3">
+                  <div className="text-xs font-black text-slate-500 uppercase tracking-widest">
+                    Player
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-white">{username}</span>
+                    <span className="text-2xl">{countries.find(c => c.code === country)?.flag}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Stats Bar */}
               <div className="flex justify-between items-center gap-3 sm:gap-4 md:gap-6 mb-3 max-w-7xl mx-auto flex-shrink-0 px-4">
                 <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10">

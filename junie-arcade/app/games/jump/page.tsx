@@ -469,7 +469,7 @@ export default function JumpMasterPage() {
                               key={c.name}
                               type="button"
                               onClick={() => {
-                                setCountry(c.name);
+                                setCountry(c.code);
                                 setCountrySearch("");
                                 setShowCountryDropdown(false);
                               }}
@@ -517,6 +517,19 @@ export default function JumpMasterPage() {
               animate={{ opacity: 1 }}
               className="flex flex-col items-center"
             >
+              {/* Player Info Bar */}
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <div className="bg-white/5 backdrop-blur-xl rounded-xl px-4 py-2 border border-white/10 flex items-center gap-3">
+                  <div className="text-xs font-black text-slate-500 uppercase tracking-widest">
+                    Player
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-white">{username}</span>
+                    <span className="text-2xl">{countries.find(c => c.code === country)?.flag}</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-3 border border-white/10 shadow-2xl max-w-5xl mx-auto">
                 <div
                   id="phaser-game-container"

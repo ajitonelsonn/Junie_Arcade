@@ -581,7 +581,7 @@ export default function ReflexArenaPage() {
                               key={c.name}
                               type="button"
                               onClick={() => {
-                                setCountry(c.name);
+                                setCountry(c.code);
                                 setCountrySearch("");
                                 setShowCountryDropdown(false);
                               }}
@@ -625,6 +625,19 @@ export default function ReflexArenaPage() {
           {/* Game Screen */}
           {gameStarted && !gameOver && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              {/* Player Info Bar */}
+              <div className="flex items-center justify-center gap-2 mb-2 max-w-5xl mx-auto">
+                <div className="bg-white/5 backdrop-blur-xl rounded-xl px-4 py-2 border border-white/10 flex items-center gap-3">
+                  <div className="text-xs font-black text-slate-500 uppercase tracking-widest">
+                    Player
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-white">{username}</span>
+                    <span className="text-2xl">{countries.find(c => c.code === country)?.flag}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Stats Bar */}
               <div className="flex justify-between items-center gap-2 mb-2 max-w-5xl mx-auto">
                 <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-xl p-2 border border-white/10">
