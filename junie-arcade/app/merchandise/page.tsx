@@ -94,10 +94,10 @@ export default function MerchandisePage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
                 <div className="px-6 py-3 bg-white/5 border border-white/10 rounded-full text-sm font-bold uppercase tracking-widest text-white/60">
-                  📍 TDB
+                  📍 TBD
                 </div>
                 <div className="px-6 py-3 bg-white/5 border border-white/10 rounded-full text-sm font-bold uppercase tracking-widest text-white/60">
-                  📅 TDB
+                  📅 TBD
                 </div>
               </div>
             </div>

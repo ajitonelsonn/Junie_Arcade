@@ -70,9 +70,9 @@ finalScore = distanceTraveled
 
 #### Final Score Calculation
 ```typescript
-baseScore = matchedPairs × 100
-timeBonus = timeRemaining × 10
-accuracyBonus = Math.floor((totalPairs / movesMade) × 100)
+baseScore = matchedPairs * 100
+timeBonus = timeRemaining * 10
+accuracyBonus = Math.floor((totalPairs / movesMade) * 100)
 completionBonus = allPairsMatched ? 200 : 0
 
 finalScore = baseScore + timeBonus + accuracyBonus + completionBonus
@@ -131,8 +131,8 @@ function calculatePoints(rank: number): number {
   if (rank === 1) return 100
   if (rank === 2) return 90
   if (rank === 3) return 80
-  if (rank <= 10) return 100 - (rank × 5)
-  if (rank <= 25) return 50 - ((rank - 10) × 2)
+  if (rank <= 10) return 100 - (rank * 5)
+  if (rank <= 25) return 50 - ((rank - 10) * 2)
   if (rank <= 50) return 20 - (rank - 25)
   return Math.max(1, 10 - Math.floor(rank / 10))
 }
@@ -331,15 +331,26 @@ enum GameType {
 
 ## Implementation Notes
 
-### Player Identification
-- Players are identified by **username + country** combination
-- Same username in different countries = different players
-- Changing country creates a new player record
+### Player Identification & Session System
+
+- **Unique Session IDs:** Every time a player starts a new tournament from the main arena, a unique Player ID is generated in the database.
+- **Repeat Play:** If a user enters the same name and country again (e.g., "Ajito" from "Timor-Leste"), the system generates a *new* unique ID. This ensures that each tournament attempt is tracked independently.
+- **Identity Locking:** Once a session starts, the Name and Country are locked and cannot be changed until the session ends.
+- **Session Lifecycle:**
+  - The ID is maintained as the player moves between different games (Jump Master, Reflex Arena, Memory Match).
+  - The session is reset and the ID is cleared when the player returns to the Main Menu or completes the tournament.
 
 ### Best Score Logic
-- Only the **best score per player** counts for rankings
-- Players can play multiple times
-- Lower scores don't replace higher scores in leaderboard
+
+- Rankings are calculated based on the scores associated with each unique Player ID.
+- Since every new attempt creates a new ID, each "session" competes on the leaderboard as a separate entry.
+
+### Tournament Flow
+
+- Players can start with any game.
+- After finishing a game, the system identifies which games are still unplayed in the current session and guides the player to them via the "Continue" button.
+- A player must complete all 3 games to maximize their Champion Points and reach the top of the Overall Leaderboard.
+- Completing all 3 games allows the player to generate a final "Overall Leaderboard Card".
 
 ### Country Support
 - 250+ countries with flag emojis
