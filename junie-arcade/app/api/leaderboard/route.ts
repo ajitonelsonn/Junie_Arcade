@@ -10,15 +10,14 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const view = searchParams.get('view') || 'overall' // overall, reflex, jump, memory
     const country = searchParams.get('country') // filter by country
+    const playerId = searchParams.get('playerId') // get stats for specific player
 
     if (view === 'overall') {
-      // Get top 100 players with their best scores in each game (optimized)
+      // Get all players for overall ranking to ensure current player is found
       const players = await prisma.player.findMany({
         where: country ? { country: country } : undefined,
-        take: 100, // Limit to top 100 players for performance
         include: {
           scores: {
-            take: 10, // Only get top 10 scores per player
             orderBy: {
               score: 'desc'
             }
@@ -111,7 +110,8 @@ export async function GET(request: NextRequest) {
 
       const response = NextResponse.json({
         type: 'overall',
-        leaderboard: sortedLeaderboard.slice(0, 100)
+        leaderboard: sortedLeaderboard.slice(0, 100),
+        currentPlayer: playerId ? sortedLeaderboard.find(p => p.playerId === playerId) : null
       })
 
       // Add cache headers

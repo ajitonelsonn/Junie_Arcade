@@ -12,7 +12,7 @@ const s3Client = new S3Client({
 
 export async function POST(request: Request) {
   try {
-    const { image, filename, username, score, gameType, country } = await request.json();
+    const { image, filename, username, score, gameType, country, playerId } = await request.json();
 
     if (!image) {
       return NextResponse.json({ error: "No image data provided" }, { status: 400 });
@@ -39,12 +39,23 @@ export async function POST(request: Request) {
 
     // Save to database if metadata is provided
     if (username && score !== undefined && gameType) {
+      // If we have a playerId, use it to ensure we link to the right player
+      // This is especially important for the overall card
+      let linkedPlayerId = playerId;
+      
+      if (!linkedPlayerId) {
+        const player = await prisma.player.findFirst({
+          where: { username, country: country || null }
+        });
+        linkedPlayerId = player?.id;
+      }
+
       await prisma.galleryItem.create({
         data: {
           url: publicUrl,
           username,
           score: parseInt(score.toString()),
-          gameType,
+          gameType: gameType as any,
           country: country || null,
         },
       });

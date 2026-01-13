@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import FlagIcon from './FlagIcon'
+import GameOverCard from './GameOverCard'
 
 interface LeaderboardEntry {
   rank: number
@@ -25,6 +26,17 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overall' | 'reflex' | 'jump' | 'memory'>('overall')
   const [countries, setCountries] = useState<Array<{ name: string; flag: string; code: string }>>([])
+  const [showOverallCard, setShowOverallCard] = useState(false)
+  const [currentPlayerStats, setCurrentPlayerStats] = useState<any>(null)
+
+  useEffect(() => {
+    // Check for showOverall query param
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('showOverall') === 'true') {
+      setActiveTab('overall');
+      setShowOverallCard(true);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -45,14 +57,33 @@ export default function Leaderboard() {
     return () => clearInterval(interval)
   }, [activeTab])
 
+  // Added effect to handle URL parameters for rank
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const rank = urlParams.get('rank');
+    if (rank && currentPlayerStats && !currentPlayerStats.rank) {
+      setCurrentPlayerStats((prev: any) => ({ ...prev, rank: parseInt(rank) }));
+    }
+  }, [currentPlayerStats]);
+
   const fetchLeaderboard = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/leaderboard?view=${activeTab}`)
+      // If we have a playerId in localStorage, use it. 
+      // If not, check if we have one in the URL (from a recent finish)
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlPlayerId = urlParams.get('playerId');
+      const storagePlayerId = localStorage.getItem('junie_player_id');
+      const playerId = storagePlayerId || urlPlayerId;
+
+      const response = await fetch(`/api/leaderboard?view=${activeTab}${playerId ? `&playerId=${playerId}` : ''}`)
       const data = await response.json()
 
       // Transform data based on view type
       if (activeTab === 'overall') {
+        if (data.currentPlayer) {
+          setCurrentPlayerStats(data.currentPlayer)
+        }
         // Overall leaderboard with champion points
         const transformedEntries = data.leaderboard.slice(0, 5).map((player: any, index: number) => ({
           rank: index + 1,
@@ -226,45 +257,78 @@ export default function Leaderboard() {
       </div>
 
       {/* Tab Navigation - Valorant Style */}
-      <div className="flex flex-wrap justify-center md:justify-start gap-4 p-2 relative z-10">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`group relative px-8 py-4 transition-all duration-300 overflow-hidden ${
-              activeTab === tab.id
-                ? 'text-slate-900'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            {/* Background Skew */}
-            <div className={`absolute inset-0 skew-x-[-12deg] transition-all duration-300 ${
-              activeTab === tab.id
-                ? 'bg-white opacity-100'
-                : 'bg-white/5 group-hover:bg-white/10'
-            } border border-white/10`} />
-            
-            <div className="relative flex items-center gap-3 font-black uppercase tracking-[0.2em] text-xs">
-              {tab.logo ? (
-                <div className={`w-5 h-5 relative transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : 'group-hover:scale-110 opacity-70 group-hover:opacity-100'}`}>
-                  <Image src={tab.logo} alt={tab.label} fill sizes="20px" className="object-contain" />
-                </div>
-              ) : (
-                <span className={activeTab === tab.id ? '' : 'opacity-70'}>{tab.icon}</span>
-              )}
-              <span>{tab.label}</span>
-            </div>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-2 relative z-10">
+        <div className="flex flex-wrap justify-center md:justify-start gap-4">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`group relative px-8 py-4 transition-all duration-300 overflow-hidden ${
+                activeTab === tab.id
+                  ? 'text-slate-900'
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              {/* Background Skew */}
+              <div className={`absolute inset-0 skew-x-[-12deg] transition-all duration-300 ${
+                activeTab === tab.id
+                  ? 'bg-white opacity-100'
+                  : 'bg-white/5 group-hover:bg-white/10'
+              } border border-white/10`} />
+              
+              <div className="relative flex items-center gap-3 font-black uppercase tracking-[0.2em] text-xs">
+                {tab.logo ? (
+                  <div className={`w-5 h-5 relative transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : 'group-hover:scale-110 opacity-70 group-hover:opacity-100'}`}>
+                    <Image src={tab.logo} alt={tab.label} fill sizes="20px" className="object-contain" />
+                  </div>
+                ) : (
+                  <span className={activeTab === tab.id ? '' : 'opacity-70'}>{tab.icon}</span>
+                )}
+                <span>{tab.label}</span>
+              </div>
 
-            {/* Bottom Active Indicator */}
-            {activeTab === tab.id && (
-              <motion.div 
-                layoutId="activeTab"
-                className="absolute bottom-0 left-2 right-6 h-1 bg-[#ff4655] skew-x-[-12deg]"
-              />
-            )}
-          </button>
-        ))}
+              {/* Bottom Active Indicator */}
+              {activeTab === tab.id && (
+                <motion.div 
+                  layoutId="activeTab"
+                  className="absolute bottom-0 left-2 right-6 h-1 bg-[#ff4655] skew-x-[-12deg]"
+                />
+              )}
+            </button>
+          ))}
+        </div>
+
       </div>
+
+      <AnimatePresence>
+        {showOverallCard && currentPlayerStats && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 overflow-y-auto">
+            <div className="relative w-full max-w-4xl my-auto">
+              <button 
+                onClick={() => setShowOverallCard(false)}
+                className="absolute -top-12 right-0 text-white hover:text-emerald-400 font-black uppercase tracking-widest transition-colors"
+              >
+                Close [X]
+              </button>
+              <GameOverCard
+                username={currentPlayerStats.username}
+                country={currentPlayerStats.country}
+                score={currentPlayerStats.totalPoints}
+                gameType="OVERALL"
+                stats={[
+                  { label: 'Reflex Pts', value: currentPlayerStats.reflexPoints, color: 'text-yellow-400' },
+                  { label: 'Jump Pts', value: currentPlayerStats.jumpPoints, color: 'text-cyan-400' },
+                  { label: 'Memory Pts', value: currentPlayerStats.memoryPoints, color: 'text-purple-400' },
+                  { label: 'Games Played', value: `${currentPlayerStats.gamesPlayed}/3` },
+                  ...(currentPlayerStats.rank ? [{ label: 'Overall Rank', value: `#${currentPlayerStats.rank}`, color: 'text-emerald-400' }] : [])
+                ]}
+                onSaveScore={() => {}} // No auto-save needed for overall
+                isSaving={false}
+              />
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <div className="relative overflow-hidden rounded-sm border border-white/10 bg-[#0f1923]/50 backdrop-blur-md">
         {/* Decorative background accents */}

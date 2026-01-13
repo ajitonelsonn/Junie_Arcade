@@ -10,7 +10,7 @@ interface GameOverCardProps {
   username: string
   country: string
   score: number
-  gameType: 'REFLEX_ARENA' | 'JUMP_MASTER' | 'MEMORY_MATCH'
+  gameType: 'REFLEX_ARENA' | 'JUMP_MASTER' | 'MEMORY_MATCH' | 'OVERALL'
   stats: {
     label: string
     value: string | number
@@ -39,6 +39,9 @@ export default function GameOverCard({
   const [hasAutoSaved, setHasAutoSaved] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
   const [captureCountdown, setCaptureCountdown] = useState<number | null>(null)
+  const [showExitModal, setShowExitModal] = useState(false)
+  const [playerRank, setPlayerRank] = useState<number | null>(null)
+  const [isCalculating, setIsCalculating] = useState(false)
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -132,6 +135,7 @@ export default function GameOverCard({
       case 'REFLEX_ARENA': return '/assets/images/logos/game_logo/reflex_arena.png'
       case 'JUMP_MASTER': return '/assets/images/logos/game_logo/jump_master.png'
       case 'MEMORY_MATCH': return '/assets/images/logos/game_logo/memory_match.png'
+      case 'OVERALL': return '/assets/images/logos/junie-logo.png'
       default: return null
     }
   }
@@ -141,6 +145,7 @@ export default function GameOverCard({
       case 'REFLEX_ARENA': return 'Reflex Arena'
       case 'JUMP_MASTER': return 'Jump Master'
       case 'MEMORY_MATCH': return 'Memory Match'
+      case 'OVERALL': return 'Ultimate Champion'
       default: return 'Game'
     }
   }
@@ -150,6 +155,7 @@ export default function GameOverCard({
       case 'REFLEX_ARENA': return 'from-[#ff4655] to-[#ff4655]/80' // Valorant Red
       case 'JUMP_MASTER': return 'from-[#00eeff] to-[#00eeff]/80' // Cyber Cyan
       case 'MEMORY_MATCH': return 'from-[#c284f9] to-[#c284f9]/80' // LoL Magic Purple
+      case 'OVERALL': return 'from-emerald-400 to-cyan-500'
       default: return 'from-slate-500 to-gray-500'
     }
   }
@@ -159,6 +165,7 @@ export default function GameOverCard({
       case 'REFLEX_ARENA': return 'shadow-[#ff4655]/20'
       case 'JUMP_MASTER': return 'shadow-[#00eeff]/20'
       case 'MEMORY_MATCH': return 'shadow-[#c284f9]/20'
+      case 'OVERALL': return 'shadow-emerald-500/20'
       default: return 'shadow-white/10'
     }
   }
@@ -168,6 +175,7 @@ export default function GameOverCard({
       case 'REFLEX_ARENA': return 'text-[#ff4655]'
       case 'JUMP_MASTER': return 'text-[#00eeff]'
       case 'MEMORY_MATCH': return 'text-[#c284f9]'
+      case 'OVERALL': return 'text-emerald-400'
       default: return 'text-white'
     }
   }
@@ -299,7 +307,8 @@ export default function GameOverCard({
           username,
           score,
           gameType,
-          country
+          country,
+          playerId: localStorage.getItem('junie_player_id')
         }),
       })
 
@@ -861,7 +870,101 @@ export default function GameOverCard({
   const shareUrl = uploadedUrl || (typeof window !== 'undefined' ? 'https://www.juniearcade.fun' : '')
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`
 
+  const getNextGame = () => {
+    switch (gameType) {
+      case 'JUMP_MASTER': return { name: 'Reflex Arena', path: '/games/reflex' }
+      case 'REFLEX_ARENA': return { name: 'Memory Match', path: '/games/memory' }
+      case 'MEMORY_MATCH': return { name: 'Overall Results', path: '/leaderboard' } // Or show overall card
+      default: return null
+    }
+  }
+
+  const nextGame = getNextGame()
+
+  const handleExit = async () => {
+    setIsCalculating(true)
+    setShowExitModal(true)
+    
+    try {
+      const playerId = localStorage.getItem('junie_player_id')
+      
+      // If no scores saved yet, just go home
+      if (!playerId) {
+        window.location.href = '/'
+        return
+      }
+
+      // Small delay to simulate "calculating overall leaderboard"
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      const response = await fetch(`/api/leaderboard?view=overall&playerId=${playerId}`)
+      const data = await response.json()
+      
+      if (data.currentPlayer && data.leaderboard) {
+        // Find position in the leaderboard
+        const position = data.leaderboard.findIndex((p: any) => p.playerId === playerId)
+        setPlayerRank(position !== -1 ? position + 1 : null)
+        
+        // Reset credentials since the tournament is being exited/finished
+        localStorage.removeItem('junie_player_id')
+        localStorage.removeItem('junie_username')
+        localStorage.removeItem('junie_country')
+
+        // Redirect to leaderboard with showOverall flag to generate the card
+        window.location.href = `/leaderboard?showOverall=true&playerId=${playerId}&rank=${position !== -1 ? position + 1 : ''}`
+      } else {
+        // Fallback if no player stats found
+        window.location.href = '/'
+      }
+    } catch (error) {
+      console.error('Failed to calculate rank:', error)
+      window.location.href = '/'
+    }
+  }
+
+  const handleGenerateLeaderboardCard = async () => {
+    setIsCalculating(true)
+    setShowExitModal(true)
+    
+    try {
+      const playerId = localStorage.getItem('junie_player_id')
+      
+      // If no scores saved yet, just go home
+      if (!playerId) {
+        window.location.href = '/'
+        return
+      }
+
+      // Small delay to simulate "calculating overall leaderboard"
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      const response = await fetch(`/api/leaderboard?view=overall&playerId=${playerId}`)
+      const data = await response.json()
+      
+      if (data.currentPlayer && data.leaderboard) {
+        // Find position in the leaderboard
+        const position = data.leaderboard.findIndex((p: any) => p.playerId === playerId)
+        setPlayerRank(position !== -1 ? position + 1 : null)
+        
+        // Reset credentials since the tournament is over
+        localStorage.removeItem('junie_player_id')
+        localStorage.removeItem('junie_username')
+        localStorage.removeItem('junie_country')
+
+        // Redirect to leaderboard
+        window.location.href = `/leaderboard?showOverall=true&playerId=${playerId}&rank=${position !== -1 ? position + 1 : ''}`
+      } else {
+        // Fallback
+        window.location.href = '/'
+      }
+    } catch (error) {
+      console.error('Failed to generate leaderboard card:', error)
+      window.location.href = '/'
+    }
+  }
+
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -1180,13 +1283,63 @@ export default function GameOverCard({
                 ))}
               </div>
 
-              {/* Action Buttons with Valorant Style */}
-              <div data-export-hide="true" className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                <button
-                  onClick={saveCardToS3}
-                  disabled={isUploading || !!uploadedUrl}
-                  className={`group relative overflow-hidden bg-[#ff4655] py-4 transition-all hover:brightness-110 disabled:opacity-50`}
+            {/* Action Buttons with Valorant Style */}
+            <div data-export-hide="true" className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+              {nextGame && gameType !== 'MEMORY_MATCH' && (
+                <Link
+                  href={nextGame.path}
+                  className="col-span-1 sm:col-span-2 group relative overflow-hidden bg-white py-4 transition-all hover:brightness-110 mb-2 border-l-4 border-cyan-400"
                 >
+                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-black uppercase tracking-[0.15em] text-sm">
+                    <span>➡️</span>
+                    Continue to {nextGame.name}
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
+                </Link>
+              )}
+              
+              {gameType === 'MEMORY_MATCH' && (
+                <button
+                  onClick={handleGenerateLeaderboardCard}
+                  className="col-span-1 sm:col-span-2 group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 py-4 transition-all hover:brightness-110 mb-2 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                >
+                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.15em] text-sm">
+                    <span>🏆</span>
+                    Generate Leaderboard Card
+                  </div>
+                </button>
+              )}
+
+              {gameType !== 'OVERALL' && (
+                <button
+                  onClick={handleExit}
+                  className="col-span-1 sm:col-span-2 group relative overflow-hidden border border-white/20 py-4 transition-all hover:bg-white/5 mb-2"
+                >
+                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white/60 group-hover:text-white uppercase tracking-[0.15em] text-sm transition-colors">
+                    <span>🚪</span>
+                    Exit & Generate Leaderboard Card
+                  </div>
+                  <div className="absolute inset-0 bg-white/5 -translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                </button>
+              )}
+
+              {gameType === 'OVERALL' && (
+                <Link
+                  href="/"
+                  className="col-span-1 sm:col-span-2 group relative overflow-hidden border-2 border-[#ff4655] py-4 transition-all hover:bg-[#ff4655]/10 mb-2"
+                >
+                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-[#ff4655] uppercase tracking-[0.15em] text-sm">
+                    <span>❌</span>
+                    Exit to Home
+                  </div>
+                </Link>
+              )}
+
+              <button
+                onClick={saveCardToS3}
+                disabled={isUploading || !!uploadedUrl}
+                className={`group relative overflow-hidden bg-[#ff4655] py-4 transition-all hover:brightness-110 disabled:opacity-50`}
+              >
                   <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.15em] text-sm">
                     {isUploading ? (
                       <>
@@ -1294,5 +1447,84 @@ export default function GameOverCard({
         </div>
       </div>
     </motion.div>
+
+    <AnimatePresence>
+      {showExitModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-6"
+        >
+          <div className="max-w-md w-full text-center">
+            {isCalculating ? (
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="space-y-8"
+              >
+                <div className="relative w-24 h-24 mx-auto">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 border-t-2 border-emerald-500 rounded-full"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center text-3xl">📊</div>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 italic">Analyzing Results</h3>
+                  <p className="text-slate-400 text-sm font-medium uppercase tracking-widest animate-pulse">Calculating overall leaderboard position...</p>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-[#0f1923] border border-white/10 p-10 relative overflow-hidden"
+              >
+                {/* Decorative background */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 -rotate-45 translate-x-16 -translate-y-16" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 -rotate-45 -translate-x-16 translate-y-16" />
+
+                <div className="text-sm font-black text-emerald-500 uppercase tracking-[0.3em] mb-6 italic">Tournament Summary</div>
+                
+                <div className="mb-8">
+                  <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Your Final Rank</div>
+                  <div className="text-8xl font-black text-white italic tracking-tighter">
+                    #{playerRank || '??'}
+                  </div>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Player</span>
+                    <span className="text-sm font-black text-white uppercase italic">{username}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Score</span>
+                    <span className="text-sm font-black text-emerald-400 uppercase italic">{score.toLocaleString()} PTS</span>
+                  </div>
+                </div>
+
+                <Link
+                  href="/leaderboard"
+                  className="block w-full bg-white text-black font-black py-4 px-8 rounded-sm text-sm uppercase tracking-widest hover:bg-emerald-400 transition-colors skew-x-[-10deg]"
+                >
+                  <span className="inline-block skew-x-[10deg]">View Hall of Fame</span>
+                </Link>
+                
+                <button
+                  onClick={() => setShowExitModal(false)}
+                  className="mt-4 text-[10px] font-black text-white/20 hover:text-white uppercase tracking-[0.3em] transition-colors"
+                >
+                  [ Close and Return ]
+                </button>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   )
 }

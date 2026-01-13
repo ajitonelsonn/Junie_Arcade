@@ -41,6 +41,7 @@ export default function GalleryPage() {
       case 'REFLEX_ARENA': return 'text-[#ff4655]'
       case 'JUMP_MASTER': return 'text-[#00eeff]'
       case 'MEMORY_MATCH': return 'text-[#c284f9]'
+      case 'OVERALL': return 'text-emerald-400'
       default: return 'text-white'
     }
   }
@@ -50,6 +51,7 @@ export default function GalleryPage() {
       case 'REFLEX_ARENA': return 'Reflex Arena'
       case 'JUMP_MASTER': return 'Jump Master'
       case 'MEMORY_MATCH': return 'Memory Match'
+      case 'OVERALL': return 'Ultimate Champion'
       default: return 'Game'
     }
   }

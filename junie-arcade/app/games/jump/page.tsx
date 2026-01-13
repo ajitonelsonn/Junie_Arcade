@@ -32,6 +32,15 @@ export default function JumpMasterPage() {
   const [score, setScore] = useState(0);
   const [distance, setDistance] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [playerId, setPlayerId] = useState<string | null>(null);
+
+  // Load player ID from local storage if available
+  useEffect(() => {
+    const savedPlayerId = localStorage.getItem("junie_player_id");
+    if (savedPlayerId) {
+      setPlayerId(savedPlayerId);
+    }
+  }, []);
   const [JumpMasterScene, setJumpMasterScene] = useState<any>(null);
   const [showMobileWarning, setShowMobileWarning] = useState(false);
 
@@ -60,6 +69,18 @@ export default function JumpMasterPage() {
       }
     };
     fetchCountries();
+
+    // Check for saved credentials
+    const savedUsername = localStorage.getItem("junie_username");
+    const savedCountry = localStorage.getItem("junie_country");
+    if (savedUsername) {
+      setUsername(savedUsername);
+    }
+    if (savedCountry) {
+      setCountry(savedCountry);
+      // Also update search to reflect saved country
+      setCountrySearch(savedCountry);
+    }
   }, []);
 
   // Close dropdown when clicking outside
@@ -131,10 +152,20 @@ export default function JumpMasterPage() {
 
   const handleSaveScore = async () => {
     if (!username || !country || isSaving) return;
+    
+    // Check if score was already saved recently to prevent duplicates
+    const lastSaved = localStorage.getItem("last_saved_score_jump");
+    const now = Date.now();
+    if (lastSaved && now - parseInt(lastSaved) < 5000) {
+      console.log("Score save debounced (client)");
+      return;
+    }
+    
     setIsSaving(true);
+    localStorage.setItem("last_saved_score_jump", now.toString());
 
     try {
-      await fetch("/api/scores", {
+      const response = await fetch("/api/scores", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -143,8 +174,16 @@ export default function JumpMasterPage() {
           gameType: "JUMP_MASTER",
           score,
           distance,
+          playerId,
         }),
       });
+      const data = await response.json();
+      if (data.playerId) {
+        setPlayerId(data.playerId);
+        localStorage.setItem("junie_player_id", data.playerId);
+        localStorage.setItem("junie_username", username);
+        localStorage.setItem("junie_country", country);
+      }
       // No longer redirecting automatically here, as it's auto-saved in GameOverCard
     } catch (error) {
       console.error("Failed to auto-save score:", error);
