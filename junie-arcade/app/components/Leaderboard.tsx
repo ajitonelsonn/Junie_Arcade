@@ -89,6 +89,8 @@ export default function Leaderboard() {
 
   const getCountryCode = (countryName: string | null | undefined) => {
     if (!countryName) return null
+    // If it's already a 2-character code, return it
+    if (countryName.length === 2) return countryName.toUpperCase()
     const country = countries.find(c => c.name === countryName)
     return country?.code || null
   }

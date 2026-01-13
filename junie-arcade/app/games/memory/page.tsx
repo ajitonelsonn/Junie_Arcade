@@ -547,7 +547,7 @@ export default function MemoryMatchPage() {
                               key={c.name}
                               type="button"
                               onClick={() => {
-                                setCountry(c.code);
+                                setCountry(c.name);
                                 setCountrySearch("");
                                 setShowCountryDropdown(false);
                               }}
@@ -599,7 +599,7 @@ export default function MemoryMatchPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-bold text-white">{username}</span>
-                    <span className="text-2xl">{countries.find(c => c.code === country)?.flag}</span>
+                    <span className="text-2xl">{countries.find(c => c.name === country)?.flag}</span>
                   </div>
                 </div>
               </div>

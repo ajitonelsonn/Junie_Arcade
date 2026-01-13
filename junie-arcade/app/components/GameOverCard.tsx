@@ -121,6 +121,8 @@ export default function GameOverCard({
   }, [])
 
   const getCountryCode = () => {
+    // If country is already a 2-character code, return it
+    if (country && country.length === 2) return country.toUpperCase()
     const countryData = countries.find(c => c.name === country)
     return countryData?.code || 'US'
   }

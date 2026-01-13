@@ -469,7 +469,7 @@ export default function JumpMasterPage() {
                               key={c.name}
                               type="button"
                               onClick={() => {
-                                setCountry(c.code);
+                                setCountry(c.name);
                                 setCountrySearch("");
                                 setShowCountryDropdown(false);
                               }}
@@ -525,7 +525,7 @@ export default function JumpMasterPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-bold text-white">{username}</span>
-                    <span className="text-2xl">{countries.find(c => c.code === country)?.flag}</span>
+                    <span className="text-2xl">{countries.find(c => c.name === country)?.flag}</span>
                   </div>
                 </div>
               </div>
