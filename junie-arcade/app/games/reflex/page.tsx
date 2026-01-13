@@ -65,12 +65,27 @@ export default function ReflexArenaPage() {
   const [nextScoreId, setNextScoreId] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
+  const [hasPlayedThisSession, setHasPlayedThisSession] = useState(false);
 
   // Load player ID from local storage if available
   useEffect(() => {
     const savedPlayerId = localStorage.getItem("junie_player_id");
     if (savedPlayerId) {
       setPlayerId(savedPlayerId);
+
+      // Check if player has already played this game in this session
+      const checkStatus = async () => {
+        try {
+          const response = await fetch(`/api/leaderboard?view=overall&playerId=${savedPlayerId}`);
+          const data = await response.json();
+          if (data.currentPlayer && data.currentPlayer.reflexScore > 0) {
+            setHasPlayedThisSession(true);
+          }
+        } catch (error) {
+          console.error("Failed to check game status:", error);
+        }
+      };
+      checkStatus();
     }
   }, []);
   const [showMobileWarning, setShowMobileWarning] = useState(false);
@@ -98,15 +113,21 @@ export default function ReflexArenaPage() {
     // Check for saved credentials
     const savedUsername = localStorage.getItem("junie_username");
     const savedCountry = localStorage.getItem("junie_country");
-    if (savedUsername) {
+    if (savedUsername && !username) {
       setUsername(savedUsername);
     }
-    if (savedCountry) {
+    if (savedCountry && !country) {
       setCountry(savedCountry);
       // Also update search to reflect saved country
       setCountrySearch(savedCountry);
     }
-  }, []);
+  }, [username, country]);
+
+  // Clear player session if finishing or exiting
+  const clearSession = () => {
+    setPlayerId(null);
+    localStorage.removeItem("junie_player_id");
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -250,16 +271,49 @@ export default function ReflexArenaPage() {
     setTargets((prev) => prev.filter((t) => t.id !== target.id));
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     if (username.trim() && country) {
-      setGameStarted(true);
-      setGameOver(false);
-      setScore(0);
-      setTimeLeft(60);
-      setCombo(0);
-      setMaxCombo(0);
-      setTargets([]);
-      setFloatingScores([]);
+      // If we already have a playerId, just start the game
+      if (playerId) {
+        setGameStarted(true);
+        setGameOver(false);
+        setScore(0);
+        setTimeLeft(60);
+        setCombo(0);
+        setMaxCombo(0);
+        setTargets([]);
+        setFloatingScores([]);
+        return;
+      }
+
+      setIsSaving(true);
+      try {
+        const response = await fetch("/api/players", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, country }),
+        });
+        const data = await response.json();
+        if (data.playerId) {
+          setPlayerId(data.playerId);
+          localStorage.setItem("junie_player_id", data.playerId);
+          localStorage.setItem("junie_username", username);
+          localStorage.setItem("junie_country", country);
+
+          setGameStarted(true);
+          setGameOver(false);
+          setScore(0);
+          setTimeLeft(60);
+          setCombo(0);
+          setMaxCombo(0);
+          setTargets([]);
+          setFloatingScores([]);
+        }
+      } catch (error) {
+        console.error("Failed to create player session:", error);
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -573,15 +627,30 @@ export default function ReflexArenaPage() {
                 </div>
 
                 <div className="space-y-4 mb-6">
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Name"
-                    className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 backdrop-blur-sm transition-all"
-                    maxLength={20}
-                    autoFocus
-                  />
+                  {hasPlayedThisSession && (
+                    <div className="bg-red-500/20 border border-red-500/50 p-4 rounded-xl text-center mb-4">
+                      <p className="text-red-400 font-bold text-sm uppercase tracking-wider">
+                        ⚠️ This game has already been played in this session.
+                      </p>
+                    </div>
+                  )}
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Name"
+                      disabled={!!playerId}
+                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      maxLength={20}
+                      autoFocus
+                    />
+                    {playerId && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-400 text-xs font-black uppercase tracking-widest pointer-events-none">
+                        Locked
+                      </div>
+                    )}
+                  </div>
 
                   <div className="relative" ref={countryDropdownRef}>
                     <input
@@ -591,10 +660,16 @@ export default function ReflexArenaPage() {
                         setCountrySearch(e.target.value);
                         setShowCountryDropdown(true);
                       }}
-                      onFocus={() => setShowCountryDropdown(true)}
+                      onFocus={() => !playerId && setShowCountryDropdown(true)}
                       placeholder={country ? country : "Search your country"}
-                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 backdrop-blur-sm transition-all"
+                      disabled={!!playerId}
+                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     />
+                    {playerId && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-400 text-xs font-black uppercase tracking-widest pointer-events-none">
+                        Locked
+                      </div>
+                    )}
                     {country && (
                       <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none">
                         <FlagIcon
@@ -650,12 +725,12 @@ export default function ReflexArenaPage() {
 
                 <motion.button
                   onClick={handleStart}
-                  disabled={!username.trim() || !country}
-                  whileHover={username.trim() && country ? { scale: 1.02 } : {}}
-                  whileTap={username.trim() && country ? { scale: 0.98 } : {}}
+                  disabled={!username.trim() || !country || hasPlayedThisSession}
+                  whileHover={username.trim() && country && !hasPlayedThisSession ? { scale: 1.02 } : {}}
+                  whileTap={username.trim() && country && !hasPlayedThisSession ? { scale: 0.98 } : {}}
                   className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(251,146,60,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
-                  Deploy to Arena
+                  {hasPlayedThisSession ? "Combat Complete" : "Deploy to Arena"}
                 </motion.button>
               </div>
             </motion.div>
@@ -883,7 +958,10 @@ export default function ReflexArenaPage() {
         isOpen={showMobileWarning}
         gameName="Reflex Arena"
         gradient="from-yellow-400 via-orange-500 to-red-500"
-        onClose={() => router.push("/")}
+        onClose={() => {
+          clearSession();
+          router.push("/");
+        }}
       />
     </div>
   );

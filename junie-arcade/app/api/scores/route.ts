@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { username, country, gameType, score, accuracy, time, maxCombo, distance, playerId } = body
 
-    // Find or create player
+    // Find player
     let player = null
 
     if (playerId) {
@@ -15,44 +15,29 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    if (!player && username) {
-      // Check if a player with this username and country already exists to avoid duplicates
-      // but only if they don't have a playerId (e.g. first game)
-      player = await prisma.player.findFirst({
-        where: {
+    if (!player) {
+      if (!username || !country) {
+        return NextResponse.json(
+          { error: 'Player ID or username/country required' },
+          { status: 400 }
+        )
+      }
+
+      // If no playerId provided or not found, create a new one as requested by the system
+      // though the frontend should ideally handle this via /api/players
+      player = await prisma.player.create({
+        data: {
           username,
           country: country || null
         }
       })
-    }
-
-    if (!player) {
-      // Use upsert or a more careful approach if needed, but here we just created it
-      // To be extra safe against race conditions, we can use a transaction or findFirst again
-      try {
-        player = await prisma.player.create({
-          data: {
-            username,
-            country: country || null
-          }
-        })
-      } catch (e) {
-        // If creation fails (e.g. race condition), try to find the player again
-        player = await prisma.player.findFirst({
-          where: {
-            username,
-            country: country || null
-          }
-        })
-        if (!player) throw e; // Rethrow if still not found
-      }
     } else {
-      // Update player's country or username if it changed
+      // Update player's country or username if it changed (optional, but good for consistency)
       if (player.country !== country || (username && player.username !== username)) {
         player = await prisma.player.update({
           where: { id: player.id },
           data: { 
-            country: country || null,
+            country: country || player.country,
             username: username || player.username
           }
         })

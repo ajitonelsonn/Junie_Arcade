@@ -4,10 +4,12 @@ import Navigation from "./components/Navigation";
 import HeroSection from "./components/HeroSection";
 import GamesGrid from "./components/GamesGrid";
 import LeaderboardSection from "./components/LeaderboardSection";
+import SessionCleaner from "./components/SessionCleaner";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
+      <SessionCleaner />
       {/* Dynamic Background */}
       <AnimatedBackground />
 

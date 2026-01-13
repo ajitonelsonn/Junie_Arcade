@@ -49,12 +49,27 @@ export default function MemoryMatchPage() {
   const [gameOver, setGameOver] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
+  const [hasPlayedThisSession, setHasPlayedThisSession] = useState(false);
 
   // Load player ID from local storage if available
   useEffect(() => {
     const savedPlayerId = localStorage.getItem("junie_player_id");
     if (savedPlayerId) {
       setPlayerId(savedPlayerId);
+
+      // Check if player has already played this game in this session
+      const checkStatus = async () => {
+        try {
+          const response = await fetch(`/api/leaderboard?view=overall&playerId=${savedPlayerId}`);
+          const data = await response.json();
+          if (data.currentPlayer && data.currentPlayer.memoryScore > 0) {
+            setHasPlayedThisSession(true);
+          }
+        } catch (error) {
+          console.error("Failed to check game status:", error);
+        }
+      };
+      checkStatus();
     }
   }, []);
   const [showMobileWarning, setShowMobileWarning] = useState(false);
@@ -82,15 +97,21 @@ export default function MemoryMatchPage() {
     // Check for saved credentials
     const savedUsername = localStorage.getItem("junie_username");
     const savedCountry = localStorage.getItem("junie_country");
-    if (savedUsername) {
+    if (savedUsername && !username) {
       setUsername(savedUsername);
     }
-    if (savedCountry) {
+    if (savedCountry && !country) {
       setCountry(savedCountry);
       // Also update search to reflect saved country
       setCountrySearch(savedCountry);
     }
-  }, []);
+  }, [username, country]);
+
+  // Clear player session if finishing or exiting
+  const clearSession = () => {
+    setPlayerId(null);
+    localStorage.removeItem("junie_player_id");
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -168,24 +189,64 @@ export default function MemoryMatchPage() {
     }
   }, [matchedPairs, timeLeft, moves]);
 
-  const initializeGame = () => {
+  const initializeGame = async () => {
     if (!username.trim() || !country) return;
 
-    const shuffled = [...cardImages, ...cardImages]
-      .sort(() => Math.random() - 0.5)
-      .map((img, index) => ({
-        id: index,
-        imageUrl: img,
-        matched: false,
-      }));
-    setCards(shuffled);
-    setFlippedIndices([]);
-    setMatchedPairs(0);
-    setMoves(0);
-    setScore(0);
-    setTimeLeft(120);
-    setGameOver(false);
-    setGameStarted(true);
+    // If we already have a playerId, just start the game
+    if (playerId) {
+      const shuffled = [...cardImages, ...cardImages]
+        .sort(() => Math.random() - 0.5)
+        .map((img, index) => ({
+          id: index,
+          imageUrl: img,
+          matched: false,
+        }));
+      setCards(shuffled);
+      setFlippedIndices([]);
+      setMatchedPairs(0);
+      setMoves(0);
+      setScore(0);
+      setTimeLeft(120);
+      setGameOver(false);
+      setGameStarted(true);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch("/api/players", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, country }),
+      });
+      const data = await response.json();
+      if (data.playerId) {
+        setPlayerId(data.playerId);
+        localStorage.setItem("junie_player_id", data.playerId);
+        localStorage.setItem("junie_username", username);
+        localStorage.setItem("junie_country", country);
+
+        const shuffled = [...cardImages, ...cardImages]
+          .sort(() => Math.random() - 0.5)
+          .map((img, index) => ({
+            id: index,
+            imageUrl: img,
+            matched: false,
+          }));
+        setCards(shuffled);
+        setFlippedIndices([]);
+        setMatchedPairs(0);
+        setMoves(0);
+        setScore(0);
+        setTimeLeft(120);
+        setGameOver(false);
+        setGameStarted(true);
+      }
+    } catch (error) {
+      console.error("Failed to create player session:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCardClick = (index: number) => {
@@ -539,15 +600,30 @@ export default function MemoryMatchPage() {
                 </div>
 
                 <div className="space-y-4 mb-6">
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Name"
-                    className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all"
-                    maxLength={20}
-                    autoFocus
-                  />
+                  {hasPlayedThisSession && (
+                    <div className="bg-red-500/20 border border-red-500/50 p-4 rounded-xl text-center mb-4">
+                      <p className="text-red-400 font-bold text-sm uppercase tracking-wider">
+                        ⚠️ This game has already been played in this session.
+                      </p>
+                    </div>
+                  )}
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Name"
+                      disabled={!!playerId}
+                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      maxLength={20}
+                      autoFocus
+                    />
+                    {playerId && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-fuchsia-400 text-xs font-black uppercase tracking-widest pointer-events-none">
+                        Locked
+                      </div>
+                    )}
+                  </div>
 
                   <div className="relative" ref={countryDropdownRef}>
                     <input
@@ -557,10 +633,16 @@ export default function MemoryMatchPage() {
                         setCountrySearch(e.target.value);
                         setShowCountryDropdown(true);
                       }}
-                      onFocus={() => setShowCountryDropdown(true)}
+                      onFocus={() => !playerId && setShowCountryDropdown(true)}
                       placeholder={country ? country : "Search your country"}
-                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all"
+                      disabled={!!playerId}
+                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     />
+                    {playerId && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-fuchsia-400 text-xs font-black uppercase tracking-widest pointer-events-none">
+                        Locked
+                      </div>
+                    )}
                     {country && (
                       <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none">
                         <FlagIcon
@@ -616,12 +698,12 @@ export default function MemoryMatchPage() {
 
                 <motion.button
                   onClick={initializeGame}
-                  disabled={!username.trim() || !country}
-                  whileHover={username.trim() && country ? { scale: 1.02 } : {}}
-                  whileTap={username.trim() && country ? { scale: 0.98 } : {}}
+                  disabled={!username.trim() || !country || hasPlayedThisSession}
+                  whileHover={username.trim() && country && !hasPlayedThisSession ? { scale: 1.02 } : {}}
+                  whileTap={username.trim() && country && !hasPlayedThisSession ? { scale: 0.98 } : {}}
                   className="w-full bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(217,70,239,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
-                  Initialize Matrix
+                  {hasPlayedThisSession ? "Protocol Complete" : "Initialize Matrix"}
                 </motion.button>
               </div>
             </motion.div>
@@ -818,7 +900,10 @@ export default function MemoryMatchPage() {
         isOpen={showMobileWarning}
         gameName="Memory Match"
         gradient="from-purple-400 via-fuchsia-500 to-pink-600"
-        onClose={() => router.push("/")}
+        onClose={() => {
+          clearSession();
+          router.push("/");
+        }}
       />
     </div>
   );

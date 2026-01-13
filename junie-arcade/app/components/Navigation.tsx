@@ -55,6 +55,12 @@ export default function Navigation() {
         >
           Leaderboard
         </Link>
+        <Link
+          href="/merchandise"
+          className="hover:text-white cursor-pointer transition-colors"
+        >
+          Merchandise
+        </Link>
         <a
           href="https://cloud9.devpost.com/"
           target="_blank"

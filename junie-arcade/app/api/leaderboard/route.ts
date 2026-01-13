@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/app/lib/prisma'
 import { GameType } from '@prisma/client'
 
-// Configure route segment to revalidate every 10 seconds
-export const revalidate = 10
+// Configure route segment to revalidate every 0 seconds to ensure fresh data for session tracking
+export const revalidate = 0
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,8 +13,17 @@ export async function GET(request: NextRequest) {
     const playerId = searchParams.get('playerId') // get stats for specific player
 
     if (view === 'overall') {
+      // If playerId is provided, we can fetch just that player for speed and accuracy
+      let targetedPlayer = null
+      if (playerId) {
+        targetedPlayer = await prisma.player.findUnique({
+          where: { id: playerId },
+          include: { scores: true }
+        })
+      }
+
       // Get all players for overall ranking to ensure current player is found
-      const players = await prisma.player.findMany({
+      let players = await prisma.player.findMany({
         where: country ? { country: country } : undefined,
         include: {
           scores: {
@@ -24,6 +33,11 @@ export async function GET(request: NextRequest) {
           }
         }
       })
+
+      // If targetedPlayer exists but is not in the players list (e.g. because of country filter), add it
+      if (targetedPlayer && !players.find(p => p.id === targetedPlayer.id)) {
+        players.push(targetedPlayer as any)
+      }
 
       // Calculate overall rankings
       const playerStats = players.map(player => {
@@ -111,7 +125,7 @@ export async function GET(request: NextRequest) {
       const response = NextResponse.json({
         type: 'overall',
         leaderboard: sortedLeaderboard.slice(0, 100),
-        currentPlayer: playerId ? sortedLeaderboard.find(p => p.playerId === playerId) : null
+        currentPlayer: targetedPlayer ? sortedLeaderboard.find(p => p.playerId === targetedPlayer.id) : (playerId ? sortedLeaderboard.find(p => p.playerId === playerId) : null)
       })
 
       // Add cache headers

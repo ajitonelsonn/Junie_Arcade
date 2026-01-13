@@ -108,14 +108,15 @@ export default function GameOverCard({
       const playerId = localStorage.getItem('junie_player_id')
       if (playerId) {
         try {
-          const response = await fetch(`/api/leaderboard?view=overall&playerId=${playerId}`)
+          // Use a timestamp to prevent cached responses
+          const response = await fetch(`/api/leaderboard?view=overall&playerId=${playerId}&t=${Date.now()}`)
           const data = await response.json()
           if (data.currentPlayer) {
             setAllRanks({
-              overall: data.currentPlayer.rank || data.leaderboard.findIndex((p: any) => p.playerId === playerId) + 1,
-              reflex: data.currentPlayer.reflexRank,
-              jump: data.currentPlayer.jumpRank,
-              memory: data.currentPlayer.memoryRank
+              overall: data.currentPlayer.rank || (data.leaderboard && data.leaderboard.findIndex((p: any) => p.playerId === playerId) + 1),
+              reflex: data.currentPlayer.reflexScore > 0 ? (data.currentPlayer.reflexRank || 1) : null,
+              jump: data.currentPlayer.jumpScore > 0 ? (data.currentPlayer.jumpRank || 1) : null,
+              memory: data.currentPlayer.memoryScore > 0 ? (data.currentPlayer.memoryRank || 1) : null
             })
           }
         } catch (error) {
@@ -124,7 +125,7 @@ export default function GameOverCard({
       }
     }
     fetchRankings()
-  }, [])
+  }, [hasAutoSaved])
 
   // Auto-start camera with 5-second countdown when game over card appears
   useEffect(() => {
@@ -939,15 +940,56 @@ export default function GameOverCard({
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`
 
   const getNextGame = () => {
-    switch (gameType) {
-      case 'JUMP_MASTER': return { name: 'Reflex Arena', path: '/games/reflex' }
-      case 'REFLEX_ARENA': return { name: 'Memory Match', path: '/games/memory' }
-      case 'MEMORY_MATCH': return { name: 'Overall Results', path: '/leaderboard' } // Or show overall card
-      default: return null
+    // If allRanks is not loaded yet, we can't reliably show the continue button
+    // But we want to avoid flicker, so we should probably show it based on local knowledge if possible
+    if (!allRanks) return null;
+
+    const gameStatus = [
+      { name: 'Jump Master', path: '/games/jump', played: (allRanks.jump !== null && allRanks.jump !== undefined) },
+      { name: 'Reflex Arena', path: '/games/reflex', played: (allRanks.reflex !== null && allRanks.reflex !== undefined) },
+      { name: 'Memory Match', path: '/games/memory', played: (allRanks.memory !== null && allRanks.memory !== undefined) }
+    ];
+
+    // Force current game as played
+    const currentGameIdx = gameStatus.findIndex(g => 
+      (gameType === 'JUMP_MASTER' && g.path === '/games/jump') ||
+      (gameType === 'REFLEX_ARENA' && g.path === '/games/reflex') ||
+      (gameType === 'MEMORY_MATCH' && g.path === '/games/memory')
+    );
+    
+    if (currentGameIdx !== -1) {
+      gameStatus[currentGameIdx].played = true;
     }
+
+    // Circular search for the next unplayed game
+    for (let i = 1; i <= gameStatus.length; i++) {
+      const nextIdx = (currentGameIdx + i) % gameStatus.length;
+      if (!gameStatus[nextIdx].played) {
+        return { name: gameStatus[nextIdx].name, path: gameStatus[nextIdx].path };
+      }
+    }
+
+    // If we've played all games, but the current game was the LAST one to be played,
+    // we return null to show "Generate Leaderboard Card"
+    return null; // All games played
   }
 
   const nextGame = getNextGame()
+
+  // For visual feedback while loading
+  const isAllRanksLoading = !allRanks && gameType !== 'OVERALL';
+
+  // Debugging log to trace why continue button might be missing
+  useEffect(() => {
+    if (hasAutoSaved && allRanks) {
+      console.log('GameOverCard Debug:', {
+        gameType,
+        allRanks,
+        nextGame,
+        playerId: localStorage.getItem('junie_player_id')
+      });
+    }
+  }, [hasAutoSaved, allRanks, nextGame, gameType]);
 
   const handleExit = async () => {
     setIsCalculating(true)
@@ -1331,6 +1373,22 @@ export default function GameOverCard({
           {/* Right Column: Stats & Actions */}
           <div className="lg:col-span-7 flex flex-col">
             <div className="flex-1 space-y-6">
+              {/* Force refresh button if rankings not loaded */}
+              {!allRanks && gameType !== 'OVERALL' && (
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl text-center mb-4">
+                  <p className="text-slate-400 text-xs mb-3 italic">Syncing session progress...</p>
+                  <button 
+                    onClick={() => {
+                      setHasAutoSaved(false);
+                      setTimeout(() => setHasAutoSaved(true), 100);
+                    }}
+                    className="text-[10px] font-black text-cyan-400 uppercase tracking-widest hover:text-cyan-300 transition-colors"
+                  >
+                    🔄 Manual Sync
+                  </button>
+                </div>
+              )}
+
               {/* Positions / Ranks Section - Only show on OVERALL card per user request */}
               {allRanks && gameType === 'OVERALL' && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1375,7 +1433,14 @@ export default function GameOverCard({
 
             {/* Action Buttons with Valorant Style */}
             <div data-export-hide="true" className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-              {nextGame && gameType !== 'MEMORY_MATCH' && (
+              {isAllRanksLoading && (
+                <div className="col-span-1 sm:col-span-2 py-4 flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-lg mb-2 animate-pulse">
+                  <div className="w-6 h-6 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mb-2" />
+                  <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">Identifying Next Mission...</span>
+                </div>
+              )}
+
+              {nextGame && (
                 <Link
                   href={nextGame.path}
                   className="col-span-1 sm:col-span-2 group relative overflow-hidden bg-white py-4 transition-all hover:brightness-110 mb-2 border-l-4 border-cyan-400"
@@ -1388,7 +1453,7 @@ export default function GameOverCard({
                 </Link>
               )}
               
-              {gameType === 'MEMORY_MATCH' && (
+              {!nextGame && gameType !== 'OVERALL' && (
                 <button
                   onClick={handleGenerateLeaderboardCard}
                   className="col-span-1 sm:col-span-2 group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 py-4 transition-all hover:brightness-110 mb-2 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
@@ -1400,7 +1465,7 @@ export default function GameOverCard({
                 </button>
               )}
 
-              {gameType !== 'OVERALL' && (
+              {gameType !== 'OVERALL' && nextGame && (
                 <button
                   onClick={handleExit}
                   className="col-span-1 sm:col-span-2 group relative overflow-hidden border border-white/20 py-4 transition-all hover:bg-white/5 mb-2"
@@ -1549,21 +1614,84 @@ export default function GameOverCard({
           <div className="max-w-md w-full text-center">
             {isCalculating ? (
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="space-y-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="relative"
               >
-                <div className="relative w-24 h-24 mx-auto">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 border-t-2 border-emerald-500 rounded-full"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center text-3xl">📊</div>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 italic">Analyzing Results</h3>
-                  <p className="text-slate-400 text-sm font-medium uppercase tracking-widest animate-pulse">Calculating overall leaderboard position...</p>
+                {/* Modern Backdrop Effects */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-cyan-500/10 rounded-full blur-3xl animate-pulse" />
+                
+                <div className="relative space-y-10 py-12">
+                  <div className="relative w-32 h-32 mx-auto">
+                    {/* Outer Rotating Ring */}
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0 border-t-2 border-b-2 border-l-2 border-transparent border-t-emerald-500/50 border-b-cyan-500/50 rounded-full"
+                    />
+                    
+                    {/* Inner Faster Rotating Ring */}
+                    <motion.div
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-4 border-r-2 border-l-2 border-transparent border-r-emerald-400 border-l-cyan-400 rounded-full"
+                    />
+                    
+                    {/* Pulsing Core */}
+                    <motion.div
+                      animate={{ 
+                        scale: [0.9, 1.1, 0.9],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute inset-8 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.5)] flex items-center justify-center text-3xl"
+                    >
+                      📊
+                    </motion.div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <motion.h3 
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                      className="text-4xl font-black text-white uppercase tracking-tighter italic"
+                    >
+                      Analyzing <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Results</span>
+                    </motion.h3>
+                    
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.4 }}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <p className="text-slate-400 text-sm font-bold uppercase tracking-[0.3em]">
+                        Calculating overall leaderboard position
+                      </p>
+                      <div className="flex gap-1">
+                        {[0, 1, 2].map((i) => (
+                          <motion.div
+                            key={i}
+                            animate={{ 
+                              scale: [1, 1.5, 1],
+                              opacity: [0.3, 1, 0.3]
+                            }}
+                            transition={{ 
+                              duration: 1, 
+                              repeat: Infinity, 
+                              delay: i * 0.2 
+                            }}
+                            className="w-1.5 h-1.5 bg-emerald-400 rounded-full"
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Cyberpunk Decorative Lines */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-b from-emerald-500/0 to-emerald-500/50" />
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-t from-cyan-500/0 to-cyan-500/50" />
                 </div>
               </motion.div>
             ) : (
