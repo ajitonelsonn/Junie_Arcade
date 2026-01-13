@@ -9,6 +9,7 @@ import GameOverCard from "@/app/components/GameOverCard";
 import FlagIcon from "@/app/components/FlagIcon";
 import MobileWarningModal from "@/app/components/MobileWarningModal";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
+import { useMusic } from "@/app/components/MusicProvider";
 
 interface Target {
   id: number;
@@ -43,6 +44,7 @@ const BAD_TARGETS = [
 
 export default function ReflexArenaPage() {
   const router = useRouter();
+  const { pauseMenuMusic, resumeMenuMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -105,37 +107,19 @@ export default function ReflexArenaPage() {
     };
   }, [showCountryDropdown]);
 
-  // Menu music for the entry screen
+  // Menu music is now handled by global MusicProvider
+  // Just pause it when game starts, resume when game is over
   useEffect(() => {
-    if (!gameStarted && !gameOver) {
-      const menuMusic = new Audio("/assets/sounds/music/music-menu.mp3");
-      menuMusic.loop = true;
-      menuMusic.volume = 0.3;
-      let playPromise: Promise<void> | null = null;
-
-      playPromise = menuMusic.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((e) => console.error("Error playing menu music:", e));
-      }
-
-      return () => {
-        if (playPromise !== null) {
-          playPromise
-            .then(() => {
-              menuMusic.pause();
-              menuMusic.src = "";
-            })
-            .catch(() => {
-              menuMusic.pause();
-              menuMusic.src = "";
-            });
-        } else {
-          menuMusic.pause();
-          menuMusic.src = "";
-        }
-      };
+    if (gameStarted && !gameOver) {
+      // Game started - pause menu music
+      pauseMenuMusic();
+    } else if (gameOver) {
+      // Game over - keep menu music paused (victory music will play)
+      pauseMenuMusic();
+    } else {
+      // Entry screen - menu music plays automatically from MusicProvider
     }
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, gameOver, pauseMenuMusic]);
 
   // Audio helpers
   const playSound = (path: string, volume = 0.5) => {

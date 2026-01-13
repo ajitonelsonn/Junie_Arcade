@@ -9,6 +9,7 @@ import GameOverCard from "@/app/components/GameOverCard";
 import FlagIcon from "@/app/components/FlagIcon";
 import MobileWarningModal from "@/app/components/MobileWarningModal";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
+import { useMusic } from "@/app/components/MusicProvider";
 
 interface Card {
   id: number;
@@ -29,6 +30,7 @@ const cardImages = [
 
 export default function MemoryMatchPage() {
   const router = useRouter();
+  const { pauseMenuMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [username, setUsername] = useState("");
@@ -89,37 +91,14 @@ export default function MemoryMatchPage() {
     };
   }, [showCountryDropdown]);
 
-  // Menu music for the entry screen
+  // Menu music is now handled by global MusicProvider
+  // Just pause it when game starts
   useEffect(() => {
-    if (!gameStarted && !gameOver) {
-      const menuMusic = new Audio("/assets/sounds/music/music-menu.mp3");
-      menuMusic.loop = true;
-      menuMusic.volume = 0.3;
-      let playPromise: Promise<void> | null = null;
-
-      playPromise = menuMusic.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((e) => console.error("Error playing menu music:", e));
-      }
-
-      return () => {
-        if (playPromise !== null) {
-          playPromise
-            .then(() => {
-              menuMusic.pause();
-              menuMusic.src = "";
-            })
-            .catch(() => {
-              menuMusic.pause();
-              menuMusic.src = "";
-            });
-        } else {
-          menuMusic.pause();
-          menuMusic.src = "";
-        }
-      };
+    if (gameStarted && !gameOver) {
+      // Game started - pause menu music (game music will play)
+      pauseMenuMusic();
     }
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, gameOver, pauseMenuMusic]);
 
   // Audio helpers
   const playSound = (path: string, volume = 0.5) => {

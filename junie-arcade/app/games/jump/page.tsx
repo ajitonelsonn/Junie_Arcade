@@ -10,6 +10,7 @@ import GameOverCard from "@/app/components/GameOverCard";
 import FlagIcon from "@/app/components/FlagIcon";
 import MobileWarningModal from "@/app/components/MobileWarningModal";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
+import { useMusic } from "@/app/components/MusicProvider";
 
 const PhaserGame = dynamic(() => import("@/app/components/PhaserGame"), {
   ssr: false,
@@ -17,6 +18,7 @@ const PhaserGame = dynamic(() => import("@/app/components/PhaserGame"), {
 
 export default function JumpMasterPage() {
   const router = useRouter();
+  const { pauseMenuMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -80,37 +82,14 @@ export default function JumpMasterPage() {
     };
   }, [showCountryDropdown]);
 
-  // Menu music for the entry screen
+  // Menu music is now handled by global MusicProvider
+  // Just pause it when game starts
   useEffect(() => {
-    if (!gameStarted && !gameOver) {
-      const menuMusic = new Audio("/assets/sounds/music/music-menu.mp3");
-      menuMusic.loop = true;
-      menuMusic.volume = 0.3;
-      let playPromise: Promise<void> | null = null;
-
-      playPromise = menuMusic.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((e) => console.error("Error playing menu music:", e));
-      }
-
-      return () => {
-        if (playPromise !== null) {
-          playPromise
-            .then(() => {
-              menuMusic.pause();
-              menuMusic.src = "";
-            })
-            .catch(() => {
-              menuMusic.pause();
-              menuMusic.src = "";
-            });
-        } else {
-          menuMusic.pause();
-          menuMusic.src = "";
-        }
-      };
+    if (gameStarted) {
+      // Game started - pause menu music (Phaser game has its own music)
+      pauseMenuMusic();
     }
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, pauseMenuMusic]);
 
   // Victory music for the game over screen
   useEffect(() => {

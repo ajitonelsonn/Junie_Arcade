@@ -4,10 +4,14 @@ import { createContext, useContext, useEffect, useRef, ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 
 interface MusicContextType {
-  // We don't need to expose anything, music plays automatically
+  pauseMenuMusic: () => void
+  resumeMenuMusic: () => void
 }
 
-const MusicContext = createContext<MusicContextType>({})
+const MusicContext = createContext<MusicContextType>({
+  pauseMenuMusic: () => {},
+  resumeMenuMusic: () => {}
+})
 
 export function MusicProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -26,12 +30,30 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const pauseMenuMusic = () => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause()
+    }
+  }
+
+  const resumeMenuMusic = () => {
+    if (audioRef.current && audioRef.current.paused) {
+      const playPromise = audioRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          console.log('Error resuming menu music')
+        })
+      }
+    }
+  }
+
   useEffect(() => {
     if (!audioRef.current) return
 
-    // Define pages where music should play
-    const musicPages = ['/', '/gallery', '/leaderboard']
-    const shouldPlayMusic = musicPages.includes(pathname)
+    // Define pages where music should play automatically
+    // Includes main pages AND game pages (before game starts)
+    const musicPages = ['/', '/gallery', '/leaderboard', '/games/reflex', '/games/jump', '/games/memory']
+    const shouldPlayMusic = musicPages.some(page => pathname.startsWith(page))
 
     const playAttempt = () => {
       if (audioRef.current && audioRef.current.paused) {
@@ -56,7 +78,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
 
     if (shouldPlayMusic) {
-      // Play music on main pages
+      // Play music on main pages and game entry pages
       playAttempt()
 
       // Fallback for autoplay policy
@@ -74,7 +96,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         window.removeEventListener('keydown', handleInteraction)
       }
     } else {
-      // Stop music on game pages
+      // Stop music on other pages
       stopMusic()
     }
   }, [pathname])
@@ -90,7 +112,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <MusicContext.Provider value={{}}>
+    <MusicContext.Provider value={{ pauseMenuMusic, resumeMenuMusic }}>
       {children}
     </MusicContext.Provider>
   )
