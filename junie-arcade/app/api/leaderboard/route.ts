@@ -35,12 +35,12 @@ export async function GET(request: NextRequest) {
       })
 
       // If targetedPlayer exists but is not in the players list (e.g. because of country filter), add it
-      if (targetedPlayer && !players.find(p => p.id === targetedPlayer.id)) {
+      if (targetedPlayer && !players.find((p: any) => p.id === targetedPlayer.id)) {
         players.push(targetedPlayer as any)
       }
 
       // Calculate overall rankings
-      const playerStats = players.map(player => {
+      const playerStats = players.map((player: any) => {
         const reflexScores = player.scores.filter((s: any) => s.gameType === 'REFLEX_ARENA')
         const jumpScores = player.scores.filter((s: any) => s.gameType === 'JUMP_MASTER')
         const memoryScores = player.scores.filter((s: any) => s.gameType === 'MEMORY_MATCH')
@@ -63,23 +63,23 @@ export async function GET(request: NextRequest) {
           ].filter(Boolean).length,
           hasPlayedAll: reflexScores.length > 0 && jumpScores.length > 0 && memoryScores.length > 0
         }
-      }).filter(p => p.gamesPlayed > 0) // Only include players who have played at least one game
+      }).filter((p: any) => p.gamesPlayed > 0) // Only include players who have played at least one game
 
       // Get rankings for each game separately
       const reflexRankings = [...playerStats]
-        .filter(p => p.reflexScore > 0)
-        .sort((a, b) => b.reflexScore - a.reflexScore)
-        .map((p, index) => ({ playerId: p.playerId, rank: index + 1 }))
+        .filter((p: any) => p.reflexScore > 0)
+        .sort((a: any, b: any) => b.reflexScore - a.reflexScore)
+        .map((p: any, index: number) => ({ playerId: p.playerId, rank: index + 1 }))
 
       const jumpRankings = [...playerStats]
-        .filter(p => p.jumpScore > 0)
-        .sort((a, b) => b.jumpScore - a.jumpScore)
-        .map((p, index) => ({ playerId: p.playerId, rank: index + 1 }))
+        .filter((p: any) => p.jumpScore > 0)
+        .sort((a: any, b: any) => b.jumpScore - a.jumpScore)
+        .map((p: any, index: number) => ({ playerId: p.playerId, rank: index + 1 }))
 
       const memoryRankings = [...playerStats]
-        .filter(p => p.memoryScore > 0)
-        .sort((a, b) => b.memoryScore - a.memoryScore)
-        .map((p, index) => ({ playerId: p.playerId, rank: index + 1 }))
+        .filter((p: any) => p.memoryScore > 0)
+        .sort((a: any, b: any) => b.memoryScore - a.memoryScore)
+        .map((p: any, index: number) => ({ playerId: p.playerId, rank: index + 1 }))
 
       // Calculate champion points based on rankings
       const calculatePoints = (rank: number) => {
@@ -92,10 +92,10 @@ export async function GET(request: NextRequest) {
         return Math.max(1, 10 - Math.floor(rank / 10))
       }
 
-      const overallLeaderboard = playerStats.map(player => {
-        const reflexRank = reflexRankings.find(r => r.playerId === player.playerId)
-        const jumpRank = jumpRankings.find(r => r.playerId === player.playerId)
-        const memoryRank = memoryRankings.find(r => r.playerId === player.playerId)
+      const overallLeaderboard = playerStats.map((player: any) => {
+        const reflexRank = reflexRankings.find((r: any) => r.playerId === player.playerId)
+        const jumpRank = jumpRankings.find((r: any) => r.playerId === player.playerId)
+        const memoryRank = memoryRankings.find((r: any) => r.playerId === player.playerId)
 
         const reflexPoints = reflexRank ? calculatePoints(reflexRank.rank) : 0
         const jumpPoints = jumpRank ? calculatePoints(jumpRank.rank) : 0
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
       })
 
       // Sort by total points (players who played all games get priority)
-      const sortedLeaderboard = overallLeaderboard.sort((a, b) => {
+      const sortedLeaderboard = overallLeaderboard.sort((a: any, b: any) => {
         if (a.hasPlayedAll && !b.hasPlayedAll) return -1
         if (!a.hasPlayedAll && b.hasPlayedAll) return 1
         return b.totalPoints - a.totalPoints
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
       const response = NextResponse.json({
         type: 'overall',
         leaderboard: sortedLeaderboard.slice(0, 100),
-        currentPlayer: targetedPlayer ? sortedLeaderboard.find(p => p.playerId === targetedPlayer.id) : (playerId ? sortedLeaderboard.find(p => p.playerId === playerId) : null)
+        currentPlayer: targetedPlayer ? sortedLeaderboard.find((p: any) => p.playerId === targetedPlayer.id) : (playerId ? sortedLeaderboard.find((p: any) => p.playerId === playerId) : null)
       })
 
       // Add cache headers
@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
 
       // Get best score per player
       const playerBestScores = new Map<string, any>()
-      scores.forEach(score => {
+      scores.forEach((score: any) => {
         const existing = playerBestScores.get(score.playerId)
         if (!existing || score.score > existing.score) {
           playerBestScores.set(score.playerId, {
