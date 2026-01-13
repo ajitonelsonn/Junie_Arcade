@@ -19,6 +19,12 @@ interface LeaderboardEntry {
   accuracy?: number | null
   time?: number | null
   distance?: number | null
+  reflexRank?: number | null
+  jumpRank?: number | null
+  memoryRank?: number | null
+  reflexScore?: number | null
+  jumpScore?: number | null
+  memoryScore?: number | null
 }
 
 export default function Leaderboard() {
@@ -85,19 +91,25 @@ export default function Leaderboard() {
           setCurrentPlayerStats(data.currentPlayer)
         }
         // Overall leaderboard with champion points
-        const transformedEntries = data.leaderboard.slice(0, 5).map((player: any, index: number) => ({
+        const transformedEntries = data.leaderboard.map((player: any, index: number) => ({
           rank: index + 1,
           username: player.username,
           score: player.totalPoints,
           gameType: 'OVERALL',
           country: player.country,
           totalPoints: player.totalPoints,
-          gamesPlayed: player.gamesPlayed
+          gamesPlayed: player.gamesPlayed,
+          reflexRank: player.reflexRank,
+          jumpRank: player.jumpRank,
+          memoryRank: player.memoryRank,
+          reflexScore: player.reflexScore,
+          jumpScore: player.jumpScore,
+          memoryScore: player.memoryScore
         }))
         setEntries(transformedEntries)
       } else {
         // Individual game leaderboard
-        const transformedEntries = data.leaderboard.slice(0, 10).map((entry: any) => ({
+        const transformedEntries = data.leaderboard.map((entry: any) => ({
           rank: entry.rank,
           username: entry.username,
           score: entry.score,
@@ -320,7 +332,10 @@ export default function Leaderboard() {
                   { label: 'Jump Pts', value: currentPlayerStats.jumpPoints, color: 'text-cyan-400' },
                   { label: 'Memory Pts', value: currentPlayerStats.memoryPoints, color: 'text-purple-400' },
                   { label: 'Games Played', value: `${currentPlayerStats.gamesPlayed}/3` },
-                  ...(currentPlayerStats.rank ? [{ label: 'Overall Rank', value: `#${currentPlayerStats.rank}`, color: 'text-emerald-400' }] : [])
+                  ...(currentPlayerStats.rank ? [{ label: 'Overall Rank', value: `#${currentPlayerStats.rank}`, color: 'text-emerald-400' }] : []),
+                  ...(currentPlayerStats.reflexRank ? [{ label: 'Reflex Rank', value: `#${currentPlayerStats.reflexRank}`, color: 'text-yellow-400' }] : []),
+                  ...(currentPlayerStats.jumpRank ? [{ label: 'Jump Rank', value: `#${currentPlayerStats.jumpRank}`, color: 'text-cyan-400' }] : []),
+                  ...(currentPlayerStats.memoryRank ? [{ label: 'Memory Rank', value: `#${currentPlayerStats.memoryRank}`, color: 'text-purple-400' }] : [])
                 ]}
                 onSaveScore={() => {}} // No auto-save needed for overall
                 isSaving={false}
@@ -434,7 +449,7 @@ export default function Leaderboard() {
                             </div>
                             
                             {/* Extra Values */}
-                            {entry.gameType !== 'OVERALL' && (
+                            {entry.gameType !== 'OVERALL' ? (
                               <div className="flex items-center gap-3 border-l border-white/10 pl-3 md:pl-4">
                                 {entry.maxCombo !== null && entry.maxCombo !== undefined && (
                                   <div className="flex items-center gap-1">
@@ -455,15 +470,32 @@ export default function Leaderboard() {
                                   </div>
                                 )}
                               </div>
+                            ) : (
+                          <div className="flex items-center gap-3 border-l border-white/10 pl-3 md:pl-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-yellow-400/50 text-[8px] font-black uppercase tracking-tighter">RFX:</span>
+                                    <span className="text-white/80 text-[10px]">#{entry.reflexRank || '--'} ({entry.reflexScore?.toLocaleString() || '0'})</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-cyan-400/50 text-[8px] font-black uppercase tracking-tighter">JMP:</span>
+                                    <span className="text-white/80 text-[10px]">#{entry.jumpRank || '--'} ({entry.jumpScore?.toLocaleString() || '0'})</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-purple-400/50 text-[8px] font-black uppercase tracking-tighter">MEM:</span>
+                                    <span className="text-white/80 text-[10px]">#{entry.memoryRank || '--'} ({entry.memoryScore?.toLocaleString() || '0'})</span>
+                                  </div>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>
                       </div>
 
                       <div className="col-span-4 text-right relative">
-                        <div className={`text-3xl font-black tabular-nums tracking-tighter italic ${entry.rank <= 3 ? style.text : 'text-white'} group-hover:scale-105 transition-transform duration-300`}>
+                        <div className={`text-3xl font-black tabular-nums tracking-tighter italic ${entry.rank <= 3 ? style.text : 'text-white'} group-hover:scale-105 transition-transform duration-300 flex items-baseline justify-end gap-2`}>
                           {entry.gameType === 'OVERALL' ? `${entry.score}` : entry.score.toLocaleString()}
-                          <span className="text-[10px] ml-1 opacity-40 not-italic font-bold uppercase tracking-widest">{entry.gameType === 'OVERALL' ? 'PTS' : 'PTS'}</span>
+                          <span className="text-sm opacity-40 not-italic font-bold uppercase tracking-widest">{entry.gameType === 'OVERALL' ? 'PTS' : 'PTS'}</span>
                         </div>
                         {entry.gameType === 'OVERALL' && entry.gamesPlayed && (
                           <div className="text-[10px] text-white/30 font-black uppercase tracking-[0.1em] mt-1 italic">

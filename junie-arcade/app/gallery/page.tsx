@@ -19,6 +19,7 @@ export default function GalleryPage() {
   const [images, setImages] = useState<GalleryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null)
+  const [groupedImages, setGroupedImages] = useState<Record<string, GalleryItem[]>>({})
 
   useEffect(() => {
     const fetchGallery = async () => {
@@ -26,6 +27,16 @@ export default function GalleryPage() {
         const response = await fetch('/api/gallery')
         const data = await response.json()
         setImages(data)
+        
+        // Group by username (in a real app we'd use playerId if available)
+        const groups: Record<string, GalleryItem[]> = {}
+        data.forEach((item: GalleryItem) => {
+          if (!groups[item.username]) {
+            groups[item.username] = []
+          }
+          groups[item.username].push(item)
+        })
+        setGroupedImages(groups)
       } catch (error) {
         console.error('Failed to fetch gallery:', error)
       } finally {
@@ -100,7 +111,7 @@ export default function GalleryPage() {
               <div className="w-16 h-16 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin mb-4" />
               <p className="text-slate-500 font-bold uppercase tracking-widest animate-pulse">Synchronizing Data...</p>
             </div>
-          ) : images.length === 0 ? (
+          ) : Object.keys(groupedImages).length === 0 ? (
             <div className="text-center py-20 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md">
               <p className="text-2xl font-black text-slate-500 uppercase italic">The gallery is currently empty.</p>
               <p className="text-slate-600 mt-2">Win a game and save your card to appear here!</p>
@@ -109,42 +120,60 @@ export default function GalleryPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <AnimatePresence mode="popLayout">
-                {images.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ y: -5 }}
-                    onClick={() => setSelectedImage(item)}
-                    className="group relative aspect-[4/5] bg-slate-900 border border-white/10 overflow-hidden cursor-pointer"
+            <div className="space-y-16">
+              {Object.entries(groupedImages).map(([username, userImages], userIndex) => (
+                <div key={username} className="space-y-6">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: userIndex * 0.1 }}
+                    className="flex items-center gap-4"
                   >
-                    <Image
-                      src={item.url}
-                      alt={`${item.username}'s card`}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-                    
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/60">
-                          {getGameTitle(item.gameType)}
-                        </span>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${getGameColor(item.gameType)}`}>
-                          {item.score.toLocaleString()} PTS
-                        </span>
-                      </div>
-                      <div className="text-xl font-black text-white uppercase tracking-tighter truncate">
-                        {item.username}
-                      </div>
-                    </div>
+                    <div className="h-10 w-1 bg-cyan-500" />
+                    <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white">
+                      {username} <span className="text-slate-500 text-sm ml-2 font-black tracking-widest not-italic">({userImages.length} Cards)</span>
+                    </h2>
                   </motion.div>
-                ))}
-              </AnimatePresence>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <AnimatePresence mode="popLayout">
+                      {userImages.map((item, index) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.05 }}
+                          whileHover={{ y: -5 }}
+                          onClick={() => setSelectedImage(item)}
+                          className="group relative aspect-[4/5] bg-slate-900 border border-white/10 overflow-hidden cursor-pointer"
+                        >
+                          <Image
+                            src={item.url}
+                            alt={`${item.username}'s card`}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                          
+                          <div className="absolute bottom-0 left-0 right-0 p-4">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-white/60">
+                                {getGameTitle(item.gameType)}
+                              </span>
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${getGameColor(item.gameType)}`}>
+                                {item.score.toLocaleString()} PTS
+                              </span>
+                            </div>
+                            <div className="text-xl font-black text-white uppercase tracking-tighter truncate">
+                              {item.username}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </main>

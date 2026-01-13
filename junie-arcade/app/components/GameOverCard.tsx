@@ -41,6 +41,7 @@ export default function GameOverCard({
   const [captureCountdown, setCaptureCountdown] = useState<number | null>(null)
   const [showExitModal, setShowExitModal] = useState(false)
   const [playerRank, setPlayerRank] = useState<number | null>(null)
+  const [allRanks, setAllRanks] = useState<any>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -101,26 +102,53 @@ export default function GameOverCard({
       }
     }
     fetchCountries()
+
+    // Fetch all rankings for the current player
+    const fetchRankings = async () => {
+      const playerId = localStorage.getItem('junie_player_id')
+      if (playerId) {
+        try {
+          const response = await fetch(`/api/leaderboard?view=overall&playerId=${playerId}`)
+          const data = await response.json()
+          if (data.currentPlayer) {
+            setAllRanks({
+              overall: data.currentPlayer.rank || data.leaderboard.findIndex((p: any) => p.playerId === playerId) + 1,
+              reflex: data.currentPlayer.reflexRank,
+              jump: data.currentPlayer.jumpRank,
+              memory: data.currentPlayer.memoryRank
+            })
+          }
+        } catch (error) {
+          console.error('Failed to fetch rankings:', error)
+        }
+      }
+    }
+    fetchRankings()
   }, [])
 
   // Auto-start camera with 5-second countdown when game over card appears
   useEffect(() => {
-    setCountdown(5)
+    // Small delay to allow initial animations to settle
+    const timer = setTimeout(() => {
+      setCountdown(5)
 
-    // Start countdown
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval)
-          // Auto-start camera when countdown reaches 0
-          startCamera()
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
+      // Start countdown
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            clearInterval(countdownInterval)
+            // Auto-start camera when countdown reaches 0
+            startCamera()
+            return null
+          }
+          return prev - 1
+        })
+      }, 1000)
 
-    return () => clearInterval(countdownInterval)
+      return () => clearInterval(countdownInterval)
+    }, 500)
+
+    return () => clearTimeout(timer)
   }, [])
 
   const getCountryCode = () => {
@@ -700,9 +728,49 @@ export default function GameOverCard({
           // Massive score display (Valorant style)
           const scoreY = infoY + 170
 
+          // Draw Ranks if available
+          if (allRanks) {
+            const rankY = scoreY - 40
+            const rankWidth = (canvas.width - 160) / 4
+            const rankHeight = 100
+            
+            const ranks = [
+              { label: 'OVERALL', val: allRanks.overall, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+              { label: 'REFLEX', val: allRanks.reflex, color: '#eab308', bg: 'rgba(234, 179, 8, 0.1)' },
+              { label: 'JUMP', val: allRanks.jump, color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.1)' },
+              { label: 'MEMORY', val: allRanks.memory, color: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)' }
+            ]
+
+            ranks.forEach((r, i) => {
+              const rx = 80 + (i * (rankWidth + 20))
+              
+              // Rank Box
+              roundRect(rx, rankY, rankWidth, rankHeight, 10)
+              ctx.fillStyle = r.bg
+              ctx.fill()
+              ctx.strokeStyle = r.color
+              ctx.lineWidth = 1
+              ctx.globalAlpha = 0.3
+              ctx.stroke()
+              ctx.globalAlpha = 1
+
+              // Rank Label
+              ctx.fillStyle = r.color
+              ctx.font = 'bold 16px system-ui, -apple-system, sans-serif'
+              ctx.textAlign = 'center'
+              ctx.fillText(r.label, rx + rankWidth/2, rankY + 35)
+
+              // Rank Value
+              ctx.fillStyle = '#ffffff'
+              ctx.font = 'bold 42px system-ui, -apple-system, sans-serif'
+              ctx.fillText(`#${r.val || '--'}`, rx + rankWidth/2, rankY + 80)
+            })
+          }
+
           // Score background panel
-          roundRect(50, scoreY, canvas.width - 100, 220, 15)
-          const scoreGradient = ctx.createLinearGradient(50, scoreY, canvas.width - 50, scoreY)
+          const adjustedScoreY = allRanks ? scoreY + 60 : scoreY
+          roundRect(50, adjustedScoreY, canvas.width - 100, 220, 15)
+          const scoreGradient = ctx.createLinearGradient(50, adjustedScoreY, canvas.width - 50, adjustedScoreY)
           scoreGradient.addColorStop(0, 'rgba(17, 24, 39, 0.95)')
           scoreGradient.addColorStop(0.5, 'rgba(30, 41, 59, 0.95)')
           scoreGradient.addColorStop(1, 'rgba(17, 24, 39, 0.95)')
@@ -718,32 +786,32 @@ export default function GameOverCard({
           ctx.strokeStyle = gameColors.secondary
           ctx.lineWidth = 2
           ctx.beginPath()
-          ctx.moveTo(70, scoreY + 20)
-          ctx.lineTo(canvas.width - 70, scoreY + 20)
+          ctx.moveTo(70, adjustedScoreY + 20)
+          ctx.lineTo(canvas.width - 70, adjustedScoreY + 20)
           ctx.stroke()
 
           // "FINAL SCORE" label
           ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
           ctx.font = 'bold 20px system-ui, -apple-system, sans-serif'
-          ctx.fillText('FINAL SCORE', canvas.width / 2, scoreY + 55)
+          ctx.fillText('FINAL SCORE', canvas.width / 2, adjustedScoreY + 55)
 
           // The actual score - HUGE
           ctx.fillStyle = '#ffffff'
           ctx.font = 'bold 110px system-ui, -apple-system, sans-serif'
           ctx.shadowColor = gameColors.primary
           ctx.shadowBlur = 40
-          ctx.fillText(score.toLocaleString(), canvas.width / 2, scoreY + 145)
+          ctx.fillText(score.toLocaleString(), canvas.width / 2, adjustedScoreY + 145)
           ctx.shadowBlur = 20
-          ctx.fillText(score.toLocaleString(), canvas.width / 2, scoreY + 145)
+          ctx.fillText(score.toLocaleString(), canvas.width / 2, adjustedScoreY + 145)
           ctx.shadowBlur = 0
 
           // "POINTS" label
           ctx.fillStyle = gameColors.secondary
           ctx.font = 'bold 26px system-ui, -apple-system, sans-serif'
-          ctx.fillText('POINTS', canvas.width / 2, scoreY + 185)
+          ctx.fillText('POINTS', canvas.width / 2, adjustedScoreY + 185)
 
           // Stats section (compact Valorant style)
-          const statsY = scoreY + 250
+          const statsY = adjustedScoreY + 250
           const statsPadding = 40
           const statsWidth = canvas.width - (statsPadding * 2)
           const statBoxHeight = 90
@@ -780,7 +848,7 @@ export default function GameOverCard({
           // QR Code and Logos (bottom right)
           const qrSize = 200
           const qrX = canvas.width - qrSize - 60
-          const qrY = statsY + 50
+          const qrY = (allRanks ? statsY + 100 : statsY + 50)
           
           try {
             // Draw Secure Code (QR) background
@@ -1263,6 +1331,28 @@ export default function GameOverCard({
           {/* Right Column: Stats & Actions */}
           <div className="lg:col-span-7 flex flex-col">
             <div className="flex-1 space-y-6">
+              {/* Positions / Ranks Section - Only show on OVERALL card per user request */}
+              {allRanks && gameType === 'OVERALL' && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-center">
+                    <div className="text-[8px] font-black text-emerald-400 uppercase tracking-widest mb-1">Overall</div>
+                    <div className="text-xl font-black text-white italic">#{allRanks.overall || '--'}</div>
+                  </div>
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl text-center">
+                    <div className="text-[8px] font-black text-yellow-400 uppercase tracking-widest mb-1">Reflex</div>
+                    <div className="text-xl font-black text-white italic">#{allRanks.reflex || '--'}</div>
+                  </div>
+                  <div className="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-center">
+                    <div className="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1">Jump</div>
+                    <div className="text-xl font-black text-white italic">#{allRanks.jump || '--'}</div>
+                  </div>
+                  <div className="bg-purple-500/10 border border-purple-500/30 p-3 rounded-xl text-center">
+                    <div className="text-[8px] font-black text-purple-400 uppercase tracking-widest mb-1">Memory</div>
+                    <div className="text-xl font-black text-white italic">#{allRanks.memory || '--'}</div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 {stats.map((stat, index) => (
                   <motion.div
