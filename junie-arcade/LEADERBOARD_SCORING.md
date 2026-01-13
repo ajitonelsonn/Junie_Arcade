@@ -324,6 +324,7 @@ enum GameType {
   REFLEX_ARENA
   JUMP_MASTER
   MEMORY_MATCH
+  OVERALL
 }
 ```
 

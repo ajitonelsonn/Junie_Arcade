@@ -63,7 +63,8 @@ export default function GameOverCard({
 
   const junies = [
     'junie-happy.png', 'junie-jump.png', 'junie-run-1.png', 'junie-run-3.png',
-    'junie-idle.png', 'junie-run-2.png', 'junie-sad.png'
+    'junie-idle.png', 'junie-run-2.png', 'junie-sad.png', 'junie-run-4.png',
+    'junie-run-5.png'
   ]
 
   const heroes = [
@@ -164,7 +165,7 @@ export default function GameOverCard({
       case 'REFLEX_ARENA': return '/assets/images/logos/game_logo/reflex_arena.png'
       case 'JUMP_MASTER': return '/assets/images/logos/game_logo/jump_master.png'
       case 'MEMORY_MATCH': return '/assets/images/logos/game_logo/memory_match.png'
-      case 'OVERALL': return '/assets/images/logos/junie-logo.png'
+      case 'OVERALL': return '/assets/images/logos/game_logo/j_arcade.webp'
       default: return null
     }
   }
