@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useRef, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, ReactNode, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
 interface MusicContextType {
@@ -16,19 +16,27 @@ const MusicContext = createContext<MusicContextType>({
 export function MusicProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const isInitializedRef = useRef(false)
+  const [audioLoaded, setAudioLoaded] = useState(false)
   const pathname = usePathname()
 
-  useEffect(() => {
-    // Only initialize once globally
+  // Lazy load audio on first user interaction
+  const initializeAudio = () => {
     if (!isInitializedRef.current) {
       isInitializedRef.current = true
 
-      const menuMusic = new Audio('/assets/sounds/music/music-menu.mp3')
+      // Create audio element only when needed
+      const menuMusic = new Audio()
       menuMusic.loop = true
       menuMusic.volume = 0.3
+
+      // Lazy load the audio file
+      menuMusic.src = '/assets/sounds/music/music-menu.mp3'
+      menuMusic.load()
+
       audioRef.current = menuMusic
+      setAudioLoaded(true)
     }
-  }, [])
+  }
 
   const pauseMenuMusic = () => {
     if (audioRef.current && !audioRef.current.paused) {
@@ -48,8 +56,6 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    if (!audioRef.current) return
-
     // Define pages where music should play automatically
     // Includes main pages AND game pages (before game starts)
     const musicPages = ['/', '/gallery', '/leaderboard', '/games/reflex', '/games/jump', '/games/memory']
@@ -78,12 +84,12 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
 
     if (shouldPlayMusic) {
-      // Play music on main pages and game entry pages
-      playAttempt()
-
-      // Fallback for autoplay policy
+      // Fallback for autoplay policy - initialize and play on user interaction
       const handleInteraction = () => {
-        playAttempt()
+        initializeAudio()
+        if (audioLoaded) {
+          playAttempt()
+        }
         window.removeEventListener('click', handleInteraction)
         window.removeEventListener('keydown', handleInteraction)
       }
@@ -91,15 +97,22 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       window.addEventListener('click', handleInteraction)
       window.addEventListener('keydown', handleInteraction)
 
+      // If already loaded, play
+      if (audioLoaded) {
+        playAttempt()
+      }
+
       return () => {
         window.removeEventListener('click', handleInteraction)
         window.removeEventListener('keydown', handleInteraction)
       }
     } else {
       // Stop music on other pages
-      stopMusic()
+      if (audioLoaded) {
+        stopMusic()
+      }
     }
-  }, [pathname])
+  }, [pathname, audioLoaded])
 
   // Cleanup only when the entire app unmounts
   useEffect(() => {

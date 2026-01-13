@@ -40,13 +40,15 @@ export default function GameCard({ title, description, icon, href, gradient, gam
               <motion.div
                 whileHover={{ scale: 1.1 }}
                 transition={{ duration: 0.5 }}
+                style={{ willChange: 'transform' }}
                 className="relative w-full h-full"
               >
                 <Image
                   src={gameLogo}
                   alt={title}
                   fill
-                  sizes="(max-width: 768px) 200px, 80px"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 300px"
+                  loading="lazy"
                   className="object-contain filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
                 />
               </motion.div>
@@ -54,6 +56,7 @@ export default function GameCard({ title, description, icon, href, gradient, gam
               <motion.div
                 whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                 transition={{ duration: 0.5 }}
+                style={{ willChange: 'transform' }}
                 className="inline-block"
               >
                 <div className={`text-7xl filter drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] transform transition-transform duration-500`}>

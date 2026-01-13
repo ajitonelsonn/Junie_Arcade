@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/app/lib/prisma'
 import { GameType } from '@prisma/client'
 
+// Configure route segment to revalidate every 10 seconds
+export const revalidate = 10
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
@@ -9,11 +12,13 @@ export async function GET(request: NextRequest) {
     const country = searchParams.get('country') // filter by country
 
     if (view === 'overall') {
-      // Get all players with their best scores in each game
+      // Get top 100 players with their best scores in each game (optimized)
       const players = await prisma.player.findMany({
         where: country ? { country: country } : undefined,
+        take: 100, // Limit to top 100 players for performance
         include: {
           scores: {
+            take: 10, // Only get top 10 scores per player
             orderBy: {
               score: 'desc'
             }
@@ -104,10 +109,15 @@ export async function GET(request: NextRequest) {
         return b.totalPoints - a.totalPoints
       })
 
-      return NextResponse.json({
+      const response = NextResponse.json({
         type: 'overall',
         leaderboard: sortedLeaderboard.slice(0, 100)
       })
+
+      // Add cache headers
+      response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30')
+
+      return response
     } else {
       // Individual game leaderboard
       const gameType: GameType = view === 'reflex' ? 'REFLEX_ARENA'
@@ -119,6 +129,7 @@ export async function GET(request: NextRequest) {
           gameType,
           player: country ? { country: country } : undefined
         },
+        take: 200, // Limit to top 200 scores for performance
         include: {
           player: true
         },
@@ -155,11 +166,16 @@ export async function GET(request: NextRequest) {
         }))
         .slice(0, 100)
 
-      return NextResponse.json({
+      const response = NextResponse.json({
         type: view,
         gameType,
         leaderboard
       })
+
+      // Add cache headers
+      response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30')
+
+      return response
     }
   } catch (error) {
     console.error('Error fetching leaderboard:', error)
