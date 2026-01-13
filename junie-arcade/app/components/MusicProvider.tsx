@@ -3,129 +3,204 @@
 import { createContext, useContext, useEffect, useRef, ReactNode, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
+type MusicTrack = 'menu' | 'game' | 'victory' | null
+
 interface MusicContextType {
+  playMenuMusic: () => void
+  playGameMusic: () => void
+  playVictoryMusic: () => void
+  stopAllMusic: () => void
   pauseMenuMusic: () => void
   resumeMenuMusic: () => void
+  currentTrack: MusicTrack
 }
 
 const MusicContext = createContext<MusicContextType>({
+  playMenuMusic: () => {},
+  playGameMusic: () => {},
+  playVictoryMusic: () => {},
+  stopAllMusic: () => {},
   pauseMenuMusic: () => {},
-  resumeMenuMusic: () => {}
+  resumeMenuMusic: () => {},
+  currentTrack: null
 })
 
 export function MusicProvider({ children }: { children: ReactNode }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const isInitializedRef = useRef(false)
-  const [audioLoaded, setAudioLoaded] = useState(false)
+  const menuMusicRef = useRef<HTMLAudioElement | null>(null)
+  const gameMusicRef = useRef<HTMLAudioElement | null>(null)
+  const victoryMusicRef = useRef<HTMLAudioElement | null>(null)
+  const [currentTrack, setCurrentTrack] = useState<MusicTrack>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
   const pathname = usePathname()
 
-  // Lazy load audio on first user interaction
+  // Initialize all audio elements
   const initializeAudio = () => {
-    if (!isInitializedRef.current) {
-      isInitializedRef.current = true
-
-      // Create audio element only when needed
+    if (!isInitialized) {
+      // Menu music
       const menuMusic = new Audio()
       menuMusic.loop = true
       menuMusic.volume = 0.3
-
-      // Lazy load the audio file
       menuMusic.src = '/assets/sounds/music/music-menu.mp3'
-      menuMusic.load()
+      menuMusicRef.current = menuMusic
 
-      audioRef.current = menuMusic
-      setAudioLoaded(true)
+      // Game music
+      const gameMusic = new Audio()
+      gameMusic.loop = true
+      gameMusic.volume = 0.4
+      gameMusic.src = '/assets/sounds/music/music-game.mp3'
+      gameMusicRef.current = gameMusic
+
+      // Victory music
+      const victoryMusic = new Audio()
+      victoryMusic.loop = false
+      victoryMusic.volume = 0.4
+      victoryMusic.src = '/assets/sounds/music/music-victory.mp3'
+      victoryMusicRef.current = victoryMusic
+
+      setIsInitialized(true)
+    }
+  }
+
+  // Stop all music tracks
+  const stopAllMusic = () => {
+    [menuMusicRef, gameMusicRef, victoryMusicRef].forEach(ref => {
+      if (ref.current) {
+        ref.current.pause()
+        ref.current.currentTime = 0
+      }
+    })
+    setCurrentTrack(null)
+  }
+
+  // Play menu music
+  const playMenuMusic = () => {
+    if (!isInitialized) {
+      initializeAudio()
+    }
+
+    stopAllMusic()
+
+    if (menuMusicRef.current) {
+      const playPromise = menuMusicRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setCurrentTrack('menu')
+            console.log('Menu music playing')
+          })
+          .catch((e) => console.log('Menu music autoplay blocked:', e))
+      }
+    }
+  }
+
+  // Play game music
+  const playGameMusic = () => {
+    if (!isInitialized) {
+      initializeAudio()
+    }
+
+    stopAllMusic()
+
+    if (gameMusicRef.current) {
+      const playPromise = gameMusicRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setCurrentTrack('game')
+            console.log('Game music playing')
+          })
+          .catch((e) => console.log('Game music error:', e))
+      }
+    }
+  }
+
+  // Play victory music
+  const playVictoryMusic = () => {
+    if (!isInitialized) {
+      initializeAudio()
+    }
+
+    stopAllMusic()
+
+    if (victoryMusicRef.current) {
+      const playPromise = victoryMusicRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setCurrentTrack('victory')
+            console.log('Victory music playing')
+          })
+          .catch((e) => console.log('Victory music error:', e))
+      }
+
+      victoryMusicRef.current.onended = () => {
+        playMenuMusic()
+      }
     }
   }
 
   const pauseMenuMusic = () => {
-    if (audioRef.current && !audioRef.current.paused) {
-      audioRef.current.pause()
+    if (menuMusicRef.current && !menuMusicRef.current.paused) {
+      menuMusicRef.current.pause()
     }
   }
 
   const resumeMenuMusic = () => {
-    if (audioRef.current && audioRef.current.paused) {
-      const playPromise = audioRef.current.play()
+    if (menuMusicRef.current && menuMusicRef.current.paused) {
+      const playPromise = menuMusicRef.current.play()
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          console.log('Error resuming menu music')
-        })
+        playPromise
+          .then(() => setCurrentTrack('menu'))
+          .catch((e) => console.log('Error resuming menu music:', e))
       }
     }
   }
 
   useEffect(() => {
-    // Define pages where music should play automatically
-    // Includes main pages AND game pages (before game starts)
-    const musicPages = ['/', '/gallery', '/leaderboard', '/games/reflex', '/games/jump', '/games/memory']
-    const shouldPlayMusic = musicPages.some(page => pathname.startsWith(page))
+    const menuPages = ['/', '/gallery', '/leaderboard', '/games/reflex', '/games/jump', '/games/memory']
+    const shouldPlayMenuMusic = menuPages.some(page => pathname.startsWith(page))
 
-    const playAttempt = () => {
-      if (audioRef.current && audioRef.current.paused) {
-        const playPromise = audioRef.current.play()
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              console.log('Menu music playing')
-            })
-            .catch(() => {
-              console.log('Autoplay blocked, waiting for user interaction')
-            })
-        }
-      }
-    }
-
-    const stopMusic = () => {
-      if (audioRef.current && !audioRef.current.paused) {
-        audioRef.current.pause()
-        audioRef.current.currentTime = 0
-      }
-    }
-
-    if (shouldPlayMusic) {
-      // Fallback for autoplay policy - initialize and play on user interaction
+    if (shouldPlayMenuMusic && currentTrack === null) {
       const handleInteraction = () => {
-        initializeAudio()
-        if (audioLoaded) {
-          playAttempt()
+        if (!isInitialized) {
+          initializeAudio()
+        }
+        if (currentTrack === null) {
+          playMenuMusic()
         }
         window.removeEventListener('click', handleInteraction)
         window.removeEventListener('keydown', handleInteraction)
       }
 
-      window.addEventListener('click', handleInteraction)
-      window.addEventListener('keydown', handleInteraction)
-
-      // If already loaded, play
-      if (audioLoaded) {
-        playAttempt()
-      }
+      window.addEventListener('click', handleInteraction, { once: true })
+      window.addEventListener('keydown', handleInteraction, { once: true })
 
       return () => {
         window.removeEventListener('click', handleInteraction)
         window.removeEventListener('keydown', handleInteraction)
       }
-    } else {
-      // Stop music on other pages
-      if (audioLoaded) {
-        stopMusic()
-      }
     }
-  }, [pathname, audioLoaded])
+  }, [pathname, currentTrack, isInitialized])
 
-  // Cleanup only when the entire app unmounts
   useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.src = ''
-      }
+      stopAllMusic()
+      if (menuMusicRef.current) menuMusicRef.current.src = ''
+      if (gameMusicRef.current) gameMusicRef.current.src = ''
+      if (victoryMusicRef.current) victoryMusicRef.current.src = ''
     }
   }, [])
 
   return (
-    <MusicContext.Provider value={{ pauseMenuMusic, resumeMenuMusic }}>
+    <MusicContext.Provider value={{
+      playMenuMusic,
+      playGameMusic,
+      playVictoryMusic,
+      stopAllMusic,
+      pauseMenuMusic,
+      resumeMenuMusic,
+      currentTrack
+    }}>
       {children}
     </MusicContext.Provider>
   )
