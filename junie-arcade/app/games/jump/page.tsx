@@ -18,7 +18,7 @@ const PhaserGame = dynamic(() => import("@/app/components/PhaserGame"), {
 
 export default function JumpMasterPage() {
   const router = useRouter();
-  const { pauseMenuMusic } = useMusic();
+  const { stopMenuMusic, playVictoryMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -82,47 +82,20 @@ export default function JumpMasterPage() {
     };
   }, [showCountryDropdown]);
 
-  // Menu music is now handled by global MusicProvider
-  // Just pause it when game starts
+  // Stop menu music when game starts (Phaser handles its own game music)
   useEffect(() => {
-    if (gameStarted) {
-      // Game started - pause menu music (Phaser game has its own music)
-      pauseMenuMusic();
+    if (gameStarted && !gameOver) {
+      stopMenuMusic();
     }
-  }, [gameStarted, pauseMenuMusic]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameStarted, gameOver]);
 
-  // Victory music for the game over screen
+  // Play victory music when game ends
   useEffect(() => {
     if (gameOver) {
-      const victoryMusic = new Audio("/assets/sounds/music/music-victory.mp3");
-      victoryMusic.loop = true;
-      victoryMusic.volume = 0.4;
-      let playPromise: Promise<void> | null = null;
-
-      playPromise = victoryMusic.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((e) =>
-          console.error("Error playing victory music:", e)
-        );
-      }
-
-      return () => {
-        if (playPromise !== null) {
-          playPromise
-            .then(() => {
-              victoryMusic.pause();
-              victoryMusic.src = "";
-            })
-            .catch(() => {
-              victoryMusic.pause();
-              victoryMusic.src = "";
-            });
-        } else {
-          victoryMusic.pause();
-          victoryMusic.src = "";
-        }
-      };
+      playVictoryMusic();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameOver]);
 
   const handleGameEnd = (finalScore: number, finalDistance: number) => {

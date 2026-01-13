@@ -30,7 +30,7 @@ const cardImages = [
 
 export default function MemoryMatchPage() {
   const router = useRouter();
-  const { pauseMenuMusic } = useMusic();
+  const { playGameMusic, playVictoryMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [username, setUsername] = useState("");
@@ -91,14 +91,21 @@ export default function MemoryMatchPage() {
     };
   }, [showCountryDropdown]);
 
-  // Menu music is now handled by global MusicProvider
-  // Just pause it when game starts
+  // Play game music when game starts
   useEffect(() => {
     if (gameStarted && !gameOver) {
-      // Game started - pause menu music (game music will play)
-      pauseMenuMusic();
+      playGameMusic();
     }
-  }, [gameStarted, gameOver, pauseMenuMusic]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameStarted, gameOver]);
+
+  // Play victory music when game ends
+  useEffect(() => {
+    if (gameOver) {
+      playVictoryMusic();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameOver]);
 
   // Audio helpers
   const playSound = (path: string, volume = 0.5) => {
@@ -112,16 +119,6 @@ export default function MemoryMatchPage() {
 
   useEffect(() => {
     if (gameStarted && !gameOver) {
-      const bgm = new Audio("/assets/sounds/music/music-game.mp3");
-      bgm.loop = true;
-      bgm.volume = 0.4;
-      let playPromise: Promise<void> | null = null;
-
-      playPromise = bgm.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((e) => console.error("Error playing BGM:", e));
-      }
-
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -135,57 +132,10 @@ export default function MemoryMatchPage() {
 
       return () => {
         clearInterval(timer);
-        if (playPromise !== null) {
-          playPromise
-            .then(() => {
-              bgm.pause();
-              bgm.src = "";
-            })
-            .catch(() => {
-              bgm.pause();
-              bgm.src = "";
-            });
-        } else {
-          bgm.pause();
-          bgm.src = "";
-        }
       };
     }
   }, [gameStarted, gameOver]);
 
-  // Victory music on game over
-  useEffect(() => {
-    if (!gameOver || !gameStarted) return;
-
-    const victoryMusic = new Audio("/assets/sounds/music/music-victory.mp3");
-    victoryMusic.loop = true;
-    victoryMusic.volume = 0.4;
-    let playPromise: Promise<void> | null = null;
-
-    playPromise = victoryMusic.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((e) =>
-        console.error("Error playing victory music:", e)
-      );
-    }
-
-    return () => {
-      if (playPromise !== null) {
-        playPromise
-          .then(() => {
-            victoryMusic.pause();
-            victoryMusic.src = "";
-          })
-          .catch(() => {
-            victoryMusic.pause();
-            victoryMusic.src = "";
-          });
-      } else {
-        victoryMusic.pause();
-        victoryMusic.src = "";
-      }
-    };
-  }, [gameOver, gameStarted]);
 
   useEffect(() => {
     if (matchedPairs === 8) {

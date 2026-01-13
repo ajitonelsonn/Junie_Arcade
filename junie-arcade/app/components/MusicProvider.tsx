@@ -10,6 +10,7 @@ interface MusicContextType {
   playGameMusic: () => void
   playVictoryMusic: () => void
   stopAllMusic: () => void
+  stopMenuMusic: () => void
   pauseMenuMusic: () => void
   resumeMenuMusic: () => void
   currentTrack: MusicTrack
@@ -20,6 +21,7 @@ const MusicContext = createContext<MusicContextType>({
   playGameMusic: () => {},
   playVictoryMusic: () => {},
   stopAllMusic: () => {},
+  stopMenuMusic: () => {},
   pauseMenuMusic: () => {},
   resumeMenuMusic: () => {},
   currentTrack: null
@@ -31,6 +33,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const victoryMusicRef = useRef<HTMLAudioElement | null>(null)
   const [currentTrack, setCurrentTrack] = useState<MusicTrack>(null)
   const [isInitialized, setIsInitialized] = useState(false)
+  const interactionHandledRef = useRef(false)
   const pathname = usePathname()
 
   // Initialize all audio elements
@@ -76,19 +79,31 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const playMenuMusic = () => {
     if (!isInitialized) {
       initializeAudio()
+      // Wait a tick for initialization
+      setTimeout(() => playMenuMusic(), 0)
+      return
     }
 
-    stopAllMusic()
+    // Stop only non-menu tracks
+    if (gameMusicRef.current) {
+      gameMusicRef.current.pause()
+      gameMusicRef.current.currentTime = 0
+    }
+    if (victoryMusicRef.current) {
+      victoryMusicRef.current.pause()
+      victoryMusicRef.current.currentTime = 0
+    }
 
-    if (menuMusicRef.current) {
+    if (menuMusicRef.current && menuMusicRef.current.paused) {
       const playPromise = menuMusicRef.current.play()
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             setCurrentTrack('menu')
-            console.log('Menu music playing')
           })
-          .catch((e) => console.log('Menu music autoplay blocked:', e))
+          .catch(() => {
+            // Silently handle autoplay blocking - will retry on user interaction
+          })
       }
     }
   }
@@ -97,19 +112,30 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const playGameMusic = () => {
     if (!isInitialized) {
       initializeAudio()
+      setTimeout(() => playGameMusic(), 0)
+      return
     }
 
-    stopAllMusic()
+    // Stop only non-game tracks
+    if (menuMusicRef.current) {
+      menuMusicRef.current.pause()
+      menuMusicRef.current.currentTime = 0
+    }
+    if (victoryMusicRef.current) {
+      victoryMusicRef.current.pause()
+      victoryMusicRef.current.currentTime = 0
+    }
 
-    if (gameMusicRef.current) {
+    if (gameMusicRef.current && gameMusicRef.current.paused) {
       const playPromise = gameMusicRef.current.play()
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             setCurrentTrack('game')
-            console.log('Game music playing')
           })
-          .catch((e) => console.log('Game music error:', e))
+          .catch(() => {
+            // Silently handle play errors
+          })
       }
     }
   }
@@ -118,24 +144,43 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const playVictoryMusic = () => {
     if (!isInitialized) {
       initializeAudio()
+      setTimeout(() => playVictoryMusic(), 0)
+      return
     }
 
-    stopAllMusic()
+    // Stop only non-victory tracks
+    if (menuMusicRef.current) {
+      menuMusicRef.current.pause()
+      menuMusicRef.current.currentTime = 0
+    }
+    if (gameMusicRef.current) {
+      gameMusicRef.current.pause()
+      gameMusicRef.current.currentTime = 0
+    }
 
-    if (victoryMusicRef.current) {
+    if (victoryMusicRef.current && victoryMusicRef.current.paused) {
       const playPromise = victoryMusicRef.current.play()
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             setCurrentTrack('victory')
-            console.log('Victory music playing')
           })
-          .catch((e) => console.log('Victory music error:', e))
+          .catch(() => {
+            // Silently handle play errors
+          })
       }
 
       victoryMusicRef.current.onended = () => {
         playMenuMusic()
       }
+    }
+  }
+
+  const stopMenuMusic = () => {
+    if (menuMusicRef.current && !menuMusicRef.current.paused) {
+      menuMusicRef.current.pause()
+      menuMusicRef.current.currentTime = 0
+      setCurrentTrack(null)
     }
   }
 
@@ -151,33 +196,29 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       if (playPromise !== undefined) {
         playPromise
           .then(() => setCurrentTrack('menu'))
-          .catch((e) => console.log('Error resuming menu music:', e))
+          .catch(() => {
+            // Silently handle play errors
+          })
       }
     }
   }
 
   useEffect(() => {
-    const menuPages = ['/', '/gallery', '/leaderboard', '/games/reflex', '/games/jump', '/games/memory']
-    const shouldPlayMenuMusic = menuPages.some(page => pathname.startsWith(page))
+    const menuPages = ['/', '/gallery', '/leaderboard']
+    const shouldPlayMenuMusic = menuPages.some(page => pathname === page)
 
-    if (shouldPlayMenuMusic && currentTrack === null) {
-      const handleInteraction = () => {
-        if (!isInitialized) {
-          initializeAudio()
-        }
-        if (currentTrack === null) {
-          playMenuMusic()
-        }
-        window.removeEventListener('click', handleInteraction)
-        window.removeEventListener('keydown', handleInteraction)
+    if (shouldPlayMenuMusic) {
+      // Initialize audio immediately
+      if (!isInitialized) {
+        initializeAudio()
+        return
       }
 
-      window.addEventListener('click', handleInteraction, { once: true })
-      window.addEventListener('keydown', handleInteraction, { once: true })
-
-      return () => {
-        window.removeEventListener('click', handleInteraction)
-        window.removeEventListener('keydown', handleInteraction)
+      // Play menu music when on menu pages
+      // This includes: first visit, returning from game, or when no music is playing
+      if (currentTrack === null || currentTrack !== 'menu') {
+        // Try to play immediately
+        playMenuMusic()
       }
     }
   }, [pathname, currentTrack, isInitialized])
@@ -197,6 +238,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       playGameMusic,
       playVictoryMusic,
       stopAllMusic,
+      stopMenuMusic,
       pauseMenuMusic,
       resumeMenuMusic,
       currentTrack

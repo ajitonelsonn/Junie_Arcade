@@ -18,6 +18,7 @@ export default function Navigation() {
           width={100}
           height={35}
           sizes="100px"
+          style={{ width: 'auto', height: 'auto' }}
           className="brightness-110"
         />
         <div className="h-6 w-px bg-white/20" />
@@ -27,6 +28,7 @@ export default function Navigation() {
           width={100}
           height={35}
           sizes="100px"
+          style={{ width: 'auto', height: 'auto' }}
           className="opacity-90 hover:opacity-100 transition-opacity"
         />
       </motion.div>
