@@ -4,55 +4,10 @@ import GameCard from "./components/GameCard";
 import Leaderboard from "./components/Leaderboard";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 export default function Home() {
-  useEffect(() => {
-    const menuMusic = new Audio("/assets/sounds/music/music-menu.mp3");
-    menuMusic.loop = true;
-    menuMusic.volume = 0.3;
-    let isPlaying = false;
-    let playPromise: Promise<void> | null = null;
-
-    const playAttempt = () => {
-      if (!isPlaying) {
-        playPromise = menuMusic.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              isPlaying = true;
-            })
-            .catch((err) => {
-              console.log("Autoplay blocked, waiting for user interaction");
-            });
-        }
-      }
-    };
-
-    playAttempt();
-
-    // Fallback for autoplay policy
-    window.addEventListener("click", playAttempt, { once: true });
-
-    return () => {
-      if (playPromise !== undefined && playPromise !== null) {
-        playPromise
-          .then(() => {
-            menuMusic.pause();
-            menuMusic.src = "";
-          })
-          .catch(() => {
-            menuMusic.pause();
-            menuMusic.src = "";
-          });
-      } else {
-        menuMusic.pause();
-        menuMusic.src = "";
-      }
-      window.removeEventListener("click", playAttempt);
-    };
-  }, []);
+  // Music is now handled globally by MusicProvider in layout.tsx
 
   const heroImages = [
     "/assets/images/hero/Jinx_Render.webp",
