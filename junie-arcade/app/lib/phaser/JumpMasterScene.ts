@@ -4,7 +4,7 @@ export default class JumpMasterScene extends Phaser.Scene {
   private player!: any;
   private score = 0;
   private distance = 0;
-  private gameSpeed = 400; // Increased starting speed for more dynamic feel
+  private gameSpeed = 450; // Increased starting speed for more challenge
   private isGameOver = false;
   private scoreText!: any;
   private obstacles!: any;
@@ -12,6 +12,7 @@ export default class JumpMasterScene extends Phaser.Scene {
   private onGameEnd?: (score: number, distance: number) => void;
   private ground!: any;
   private hasDoubleJump = false; // Track if double jump is available
+  private obstacleSpawnDelay = 2500; // Dynamic obstacle spawn timing
 
   constructor() {
     super({ key: "JumpMasterScene" });
@@ -44,8 +45,9 @@ export default class JumpMasterScene extends Phaser.Scene {
   create() {
     this.score = 0;
     this.distance = 0;
-    this.gameSpeed = 400;
+    this.gameSpeed = 450;
     this.isGameOver = false;
+    this.obstacleSpawnDelay = 2500;
 
     // Background Music
     const music = this.sound.add("bgm", { loop: true, volume: 0.5 });
@@ -97,7 +99,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     }
 
     this.player.setCollideWorldBounds(true);
-    this.player.setGravityY(1800); // Increased for faster fall
+    this.player.setGravityY(2000); // Increased gravity for faster, more challenging gameplay
 
     // Collisions
     this.physics.add.collider(this.player, this.ground);
@@ -169,15 +171,15 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.input.on("pointerdown", () => this.jump());
 
     // Spawn obstacles and collectibles
-    this.time.addEvent({
-      delay: 2500, // Increased from 2000 to give more space
+    const obstacleTimer = this.time.addEvent({
+      delay: this.obstacleSpawnDelay,
       callback: this.spawnObstacle,
       callbackScope: this,
       loop: true,
     });
 
     this.time.addEvent({
-      delay: 2000, // Reduced from 3000 to spawn more coins
+      delay: 1800, // Spawn collectibles slightly more frequently
       callback: this.spawnCollectible,
       callbackScope: this,
       loop: true,
@@ -193,9 +195,14 @@ export default class JumpMasterScene extends Phaser.Scene {
             `Score: ${this.score} | Distance: ${this.distance}m`
           );
 
-          // Increase difficulty
-          if (this.distance % 100 === 0) {
-            this.gameSpeed += 25; // Increased from 20
+          // Increase difficulty more aggressively
+          if (this.distance % 50 === 0) {
+            this.gameSpeed += 30; // Increased from 25, happens more frequently
+
+            // Reduce obstacle spawn delay to increase density
+            if (this.obstacleSpawnDelay > 1200) {
+              this.obstacleSpawnDelay -= 100;
+            }
           }
 
           // Milestone celebration - now every 200m
@@ -253,14 +260,14 @@ export default class JumpMasterScene extends Phaser.Scene {
 
     // First jump - from ground
     if (this.player.body?.touching.down) {
-      this.player.setVelocityY(-950); // Faster first jump
+      this.player.setVelocityY(-1000); // Slightly increased jump power
       this.hasDoubleJump = true; // Enable double jump after first jump
       this.sound.play("jump", { volume: 0.5 });
       // update() loop will handle the texture change to "junie-jump"
     }
     // Double jump - in the air
     else if (this.hasDoubleJump && !this.player.body?.touching.down) {
-      this.player.setVelocityY(-950); // Same power as first jump for consistent height
+      this.player.setVelocityY(-1000); // Same power as first jump for consistent height
       this.hasDoubleJump = false; // Use up the double jump
       this.sound.play("jump", { volume: 0.6 }); // Slightly louder for double jump
     }
@@ -271,15 +278,35 @@ export default class JumpMasterScene extends Phaser.Scene {
 
     const obstacle = this.obstacles.create(
       this.scale.width + 50,
-      this.scale.height - 125, // Adjusted from 135 to sit better on ground
+      this.scale.height - 125,
       "bug"
     ) as any;
 
-    obstacle.setScale(0.12); // Reduced from 0.15
+    obstacle.setScale(0.13); // Slightly larger obstacles for more challenge
 
     // Adjust obstacle hitbox
     if (obstacle.body) {
-      obstacle.body.setSize(obstacle.width * 0.6, obstacle.height * 0.6);
+      obstacle.body.setSize(obstacle.width * 0.65, obstacle.height * 0.65);
+    }
+
+    // 30% chance to spawn double obstacles for extra difficulty
+    if (Math.random() < 0.3 && this.distance > 100) {
+      this.time.delayedCall(400, () => {
+        if (!this.isGameOver) {
+          const obstacle2 = this.obstacles.create(
+            this.scale.width + 50,
+            this.scale.height - 125,
+            "bug"
+          ) as any;
+          obstacle2.setScale(0.13);
+          if (obstacle2.body) {
+            obstacle2.body.setSize(
+              obstacle2.width * 0.65,
+              obstacle2.height * 0.65
+            );
+          }
+        }
+      });
     }
   }
 

@@ -50,6 +50,8 @@ export default function MemoryMatchPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [hasPlayedThisSession, setHasPlayedThisSession] = useState(false);
+  const [consecutiveMatches, setConsecutiveMatches] = useState(0);
+  const [bestCombo, setBestCombo] = useState(0);
 
   // Load player ID from local storage if available
   useEffect(() => {
@@ -60,7 +62,9 @@ export default function MemoryMatchPage() {
       // Check if player has already played this game in this session
       const checkStatus = async () => {
         try {
-          const response = await fetch(`/api/leaderboard?view=overall&playerId=${savedPlayerId}`);
+          const response = await fetch(
+            `/api/leaderboard?view=overall&playerId=${savedPlayerId}`
+          );
           const data = await response.json();
           if (data.currentPlayer && data.currentPlayer.memoryScore > 0) {
             setHasPlayedThisSession(true);
@@ -102,7 +106,6 @@ export default function MemoryMatchPage() {
     }
     if (savedCountry && !country) {
       setCountry(savedCountry);
-      // Also update search to reflect saved country
       setCountrySearch(savedCountry);
     }
   }, [username, country]);
@@ -138,16 +141,14 @@ export default function MemoryMatchPage() {
     if (gameStarted && !gameOver) {
       playGameMusic();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, gameOver, playGameMusic]);
 
   // Play victory music when game ends
   useEffect(() => {
     if (gameOver) {
       playVictoryMusic();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameOver]);
+  }, [gameOver, playVictoryMusic]);
 
   // Audio helpers
   const playSound = (path: string, volume = 0.5) => {
@@ -159,11 +160,14 @@ export default function MemoryMatchPage() {
     }
   };
 
+  // Timer effect
   useEffect(() => {
     if (gameStarted && !gameOver) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
+            // Game ends - calculate final score
+            calculateFinalScore();
             setGameOver(true);
             playSound("/assets/sounds/sfx/gameover.mp3", 0.6);
             return 0;
@@ -178,16 +182,55 @@ export default function MemoryMatchPage() {
     }
   }, [gameStarted, gameOver]);
 
-
+  // Check for win condition
   useEffect(() => {
-    if (matchedPairs === 8) {
+    if (matchedPairs === 8 && !gameOver) {
+      // All pairs matched - calculate final score with completion bonus
+      calculateFinalScore(true);
       setGameOver(true);
-      const timeBonus = timeLeft * 10;
-      const accuracyBonus = Math.floor((16 / moves) * 100);
-      setScore((prev) => prev + timeBonus + accuracyBonus + 200);
       playSound("/assets/sounds/sfx/success.mp3", 0.7);
     }
-  }, [matchedPairs, timeLeft, moves]);
+  }, [matchedPairs, gameOver]);
+
+  const calculateFinalScore = (completed = false) => {
+    // Base score from matches (already accumulated)
+    let finalScore = score;
+
+    // Time bonus (always awarded based on remaining time)
+    const timeBonus = timeLeft * 15; // Increased multiplier
+    finalScore += timeBonus;
+
+    // Accuracy bonus (always awarded based on moves)
+    const accuracyBonus = Math.floor((16 / Math.max(moves, 1)) * 150);
+    finalScore += accuracyBonus;
+
+    // Combo bonus (reward consecutive matches)
+    const comboBonus = bestCombo * 25;
+    finalScore += comboBonus;
+
+    // Completion bonus (only if all pairs matched)
+    if (completed) {
+      const completionBonus = 500;
+      finalScore += completionBonus;
+
+      // Perfect game bonus (16 moves = perfect memory)
+      if (moves === 16) {
+        const perfectBonus = 300;
+        finalScore += perfectBonus;
+      }
+
+      // Speed bonus (completed with lots of time remaining)
+      if (timeLeft >= 60) {
+        const speedBonus = 400;
+        finalScore += speedBonus;
+      } else if (timeLeft >= 40) {
+        const speedBonus = 200;
+        finalScore += speedBonus;
+      }
+    }
+
+    setScore(finalScore);
+  };
 
   const initializeGame = async () => {
     if (!username.trim() || !country) return;
@@ -209,6 +252,8 @@ export default function MemoryMatchPage() {
       setTimeLeft(120);
       setGameOver(false);
       setGameStarted(true);
+      setConsecutiveMatches(0);
+      setBestCombo(0);
       return;
     }
 
@@ -241,6 +286,8 @@ export default function MemoryMatchPage() {
         setTimeLeft(120);
         setGameOver(false);
         setGameStarted(true);
+        setConsecutiveMatches(0);
+        setBestCombo(0);
       }
     } catch (error) {
       console.error("Failed to create player session:", error);
@@ -268,7 +315,7 @@ export default function MemoryMatchPage() {
       const [first, second] = newFlipped;
 
       if (cards[first].imageUrl === cards[second].imageUrl) {
-        // Match found
+        // Match found!
         setTimeout(() => {
           playSound("/assets/sounds/sfx/success.mp3", 0.5);
           const newCards = [...cards];
@@ -276,13 +323,27 @@ export default function MemoryMatchPage() {
           newCards[second].matched = true;
           setCards(newCards);
           setMatchedPairs((prev) => prev + 1);
-          setScore((prev) => prev + 50);
+
+          // Update consecutive matches and combo
+          const newConsecutive = consecutiveMatches + 1;
+          setConsecutiveMatches(newConsecutive);
+          if (newConsecutive > bestCombo) {
+            setBestCombo(newConsecutive);
+          }
+
+          // Scoring: base points + combo multiplier
+          const basePoints = 75; // Increased from 50
+          const comboMultiplier = Math.min(newConsecutive, 5); // Max 5x combo
+          const points = basePoints * comboMultiplier;
+
+          setScore((prev) => prev + points);
           setFlippedIndices([]);
         }, 500);
       } else {
-        // No match
+        // No match - reset combo
         setTimeout(() => {
           playSound("/assets/sounds/sfx/error.mp3", 0.4);
+          setConsecutiveMatches(0);
           setFlippedIndices([]);
         }, 1000);
       }
@@ -291,15 +352,14 @@ export default function MemoryMatchPage() {
 
   const handleSaveScore = async () => {
     if (!username || !country || isSaving) return;
-    
-    // Check if score was already saved recently to prevent duplicates
+
     const lastSaved = localStorage.getItem("last_saved_score_memory");
     const now = Date.now();
     if (lastSaved && now - parseInt(lastSaved) < 5000) {
       console.log("Score save debounced (client)");
       return;
     }
-    
+
     setIsSaving(true);
     localStorage.setItem("last_saved_score_memory", now.toString());
 
@@ -323,7 +383,6 @@ export default function MemoryMatchPage() {
         localStorage.setItem("junie_username", username);
         localStorage.setItem("junie_country", country);
       }
-      // No longer redirecting automatically here, as it's auto-saved in GameOverCard
     } catch (error) {
       console.error("Failed to auto-save score:", error);
     } finally {
@@ -342,7 +401,7 @@ export default function MemoryMatchPage() {
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-fuchsia-500/30 overflow-hidden">
-      {/* Animated Background - Matching Home Page Style */}
+      {/* Animated Background */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/c92.webp')] opacity-30 bg-cover bg-center mix-blend-overlay" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
@@ -377,7 +436,7 @@ export default function MemoryMatchPage() {
           className="absolute bottom-0 left-1/2 w-[500px] h-[500px] bg-pink-600/20 rounded-full blur-[100px]"
         />
 
-        {/* Floating Hero Characters - Decoration */}
+        {/* Floating Hero Characters */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
           {heroImages.map((img, i) => (
             <motion.div
@@ -698,12 +757,24 @@ export default function MemoryMatchPage() {
 
                 <motion.button
                   onClick={initializeGame}
-                  disabled={!username.trim() || !country || hasPlayedThisSession}
-                  whileHover={username.trim() && country && !hasPlayedThisSession ? { scale: 1.02 } : {}}
-                  whileTap={username.trim() && country && !hasPlayedThisSession ? { scale: 0.98 } : {}}
+                  disabled={
+                    !username.trim() || !country || hasPlayedThisSession
+                  }
+                  whileHover={
+                    username.trim() && country && !hasPlayedThisSession
+                      ? { scale: 1.02 }
+                      : {}
+                  }
+                  whileTap={
+                    username.trim() && country && !hasPlayedThisSession
+                      ? { scale: 0.98 }
+                      : {}
+                  }
                   className="w-full bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(217,70,239,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
-                  {hasPlayedThisSession ? "Protocol Complete" : "Initialize Matrix"}
+                  {hasPlayedThisSession
+                    ? "Protocol Complete"
+                    : "Initialize Matrix"}
                 </motion.button>
               </div>
             </motion.div>
@@ -711,7 +782,11 @@ export default function MemoryMatchPage() {
 
           {/* Game Screen */}
           {gameStarted && !gameOver && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[calc(100vh-180px)] flex flex-col">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="h-[calc(100vh-180px)] flex flex-col"
+            >
               {/* Player Info Bar */}
               <div className="flex items-center justify-center gap-2 mb-3 max-w-7xl mx-auto">
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl px-4 py-2 border border-white/10 flex items-center gap-3">
@@ -719,8 +794,12 @@ export default function MemoryMatchPage() {
                     Player
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-white">{username}</span>
-                    <span className="text-2xl">{countries.find(c => c.name === country)?.flag}</span>
+                    <span className="text-lg font-bold text-white">
+                      {username}
+                    </span>
+                    <span className="text-2xl">
+                      {countries.find((c) => c.name === country)?.flag}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -749,7 +828,9 @@ export default function MemoryMatchPage() {
                   <div className="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-widest mb-1">
                     Moves
                   </div>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-black text-white">{moves}</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
+                    {moves}
+                  </div>
                 </div>
 
                 <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10">
@@ -772,87 +853,87 @@ export default function MemoryMatchPage() {
               <div className="flex-1 flex items-center justify-center px-4">
                 <div className="grid grid-cols-8 gap-2 sm:gap-3 w-full max-w-7xl">
                   <AnimatePresence>
-                  {cards.map((card, index) => (
-                    <motion.div
-                      key={card.id}
-                      initial={{ opacity: 0, scale: 0.8, rotateY: -180 }}
-                      animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                      transition={{
-                        delay: index * 0.05,
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 20,
-                      }}
-                      whileHover={{ scale: card.matched ? 1 : 1.05 }}
-                      whileTap={{ scale: card.matched ? 1 : 0.95 }}
-                      className="cursor-pointer w-full"
-                      style={{ aspectRatio: "3/4" }}
-                      onClick={() => handleCardClick(index)}
-                    >
-                      <div className="relative w-full h-full perspective-1000">
-                        <motion.div
-                          className="relative w-full h-full"
-                          animate={{
-                            rotateY:
-                              flippedIndices.includes(index) || card.matched
-                                ? 180
-                                : 0,
-                          }}
-                          transition={{
-                            duration: 0.6,
-                            type: "spring",
-                            stiffness: 200,
-                            damping: 20,
-                          }}
-                          style={{ transformStyle: "preserve-3d" }}
-                        >
-                          {/* Card Back */}
-                          <div className="absolute inset-0 backface-hidden">
-                            <div className="relative w-full h-full bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 rounded-2xl border-2 border-white/20 backdrop-blur-sm overflow-hidden">
-                              <Image
-                                src="/assets/images/cards/card-back.png"
-                                alt="Card back"
-                                fill
-                                sizes="(max-width: 768px) 25vw, 200px"
-                                className="object-cover"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Card Front */}
-                          <div
-                            className="absolute inset-0 backface-hidden"
-                            style={{ transform: "rotateY(180deg)" }}
+                    {cards.map((card, index) => (
+                      <motion.div
+                        key={card.id}
+                        initial={{ opacity: 0, scale: 0.8, rotateY: -180 }}
+                        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                        transition={{
+                          delay: index * 0.05,
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 20,
+                        }}
+                        whileHover={{ scale: card.matched ? 1 : 1.05 }}
+                        whileTap={{ scale: card.matched ? 1 : 0.95 }}
+                        className="cursor-pointer w-full"
+                        style={{ aspectRatio: "3/4" }}
+                        onClick={() => handleCardClick(index)}
+                      >
+                        <div className="relative w-full h-full perspective-1000">
+                          <motion.div
+                            className="relative w-full h-full"
+                            animate={{
+                              rotateY:
+                                flippedIndices.includes(index) || card.matched
+                                  ? 180
+                                  : 0,
+                            }}
+                            transition={{
+                              duration: 0.6,
+                              type: "spring",
+                              stiffness: 200,
+                              damping: 20,
+                            }}
+                            style={{ transformStyle: "preserve-3d" }}
                           >
-                            <div
-                              className={`relative w-full h-full rounded-2xl border-4 overflow-hidden transition-all ${
-                                card.matched
-                                  ? "border-green-400 shadow-[0_0_30px_rgba(34,197,94,0.6)]"
-                                  : "border-white/30"
-                              }`}
-                            >
-                              <Image
-                                src={card.imageUrl}
-                                alt="Card"
-                                fill
-                                sizes="(max-width: 768px) 25vw, 200px"
-                                className="object-cover"
-                              />
-                              {card.matched && (
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  className="absolute inset-0 bg-green-500/20 backdrop-blur-[1px] flex items-center justify-center"
-                                >
-                                  <span className="text-6xl">✓</span>
-                                </motion.div>
-                              )}
+                            {/* Card Back */}
+                            <div className="absolute inset-0 backface-hidden">
+                              <div className="relative w-full h-full bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 rounded-2xl border-2 border-white/20 backdrop-blur-sm overflow-hidden">
+                                <Image
+                                  src="/assets/images/cards/card-back.png"
+                                  alt="Card back"
+                                  fill
+                                  sizes="(max-width: 768px) 25vw, 200px"
+                                  className="object-cover"
+                                />
+                              </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  ))}
+
+                            {/* Card Front */}
+                            <div
+                              className="absolute inset-0 backface-hidden"
+                              style={{ transform: "rotateY(180deg)" }}
+                            >
+                              <div
+                                className={`relative w-full h-full rounded-2xl border-4 overflow-hidden transition-all ${
+                                  card.matched
+                                    ? "border-green-400 shadow-[0_0_30px_rgba(34,197,94,0.6)]"
+                                    : "border-white/30"
+                                }`}
+                              >
+                                <Image
+                                  src={card.imageUrl}
+                                  alt="Card"
+                                  fill
+                                  sizes="(max-width: 768px) 25vw, 200px"
+                                  className="object-cover"
+                                />
+                                {card.matched && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="absolute inset-0 bg-green-500/20 backdrop-blur-[1px] flex items-center justify-center"
+                                  >
+                                    <span className="text-6xl">✓</span>
+                                  </motion.div>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    ))}
                   </AnimatePresence>
                 </div>
               </div>

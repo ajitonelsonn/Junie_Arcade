@@ -1,233 +1,368 @@
-import * as Phaser from 'phaser'
+import * as Phaser from "phaser";
 
 interface Target {
-  sprite: Phaser.GameObjects.Image
-  isGood: boolean
-  value: number
-  spawnTime: number
+  sprite: Phaser.GameObjects.Image;
+  isGood: boolean;
+  value: number;
+  spawnTime: number;
+  lifetime: number; // Variable lifetime for difficulty
 }
 
 export default class ReflexArenaScene extends Phaser.Scene {
-  private score = 0
-  private timeLeft = 60
-  private combo = 0
-  private targets: Target[] = []
-  private scoreText!: Phaser.GameObjects.Text
-  private timerText!: Phaser.GameObjects.Text
-  private comboText!: Phaser.GameObjects.Text
-  private gameTimer!: Phaser.Time.TimerEvent
-  private spawnTimer!: Phaser.Time.TimerEvent
-  private onGameEnd?: (score: number) => void
+  private score = 0;
+  private timeLeft = 60;
+  private combo = 0;
+  private targets: Target[] = [];
+  private scoreText!: Phaser.GameObjects.Text;
+  private timerText!: Phaser.GameObjects.Text;
+  private comboText!: Phaser.GameObjects.Text;
+  private gameTimer!: Phaser.Time.TimerEvent;
+  private spawnTimer!: Phaser.Time.TimerEvent;
+  private onGameEnd?: (score: number) => void;
+  private spawnDelay = 900; // Start slightly faster
+  private targetLifetime = 1800; // Targets disappear faster
+  private badTargetChance = 0.35; // More bad targets
 
   constructor() {
-    super({ key: 'ReflexArenaScene' })
+    super({ key: "ReflexArenaScene" });
   }
 
   init(data: { onGameEnd?: (score: number) => void }) {
-    this.onGameEnd = data.onGameEnd
+    this.onGameEnd = data.onGameEnd;
   }
 
   preload() {
     // Load target images
-    this.load.image('target-star', '/assets/images/targets/target-star.png')
-    this.load.image('target-trophy', '/assets/images/targets/target-trophy.png')
-    this.load.image('target-gem', '/assets/images/targets/target-gem.png')
-    this.load.image('target-coin', '/assets/images/targets/target-coin.png')
-    this.load.image('target-bug', '/assets/images/targets/target-bug.png')
-    this.load.image('target-virus', '/assets/images/targets/target-virus.png')
-    this.load.image('target-bomb', '/assets/images/targets/target-bomb.png')
+    this.load.image("target-star", "/assets/images/targets/target-star.png");
+    this.load.image(
+      "target-trophy",
+      "/assets/images/targets/target-trophy.png"
+    );
+    this.load.image("target-gem", "/assets/images/targets/target-gem.png");
+    this.load.image("target-coin", "/assets/images/targets/target-coin.png");
+    this.load.image("target-bug", "/assets/images/targets/target-bug.png");
+    this.load.image("target-virus", "/assets/images/targets/target-virus.png");
+    this.load.image("target-bomb", "/assets/images/targets/target-bomb.png");
 
     // Load Junie sprites
-    this.load.image('junie-happy', '/assets/images/junie/junie-happy.png')
-    this.load.image('junie-sad', '/assets/images/junie/junie-sad.png')
+    this.load.image("junie-happy", "/assets/images/junie/junie-happy.png");
+    this.load.image("junie-sad", "/assets/images/junie/junie-sad.png");
   }
 
   create() {
-    // Background
-    this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x1e40af).setOrigin(0)
+    // Reset difficulty variables
+    this.spawnDelay = 900;
+    this.targetLifetime = 1800;
+    this.badTargetChance = 0.35;
+
+    // Background with gradient effect
+    const bg = this.add
+      .rectangle(0, 0, this.scale.width, this.scale.height, 0x1e40af)
+      .setOrigin(0);
+
+    // Add darker overlay for visual intensity
+    this.add
+      .rectangle(0, 0, this.scale.width, this.scale.height, 0x000000, 0.2)
+      .setOrigin(0);
 
     // UI
-    this.scoreText = this.add.text(20, 20, 'Score: 0', {
-      fontSize: '32px',
-      color: '#ffffff',
-      fontStyle: 'bold'
-    })
+    this.scoreText = this.add.text(20, 20, "Score: 0", {
+      fontSize: "32px",
+      color: "#ffffff",
+      fontStyle: "bold",
+      stroke: "#000000",
+      strokeThickness: 4,
+    });
 
-    this.timerText = this.add.text(this.scale.width - 20, 20, 'Time: 60', {
-      fontSize: '32px',
-      color: '#ffffff',
-      fontStyle: 'bold'
-    }).setOrigin(1, 0)
+    this.timerText = this.add
+      .text(this.scale.width - 20, 20, "Time: 60", {
+        fontSize: "32px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 4,
+      })
+      .setOrigin(1, 0);
 
-    this.comboText = this.add.text(this.scale.width / 2, 20, 'Combo: 0x', {
-      fontSize: '28px',
-      color: '#ffff00',
-      fontStyle: 'bold'
-    }).setOrigin(0.5, 0)
+    this.comboText = this.add
+      .text(this.scale.width / 2, 20, "Combo: 0x", {
+        fontSize: "28px",
+        color: "#ffff00",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5, 0);
 
     // Game timer
     this.gameTimer = this.time.addEvent({
       delay: 1000,
       callback: this.updateTimer,
       callbackScope: this,
-      loop: true
-    })
+      loop: true,
+    });
 
-    // Spawn timer
+    // Spawn timer - dynamically adjusted
     this.spawnTimer = this.time.addEvent({
-      delay: 1000,
+      delay: this.spawnDelay,
       callback: this.spawnTarget,
       callbackScope: this,
-      loop: true
-    })
+      loop: true,
+    });
   }
 
   private updateTimer() {
-    this.timeLeft--
-    this.timerText.setText(`Time: ${this.timeLeft}`)
+    this.timeLeft--;
+    this.timerText.setText(`Time: ${this.timeLeft}`);
+
+    // Progressive difficulty every 10 seconds
+    if (this.timeLeft % 10 === 0 && this.timeLeft > 0) {
+      // Increase spawn rate (decrease delay)
+      if (this.spawnDelay > 400) {
+        this.spawnDelay -= 100;
+        this.spawnTimer.reset({
+          delay: this.spawnDelay,
+          callback: this.spawnTarget,
+          callbackScope: this,
+          loop: true,
+        });
+      }
+
+      // Decrease target lifetime
+      if (this.targetLifetime > 1000) {
+        this.targetLifetime -= 150;
+      }
+
+      // Increase bad target chance
+      if (this.badTargetChance < 0.5) {
+        this.badTargetChance += 0.03;
+      }
+
+      // Visual feedback for difficulty increase
+      this.cameras.main.shake(200, 0.003);
+      this.showDifficultyWarning();
+    }
 
     if (this.timeLeft <= 0) {
-      this.endGame()
+      this.endGame();
     }
   }
 
+  private showDifficultyWarning() {
+    const warning = this.add
+      .text(this.scale.width / 2, this.scale.height / 2, "SPEED UP!", {
+        fontSize: "48px",
+        color: "#ff0000",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 6,
+      })
+      .setOrigin(0.5)
+      .setAlpha(0);
+
+    this.tweens.add({
+      targets: warning,
+      alpha: 1,
+      scale: { from: 0.5, to: 1.2 },
+      duration: 300,
+      yoyo: true,
+      onComplete: () => warning.destroy(),
+    });
+  }
+
   private spawnTarget() {
-    // Remove old targets
-    this.targets = this.targets.filter(target => {
-      if (this.time.now - target.spawnTime > 2000) {
-        target.sprite.destroy()
-        return false
+    // Remove old targets based on their individual lifetime
+    this.targets = this.targets.filter((target) => {
+      if (this.time.now - target.spawnTime > target.lifetime) {
+        // Penalty for missing good targets
+        if (target.isGood) {
+          this.combo = 0;
+          this.comboText.setText("Combo: 0x");
+          this.showFeedback(target.sprite.x, target.sprite.y, "MISS!", false);
+        }
+        target.sprite.destroy();
+        return false;
       }
-      return true
-    })
+      return true;
+    });
 
-    // Spawn new target
-    const x = Phaser.Math.Between(100, this.scale.width - 100)
-    const y = Phaser.Math.Between(100, this.scale.height - 100)
+    // Spawn new target with some randomization
+    const x = Phaser.Math.Between(120, this.scale.width - 120);
+    const y = Phaser.Math.Between(120, this.scale.height - 120);
 
-    const isGood = Math.random() > 0.3
-    let targetKey: string
-    let value: number
+    const isGood = Math.random() > this.badTargetChance;
+    let targetKey: string;
+    let value: number;
 
     if (isGood) {
       const goodTargets = [
-        { key: 'target-star', value: 10 },
-        { key: 'target-trophy', value: 50 },
-        { key: 'target-gem', value: 30 },
-        { key: 'target-coin', value: 20 }
-      ]
-      const selected = Phaser.Utils.Array.GetRandom(goodTargets)
-      targetKey = selected.key
-      value = selected.value
+        { key: "target-star", value: 10 },
+        { key: "target-trophy", value: 50 },
+        { key: "target-gem", value: 30 },
+        { key: "target-coin", value: 20 },
+      ];
+      const selected = Phaser.Utils.Array.GetRandom(goodTargets);
+      targetKey = selected.key;
+      value = selected.value;
     } else {
-      const badTargets = ['target-bug', 'target-virus', 'target-bomb']
-      targetKey = Phaser.Utils.Array.GetRandom(badTargets)
-      value = -20
+      const badTargets = ["target-bug", "target-virus", "target-bomb"];
+      targetKey = Phaser.Utils.Array.GetRandom(badTargets);
+      value = -25; // Increased penalty from -20
     }
 
-    const sprite = this.add.image(x, y, targetKey)
-      .setInteractive({ cursor: 'pointer' })
+    const sprite = this.add
+      .image(x, y, targetKey)
+      .setInteractive({ cursor: "pointer" })
       .setScale(0)
+      .setDepth(10);
 
+    // Faster spawn animation
     this.tweens.add({
       targets: sprite,
-      scale: 0.5, // Reduced from 1 to 0.5 for better UI
-      duration: 200,
-      ease: 'Back.easeOut'
-    })
+      scale: 0.45, // Slightly smaller targets
+      duration: 150,
+      ease: "Back.easeOut",
+    });
 
-    sprite.on('pointerdown', () => this.onTargetClick(target))
+    // Add pulsing effect for urgency
+    this.tweens.add({
+      targets: sprite,
+      alpha: { from: 1, to: 0.7 },
+      duration: 300,
+      yoyo: true,
+      repeat: -1,
+    });
+
+    sprite.on("pointerdown", () => this.onTargetClick(target));
 
     const target: Target = {
       sprite,
       isGood,
       value,
-      spawnTime: this.time.now
-    }
+      spawnTime: this.time.now,
+      lifetime: this.targetLifetime + Phaser.Math.Between(-200, 200), // Variable lifetime
+    };
 
-    this.targets.push(target)
+    this.targets.push(target);
   }
 
   private onTargetClick(target: Target) {
-    const reactionTime = this.time.now - target.spawnTime
-    let points = target.value
+    const reactionTime = this.time.now - target.spawnTime;
+    let points = target.value;
 
     if (target.isGood) {
-      // Time bonus
-      if (reactionTime < 300) {
-        points *= 2
+      // Time bonus - stricter timing
+      if (reactionTime < 250) {
+        // Reduced from 300ms
+        points *= 2;
+        this.showFeedback(target.sprite.x, target.sprite.y, "FAST!", true);
       }
 
       // Combo multiplier
-      this.combo++
-      const comboMultiplier = Math.min(this.combo, 5)
-      points *= comboMultiplier
+      this.combo++;
+      const comboMultiplier = Math.min(this.combo, 5);
+      points *= comboMultiplier;
 
-      // Show happy Junie
-      this.showFeedback(target.sprite.x, target.sprite.y, '+' + points, true)
+      // Show happy feedback
+      this.showFeedback(target.sprite.x, target.sprite.y, "+" + points, true);
+
+      // Camera flash for good hits
+      if (this.combo >= 3) {
+        this.cameras.main.flash(100, 255, 255, 255, false, undefined, 0.1);
+      }
     } else {
-      // Bad target clicked
-      this.combo = 0
-      this.showFeedback(target.sprite.x, target.sprite.y, points.toString(), false)
+      // Bad target clicked - harsher penalty
+      this.combo = 0;
+      this.showFeedback(
+        target.sprite.x,
+        target.sprite.y,
+        points.toString(),
+        false
+      );
+
+      // Camera shake for bad hits
+      this.cameras.main.shake(200, 0.01);
     }
 
-    this.score += points
-    this.scoreText.setText(`Score: ${this.score}`)
-    this.comboText.setText(`Combo: ${this.combo}x`)
+    this.score += points;
+    this.scoreText.setText(`Score: ${this.score}`);
+    this.comboText.setText(`Combo: ${this.combo}x`);
 
-    // Remove target
+    // Remove target with faster animation
     this.tweens.add({
       targets: target.sprite,
       scale: 0,
       alpha: 0,
-      duration: 200,
-      onComplete: () => target.sprite.destroy()
-    })
+      duration: 150,
+      onComplete: () => target.sprite.destroy(),
+    });
 
-    this.targets = this.targets.filter(t => t !== target)
+    this.targets = this.targets.filter((t) => t !== target);
   }
 
   private showFeedback(x: number, y: number, text: string, isGood: boolean) {
-    const feedback = this.add.text(x, y, text, {
-      fontSize: '32px',
-      color: isGood ? '#00ff00' : '#ff0000',
-      fontStyle: 'bold'
-    }).setOrigin(0.5)
+    const feedback = this.add
+      .text(x, y, text, {
+        fontSize: "28px",
+        color: isGood ? "#00ff00" : "#ff0000",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5)
+      .setDepth(20);
 
     this.tweens.add({
       targets: feedback,
-      y: y - 50,
+      y: y - 60,
       alpha: 0,
-      duration: 1000,
-      ease: 'Power2',
-      onComplete: () => feedback.destroy()
-    })
+      duration: 800,
+      ease: "Power2",
+      onComplete: () => feedback.destroy(),
+    });
   }
 
   private endGame() {
-    this.gameTimer.destroy()
-    this.spawnTimer.destroy()
+    this.gameTimer.destroy();
+    this.spawnTimer.destroy();
 
     // Clear all targets
-    this.targets.forEach(target => target.sprite.destroy())
-    this.targets = []
+    this.targets.forEach((target) => target.sprite.destroy());
+    this.targets = [];
 
     // Show final score briefly
-    this.add.text(this.scale.width / 2, this.scale.height / 2,
-      `GAME OVER!\nFinal Score: ${this.score}`, {
-      fontSize: '48px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-      align: 'center'
-    }).setOrigin(0.5)
+    const finalText = this.add
+      .text(
+        this.scale.width / 2,
+        this.scale.height / 2,
+        `GAME OVER!\nFinal Score: ${this.score}`,
+        {
+          fontSize: "48px",
+          color: "#ffffff",
+          fontStyle: "bold",
+          align: "center",
+          stroke: "#000000",
+          strokeThickness: 6,
+        }
+      )
+      .setOrigin(0.5)
+      .setDepth(100);
 
-    // Call onGameEnd callback immediately (React will handle the UI)
+    // Fade in effect
+    finalText.setAlpha(0);
+    this.tweens.add({
+      targets: finalText,
+      alpha: 1,
+      duration: 500,
+    });
+
+    // Call onGameEnd callback
     if (this.onGameEnd) {
       this.time.delayedCall(1500, () => {
         if (this.onGameEnd) {
-          this.onGameEnd(this.score)
+          this.onGameEnd(this.score);
         }
-      })
+      });
     }
   }
 }
