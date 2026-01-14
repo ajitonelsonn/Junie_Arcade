@@ -372,7 +372,7 @@ export default function ReflexArenaPage() {
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-orange-500/30 overflow-hidden">
       {/* Animated Background - Matching Home Page Style */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/bg-tech.jpg')] opacity-30 bg-cover bg-center mix-blend-overlay" />
+        <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/lol.webp')] opacity-30 bg-cover bg-center mix-blend-overlay" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
         {/* Animated Orbs */}

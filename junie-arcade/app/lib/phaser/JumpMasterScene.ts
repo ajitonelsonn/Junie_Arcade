@@ -28,7 +28,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.load.image("junie-jump", "/assets/images/junie/junie-jump.png");
     this.load.image("junie-sad", "/assets/images/junie/junie-sad.png");
     this.load.image("junie-happy", "/assets/images/junie/junie-happy.png");
-    this.load.image("background", "/assets/images/backgrounds/bg-space.jpg");
+    this.load.image("background", "/assets/images/backgrounds/valorant.webp");
     this.load.image("bug", "/assets/images/targets/target-bug.png");
     this.load.image("coin", "/assets/images/targets/target-coin.png");
     this.load.image("cloud9", "/assets/images/logos/cloud9-icon.png");

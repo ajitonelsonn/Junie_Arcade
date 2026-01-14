@@ -167,7 +167,7 @@ export default function GameOverCard({
       case 'REFLEX_ARENA': return '/assets/images/logos/game_logo/reflex_arena.png'
       case 'JUMP_MASTER': return '/assets/images/logos/game_logo/jump_master.png'
       case 'MEMORY_MATCH': return '/assets/images/logos/game_logo/memory_match.png'
-      case 'OVERALL': return '/assets/images/logos/game_logo/j_arcade.webp'
+      case 'OVERALL': return '/assets/images/logos/game_logo/j_arcade.png'
       default: return null
     }
   }
