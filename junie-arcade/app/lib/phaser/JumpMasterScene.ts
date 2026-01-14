@@ -73,7 +73,9 @@ export default class JumpMasterScene extends Phaser.Scene {
     const scale = Math.max(scaleX, scaleY);
     bg.setScale(scale).setScrollFactor(0);
     // Add a dark overlay to make sure Junie and other objects are visible
-    this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x000000, 0.2).setOrigin(0);
+    this.add
+      .rectangle(0, 0, this.scale.width, this.scale.height, 0x000000, 0.2)
+      .setOrigin(0);
 
     // Ground
     this.ground = this.add
@@ -88,10 +90,10 @@ export default class JumpMasterScene extends Phaser.Scene {
       "junie-run-1"
     );
     this.player.setScale(0.35); // Reduced from 0.5
-    
+
     // Start animation immediately
     if (!this.isGameOver) {
-        this.player.play("run");
+      this.player.play("run");
     }
 
     this.player.setCollideWorldBounds(true);
@@ -99,11 +101,17 @@ export default class JumpMasterScene extends Phaser.Scene {
 
     // Collisions
     this.physics.add.collider(this.player, this.ground);
-    
+
     // Adjust hitbox for fairer gameplay
     if (this.player.body) {
-      this.player.body.setSize(this.player.width * 0.7, this.player.height * 0.8);
-      this.player.body.setOffset(this.player.width * 0.15, this.player.height * 0.1);
+      this.player.body.setSize(
+        this.player.width * 0.7,
+        this.player.height * 0.8
+      );
+      this.player.body.setOffset(
+        this.player.width * 0.15,
+        this.player.height * 0.1
+      );
     }
 
     // Groups
@@ -123,7 +131,7 @@ export default class JumpMasterScene extends Phaser.Scene {
       (p: any, c: any) => {
         const collectible = c as any;
         const type = collectible.getData("type");
-        const points = type === "cloud9" ? 25 : 10;
+        const points = type === "cloud9" ? 35 : 15; // Increased from 25 and 10
 
         this.score += points;
         this.sound.play("coin", { volume: 0.6 });
@@ -187,11 +195,11 @@ export default class JumpMasterScene extends Phaser.Scene {
 
           // Increase difficulty
           if (this.distance % 100 === 0) {
-            this.gameSpeed += 20;
+            this.gameSpeed += 25; // Increased from 20
           }
 
-          // Milestone celebration
-          if (this.distance > 0 && this.distance % 500 === 0) {
+          // Milestone celebration - now every 200m
+          if (this.distance > 0 && this.distance % 200 === 0) {
             this.celebrateMilestone();
           }
         }
@@ -225,7 +233,10 @@ export default class JumpMasterScene extends Phaser.Scene {
       // Reset double jump when landing
       this.hasDoubleJump = false;
 
-      if (!this.player.anims.isPlaying || this.player.anims.currentAnim?.key !== "run") {
+      if (
+        !this.player.anims.isPlaying ||
+        this.player.anims.currentAnim?.key !== "run"
+      ) {
         this.player.play("run", true);
       }
     } else if (!this.player.body?.touching.down && !this.isGameOver) {
@@ -265,7 +276,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     ) as any;
 
     obstacle.setScale(0.12); // Reduced from 0.15
-    
+
     // Adjust obstacle hitbox
     if (obstacle.body) {
       obstacle.body.setSize(obstacle.width * 0.6, obstacle.height * 0.6);
@@ -288,10 +299,13 @@ export default class JumpMasterScene extends Phaser.Scene {
     ) as any;
 
     collectible.setScale(0.2).setData("type", type); // Reduced from 0.25
-    
+
     // Make collectibles easier to pick up (larger hitbox than visual)
     if (collectible.body) {
-      collectible.body.setSize(collectible.width * 1.2, collectible.height * 1.2);
+      collectible.body.setSize(
+        collectible.width * 1.2,
+        collectible.height * 1.2
+      );
     }
   }
 
@@ -316,15 +330,20 @@ export default class JumpMasterScene extends Phaser.Scene {
   }
 
   private celebrateMilestone() {
-    const text = this.add.text(this.scale.width / 2, this.scale.height / 2, "AWESOME!", {
-      fontSize: "64px",
-      color: "#ffff00",
-      fontStyle: "bold",
-      stroke: "#000000",
-      strokeThickness: 8,
-    }).setOrigin(0.5);
+    const text = this.add
+      .text(this.scale.width / 2, this.scale.height / 2, "AWESOME!", {
+        fontSize: "64px",
+        color: "#ffff00",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 8,
+      })
+      .setOrigin(0.5);
 
-    const happyJunie = this.add.image(this.scale.width / 2, this.scale.height / 2 + 100, "junie-happy").setScale(0.5).setAlpha(0);
+    const happyJunie = this.add
+      .image(this.scale.width / 2, this.scale.height / 2 + 100, "junie-happy")
+      .setScale(0.5)
+      .setAlpha(0);
 
     this.tweens.add({
       targets: [text, happyJunie],
@@ -336,14 +355,14 @@ export default class JumpMasterScene extends Phaser.Scene {
       onComplete: () => {
         text.destroy();
         happyJunie.destroy();
-      }
+      },
     });
   }
 
   private endGame() {
     if (this.isGameOver) return;
     this.isGameOver = true;
-    
+
     // Stop background music
     this.sound.stopByKey("bgm");
     this.sound.play("gameover", { volume: 0.7 });
