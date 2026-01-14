@@ -82,6 +82,8 @@ export default function GameOverCard({
     setHeroIndex(initialHeroIdx)
     setSelectedJunie(junies[initialJunieIdx])
     setSelectedHero(heroes[initialHeroIdx])
+
+    console.log('Selected Junie:', junies[initialJunieIdx]) // Debug log
   }, [])
 
   useEffect(() => {
@@ -527,12 +529,16 @@ export default function GameOverCard({
           ctx.globalAlpha = 1
 
           try {
+            const junieMascotPath = selectedJunie && selectedJunie.length > 0
+                ? `/assets/images/junie/${selectedJunie}`
+                : '/assets/images/junie/junie-happy.png'
             // Load all images including Junie mascot
             const [junieLogo, cloud9Logo, jetbrainsLogo, junieMascot] = await Promise.all([
               loadImage('/assets/images/logos/junie-logo.png'),
               loadImage('/assets/images/logos/cloud9-logo.png'),
               loadImage('/assets/images/logos/jetbrains-logo.png'),
-              loadImage(`/assets/images/junie/${selectedJunie || 'junie-happy.png'}`)
+              loadImage(`/assets/images/junie/${selectedJunie || 'junie-happy.png'}`),
+              loadImage(junieMascotPath)
             ]).catch(() => [null, null, null, null])
 
             // Top section with logos and branding
@@ -1089,28 +1095,28 @@ export default function GameOverCard({
         {/* Hero and Small Mascot Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <AnimatePresence mode="wait">
-            {selectedHero && (
+            {selectedHero && selectedHero.length > 0 && (
               <motion.img 
                 key={selectedHero}
                 initial={{ opacity: 0, scale: 1.1 }}
                 animate={{ opacity: 0.12, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1.5 }}
-                src={`/assets/images/hero/${selectedHero}`} 
+                src={`/assets/images/hero/${selectedHero}`}
                 alt="Hero background" 
                 className="absolute -right-16 top-1/2 -translate-y-1/2 h-[90%] object-contain grayscale-0"
               />
             )}
           </AnimatePresence>
           <AnimatePresence mode="wait">
-            {selectedJunie && (
+            {selectedJunie && selectedJunie.length > 0 && (
               <motion.img 
                 key={selectedJunie}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 0.15, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 1 }}
-                src={`/assets/images/junie/${selectedJunie}`} 
+                src={`/assets/images/junie/${selectedJunie}`}
                 alt="Small mascot accent" 
                 className="absolute left-8 top-32 w-24 h-24 object-contain brightness-125"
               />
@@ -1147,6 +1153,7 @@ export default function GameOverCard({
               
               {/* Dynamic floating mascot next to title */}
               <AnimatePresence mode="wait">
+                {selectedJunie && selectedJunie.length > 0 && (
                 <motion.img
                   key={selectedJunie}
                   initial={{ opacity: 0, scale: 0.5, x: 20 }}
@@ -1156,6 +1163,7 @@ export default function GameOverCard({
                   alt="Dynamic Junie"
                   className="absolute -top-6 -right-6 w-12 h-12 object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                 />
+                )}
               </AnimatePresence>
             </motion.div>
             <div>
