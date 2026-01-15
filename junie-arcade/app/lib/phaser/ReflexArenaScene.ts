@@ -5,12 +5,12 @@ interface Target {
   isGood: boolean;
   value: number;
   spawnTime: number;
-  lifetime: number; // Variable lifetime for difficulty
+  lifetime: number;
 }
 
 export default class ReflexArenaScene extends Phaser.Scene {
   private score = 0;
-  private timeLeft = 60;
+  private timeLeft = 50; // Changed from 60 to 50
   private combo = 0;
   private targets: Target[] = [];
   private scoreText!: Phaser.GameObjects.Text;
@@ -19,9 +19,9 @@ export default class ReflexArenaScene extends Phaser.Scene {
   private gameTimer!: Phaser.Time.TimerEvent;
   private spawnTimer!: Phaser.Time.TimerEvent;
   private onGameEnd?: (score: number) => void;
-  private spawnDelay = 900; // Start slightly faster
-  private targetLifetime = 1800; // Targets disappear faster
-  private badTargetChance = 0.35; // More bad targets
+  private spawnDelay = 600; // Faster initial spawn (was 900)
+  private targetLifetime = 2000; // Slightly longer to accommodate more targets
+  private badTargetChance = 0.3; // Slightly fewer bad targets
 
   constructor() {
     super({ key: "ReflexArenaScene" });
@@ -51,9 +51,13 @@ export default class ReflexArenaScene extends Phaser.Scene {
 
   create() {
     // Reset difficulty variables
-    this.spawnDelay = 900;
-    this.targetLifetime = 1800;
-    this.badTargetChance = 0.35;
+    this.spawnDelay = 600;
+    this.targetLifetime = 2000;
+    this.badTargetChance = 0.3;
+    this.score = 0;
+    this.timeLeft = 50;
+    this.combo = 0;
+    this.targets = [];
 
     // Background with gradient effect
     const bg = this.add
@@ -75,7 +79,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
     });
 
     this.timerText = this.add
-      .text(this.scale.width - 20, 20, "Time: 60", {
+      .text(this.scale.width - 20, 20, "Time: 50", {
         fontSize: "32px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -102,7 +106,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
       loop: true,
     });
 
-    // Spawn timer - dynamically adjusted
+    // Spawn timer - faster initial spawn
     this.spawnTimer = this.time.addEvent({
       delay: this.spawnDelay,
       callback: this.spawnTarget,
@@ -118,8 +122,8 @@ export default class ReflexArenaScene extends Phaser.Scene {
     // Progressive difficulty every 10 seconds
     if (this.timeLeft % 10 === 0 && this.timeLeft > 0) {
       // Increase spawn rate (decrease delay)
-      if (this.spawnDelay > 400) {
-        this.spawnDelay -= 100;
+      if (this.spawnDelay > 300) {
+        this.spawnDelay -= 80;
         this.spawnTimer.reset({
           delay: this.spawnDelay,
           callback: this.spawnTarget,
@@ -134,7 +138,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
       }
 
       // Increase bad target chance
-      if (this.badTargetChance < 0.5) {
+      if (this.badTargetChance < 0.45) {
         this.badTargetChance += 0.03;
       }
 
@@ -207,7 +211,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
     } else {
       const badTargets = ["target-bug", "target-virus", "target-bomb"];
       targetKey = Phaser.Utils.Array.GetRandom(badTargets);
-      value = -25; // Increased penalty from -20
+      value = -25;
     }
 
     const sprite = this.add
@@ -219,7 +223,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
     // Faster spawn animation
     this.tweens.add({
       targets: sprite,
-      scale: 0.45, // Slightly smaller targets
+      scale: 0.45,
       duration: 150,
       ease: "Back.easeOut",
     });
@@ -240,7 +244,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
       isGood,
       value,
       spawnTime: this.time.now,
-      lifetime: this.targetLifetime + Phaser.Math.Between(-200, 200), // Variable lifetime
+      lifetime: this.targetLifetime + Phaser.Math.Between(-200, 200),
     };
 
     this.targets.push(target);
@@ -253,7 +257,6 @@ export default class ReflexArenaScene extends Phaser.Scene {
     if (target.isGood) {
       // Time bonus - stricter timing
       if (reactionTime < 250) {
-        // Reduced from 300ms
         points *= 2;
         this.showFeedback(target.sprite.x, target.sprite.y, "FAST!", true);
       }

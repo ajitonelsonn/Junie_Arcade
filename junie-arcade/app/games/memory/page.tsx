@@ -45,7 +45,7 @@ export default function MemoryMatchPage() {
   const [matchedPairs, setMatchedPairs] = useState(0);
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(120);
+  const [timeLeft, setTimeLeft] = useState(100);
   const [gameOver, setGameOver] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
@@ -249,7 +249,7 @@ export default function MemoryMatchPage() {
       setMatchedPairs(0);
       setMoves(0);
       setScore(0);
-      setTimeLeft(120);
+      setTimeLeft(100);
       setGameOver(false);
       setGameStarted(true);
       setConsecutiveMatches(0);
@@ -283,7 +283,7 @@ export default function MemoryMatchPage() {
         setMatchedPairs(0);
         setMoves(0);
         setScore(0);
-        setTimeLeft(120);
+        setTimeLeft(100);
         setGameOver(false);
         setGameStarted(true);
         setConsecutiveMatches(0);
@@ -372,7 +372,7 @@ export default function MemoryMatchPage() {
           country,
           gameType: "MEMORY_MATCH",
           score,
-          time: 120 - timeLeft,
+          time: 100 - timeLeft,
           playerId,
         }),
       });

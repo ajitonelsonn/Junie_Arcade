@@ -17,8 +17,8 @@ This document explains how Junie's Arcade calculates scores and rankings across 
 ### 1. Reflex Arena ⚡
 
 **Game Type:** `REFLEX_ARENA`
-**Duration:** 60 seconds
-**Score Range:** 0 - 6000+ points (with perfect combos and reaction times)
+**Duration:** 50 seconds
+**Score Range:** 0 - 5000+ points (with perfect combos and reaction times)
 
 #### Scoring Mechanics
 
@@ -59,10 +59,11 @@ This document explains how Junie's Arcade calculates scores and rankings across 
 
 **3. Target Spawn Mechanics:**
 
-- **Starting:** Targets spawn every 0.9 seconds, last 1.8 seconds
-- **Bad target chance:** Starts at 35%, increases to 50%
+- **Starting:** Targets spawn every 0.6 seconds, last 2.0 seconds
+- **Bad target chance:** Starts at 30%, increases to 45%
 - Targets are slightly smaller (0.45 scale) for precision challenge
 - Pulsing animation adds visual pressure
+- More targets on screen simultaneously for higher scoring potential
 
 #### Progressive Difficulty (Every 10 seconds)
 
@@ -70,41 +71,36 @@ The game gets dramatically harder as time progresses:
 
 **⏱️ 0-10s (Warmup Phase):**
 
-- Spawn delay: 900ms
-- Target lifetime: 1800ms
-- Bad target chance: 35%
+- Spawn delay: 600ms
+- Target lifetime: 2000ms
+- Bad target chance: 30%
 
 **⏱️ 10-20s (Acceleration):**
 
-- Spawn delay: 800ms
-- Target lifetime: 1650ms
-- Bad target chance: 38%
+- Spawn delay: 520ms
+- Target lifetime: 1850ms
+- Bad target chance: 33%
 
 **⏱️ 20-30s (Intense):**
 
-- Spawn delay: 700ms
-- Target lifetime: 1500ms
-- Bad target chance: 41%
+- Spawn delay: 440ms
+- Target lifetime: 1700ms
+- Bad target chance: 36%
 
 **⏱️ 30-40s (Expert):**
 
-- Spawn delay: 600ms
-- Target lifetime: 1350ms
-- Bad target chance: 44%
+- Spawn delay: 360ms
+- Target lifetime: 1550ms
+- Bad target chance: 39%
 
-**⏱️ 40-50s (Master):**
+**⏱️ 40-50s (INSANE):**
 
-- Spawn delay: 500ms
-- Target lifetime: 1200ms
-- Bad target chance: 47%
-
-**⏱️ 50-60s (INSANE):**
-
-- Spawn delay: 400ms (MAXIMUM SPEED)
-- Target lifetime: 1000ms
-- Bad target chance: 50%
+- Spawn delay: 300ms (MAXIMUM SPEED)
+- Target lifetime: 1400ms
+- Bad target chance: 42%
 - "SPEED UP!" warnings
 - Screen shake effects
+- Maximum target density!
 
 #### Final Score Calculation
 
@@ -129,22 +125,24 @@ finalScore = sum of all points from clicked targets
 
 #### Strategy Tips
 
-🎯 **Early Game (0-30s):**
+🎯 **Early Game (0-20s):**
 
 - Focus on building combo to 5x quickly
 - Prioritize accuracy over speed
 - Learn target patterns and positions
+- Take advantage of longer target lifetimes
 
-⚡ **Mid Game (30-45s):**
+⚡ **Mid Game (20-35s):**
 
 - Maintain 5x combo at all costs
 - Start pushing for sub-250ms clicks
 - Be extra careful with bad targets - combo is valuable
+- Multiple targets on screen - prioritize high-value targets
 
-🔥 **End Game (45-60s):**
+🔥 **End Game (35-50s):**
 
-- Maximum chaos: 400ms spawn rate, 1 second lifetimes
-- Screen will be crowded with targets
+- Maximum chaos: 300ms spawn rate, 1.4 second lifetimes
+- Screen will be crowded with 5-8 targets simultaneously
 - Every click counts - one mistake resets everything
 - Trophy with max combo + fast reaction = 500 points!
 
@@ -155,71 +153,203 @@ finalScore = sum of all points from clicked targets
 - **Risk management:** At 5x combo, slow down slightly to avoid bad targets
 - **Trophy priority:** With max combo, trophies are worth 10x their base value
 - **Miss penalty awareness:** Don't get tunnel vision - clear all good targets
+- **Target management:** With faster spawn rates, you'll see 3-5 targets early game and 6-8+ targets late game
+- **Time efficiency:** The shorter 50-second duration means every second counts - build combo fast!
 
 #### Difficulty Rating by Time
 
-- **Minutes 0:00-0:30:** ⭐⭐ Moderate - Building momentum
-- **Minutes 0:30-0:45:** ⭐⭐⭐⭐ Hard - Speed intensifies
-- **Minutes 0:45-1:00:** ⭐⭐⭐⭐⭐ EXTREME - Maximum chaos
+- **0:00-0:20:** ⭐⭐ Moderate - Fast-paced building momentum
+- **0:20-0:35:** ⭐⭐⭐⭐ Hard - High-speed multitasking
+- **0:35-0:50:** ⭐⭐⭐⭐⭐ EXTREME - Maximum chaos with 8+ targets
 
-**Target Density:** Up to 5+ targets on screen simultaneously in final 10 seconds!
+**Target Density:** Up to 6-8+ targets on screen simultaneously in final 15 seconds!
+
+**Key Differences from Standard Mode:**
+
+- 10 seconds shorter (50s vs 60s)
+- 50% faster initial spawn rate (600ms vs 900ms)
+- Longer target lifetimes (2000ms vs 1800ms start)
+- Lower initial bad target rate (30% vs 35%)
+- More aggressive gameplay required due to higher target density
+- Faster difficulty progression to match shorter game time
 
 ---
 
 ### 2. Jump Master 🚀
 
 **Game Type:** `JUMP_MASTER`
-**Duration:** Until collision
-**Score Range:** Variable (collectible-based with distance tracking)
+**Duration:** 50 seconds (timed mode)
+**Score Range:** 0 - 3000+ points (collectibles + distance + milestones)
 
 #### Scoring Mechanics
 
 - **Collectibles:** Primary score source
-  - **Cloud9 Logo:** 35 points each
-  - **Coin:** 15 points each
-  - Collectibles spawn every 1.8 seconds at random heights
-  - 50/50 chance for each collectible type
-- **Distance:** Tracked separately (displayed but doesn't add to score)
-  - Distance affects game difficulty progression
-  - Used for milestone celebrations
-- **Obstacle Avoidance:** Survival requires precise timing and double jump mastery
-- **Game ends** when player collides with bug obstacle
+  - **Cloud9 Logo:** 50 points each (increased from 35)
+  - **Coin:** 20 points each (increased from 15)
+  - Collectibles spawn every 1.2 seconds initially (increased frequency)
+  - 40% chance for Cloud9, 60% chance for coins
+  - 25% chance for chain patterns (2 collectibles spawn in sequence)
+  - Larger hitboxes (1.3x visual size) for easier collection
+- **Distance Points:** Automatically added to score
+  - **1 point per 10 meters traveled**
+  - Continuously tracks during gameplay
+  - Contributes to final score calculation
+- **Milestone Bonuses:**
+
+  - **+25 points** every 100 meters
+  - Celebration message and visual effects
+  - Extra scoring opportunity for survival
+
+- **Final Score:**
+
+  - Base score from all collectibles
+  - Distance bonus (distance ÷ 10)
+  - Milestone bonuses
+  - All combined for final score display
+
+- **Game Endings:**
+  - **Victory:** Survive 50 seconds (victory music, happy Junie)
+  - **Game Over:** Collision with bug obstacle (sad Junie)
 
 #### Gameplay Mechanics
 
 - **Double Jump:** Press SPACE or CLICK twice to perform a mid-air jump
   - Essential for reaching high collectibles and avoiding obstacles
   - Resets when landing on ground
-- **Progressive Difficulty:**
-  - Starting speed: 450 pixels/second
-  - Speed increases by +30 every 50 meters
-  - Obstacle spawn rate increases (starts at 2.5s, decreases to 1.2s minimum)
-  - 30% chance for double obstacles after 100m
-  - Gravity: 2000 (faster falling for challenging gameplay)
-- **Milestone Celebrations:** "AWESOME!" message every 200 meters
+  - Same jump power for consistency
+- **Progressive Difficulty (Every 10 seconds):**
+  - **Starting speed:** 500 pixels/second (faster initial pace)
+  - **Speed increase:** +40 every 10 seconds (max 700 px/s)
+  - **Obstacle spawn:** Starts at 1.8s, decreases to 1.0s minimum
+  - **Collectible spawn:** Starts at 1.2s, decreases to 0.7s minimum
+  - **35% chance** for double obstacles after 100m
+  - **Gravity:** 2000 (faster falling for challenging gameplay)
+  - **Visual feedback:** Screen shake and "FASTER!" warnings at difficulty spikes
+- **Timer Pressure:**
+  - 50-second countdown displayed at top center
+  - Timer turns red and screen shakes when ≤10 seconds
+  - Creates urgency to collect as many items as possible
+- **Milestone Celebrations:**
+  - Achievement message every 100 meters
+  - "+25 BONUS!" with distance display
+  - Happy Junie animation
 - **Controls:**
-  - Desktop: SPACEBAR to jump
-  - Mobile/Touch: TAP screen to jump
+  - Desktop: SPACEBAR to jump/double jump
+  - Mobile/Touch: TAP screen to jump/double jump
+
+#### UI Layout
+
+- **Top Left:** Score display (collectibles + distance + bonuses)
+- **Top Center:** Timer (yellow, turns red at ≤10s)
+- **Top Right:** Distance tracker (meters traveled)
 
 #### Final Score Calculation
 
 ```typescript
-finalScore = (cloud9Collected × 35) + (coinsCollected × 15)
-distance = totalDistanceTraveled // Tracked separately for difficulty scaling
+// Real-time scoring:
+score += cloud9Collected × 50
+score += coinsCollected × 20
+score += 1 point per 10 meters
+score += 25 points per 100m milestone
+
+// Final calculation:
+distanceBonus = Math.floor(distance / 10)
+finalScore = baseScore + distanceBonus
+
+// Example at 350 meters with 15 coins, 8 Cloud9s:
+// Collectibles: (15 × 20) + (8 × 50) = 700
+// Distance points: 350 / 10 = 35
+// Milestones: 3 × 25 = 75
+// Final Score: 700 + 35 + 75 = 810 points
 ```
 
-#### Difficulty Progression
+#### Difficulty Progression (Time-Based)
 
-- **0-100m:** Learning phase - standard speed and single obstacles
-- **100-300m:** Moderate - double obstacles start appearing (30% chance)
-- **300m+:** Expert - maximum speed, dense obstacle patterns, precise timing required
+**⏱️ 0-10s (Starting Phase):**
+
+- Speed: 500 px/s
+- Obstacle delay: 1800ms
+- Collectible delay: 1200ms
+- Bad obstacle chance: Standard
+
+**⏱️ 10-20s (Acceleration):**
+
+- Speed: 540 px/s
+- Obstacle delay: 1650ms
+- Collectible delay: 1100ms
+- Double obstacles possible (35% chance after 100m)
+
+**⏱️ 20-30s (Intense):**
+
+- Speed: 580 px/s
+- Obstacle delay: 1500ms
+- Collectible delay: 1000ms
+- More frequent chain collectibles
+
+**⏱️ 30-40s (Expert):**
+
+- Speed: 620 px/s
+- Obstacle delay: 1350ms
+- Collectible delay: 900ms
+- Dense patterns, high reward potential
+
+**⏱️ 40-50s (MAXIMUM INTENSITY):**
+
+- Speed: 660-700 px/s (MAX)
+- Obstacle delay: 1000ms (MIN)
+- Collectible delay: 700ms (MIN)
+- Screen shakes every 2 seconds
+- Maximum collectible density for high scores!
+
+#### Strategy Tips
+
+🎯 **Collectible Priority:**
+
+- Focus on Cloud9 logos (50 pts) over coins (20 pts) when both are available
+- Use double jump to reach high collectibles
+- Don't skip collectibles - they're your main score source!
+
+⚡ **Time Management:**
+
+- Early game (0-20s): Build confidence, collect safely
+- Mid game (20-35s): Balance risk/reward for high collectibles
+- Late game (35-50s): Maximum aggression - every collectible counts!
+
+🚀 **Distance Strategy:**
+
+- Distance = automatic points (1 per 10m)
+- Push for 500m+ to maximize distance bonus
+- Every 100m = +25 bonus points
+
+💡 **Advanced Techniques:**
+
+- Master double jump timing for precise air control
+- Anticipate obstacle patterns after 100m
+- Chain collectibles in patterns are free points - prioritize them!
+- In final 10 seconds, take calculated risks for high-value Cloud9s
+
+#### Difficulty Rating by Time
+
+- **0:00-0:20:** ⭐⭐ Moderate - Building momentum
+- **0:20-0:35:** ⭐⭐⭐⭐ Hard - Speed and density increase
+- **0:35-0:50:** ⭐⭐⭐⭐⭐ EXTREME - Maximum speed, dense patterns, timer pressure
+
+**Key Differences from Endless Mode:**
+
+- Time limit creates urgency and scoring pressure
+- More frequent collectibles (1.2s vs 1.8s)
+- Higher collectible values (50/20 vs 35/15)
+- Distance contributes to score (1 pt per 10m)
+- Milestone bonuses (+25 per 100m)
+- Victory possible by surviving 50 seconds
+- Progressive difficulty scaled to 50-second duration
 
 ---
 
 ### 3. Memory Match 🧠
 
 **Game Type:** `MEMORY_MATCH`
-**Duration:** 120 seconds (2 minutes)
+**Duration:** 100 seconds (1 minute and 40 seconds)
 **Score Range:** 800 - 4500+ points
 
 #### Scoring Mechanics
@@ -273,43 +403,7 @@ finalScore = matchPoints + timeBonus + accuracyBonus +
 
 #### Scoring Examples
 
-**Example 1: Perfect Game (Best Case)**
-
-- 8 pairs matched in exactly 16 moves (perfect memory!)
-- 80 seconds remaining
-- 5x combo maintained throughout (8 consecutive matches)
-
-```
-Match points = 75+150+225+300+375+375+375+375 = 2,250
-Time bonus = 80 × 15 = 1,200
-Accuracy bonus = Math.floor((16 / 16) × 150) = 150
-Combo bonus = 5 × 25 = 125
-Completion bonus = 500
-Perfect bonus = 300
-Speed bonus = 400
-
-Final score = 2,250 + 1,200 + 150 + 125 + 500 + 300 + 400 = 4,925 points 🏆
-```
-
-**Example 2: Fast Completion**
-
-- 8 pairs matched in 22 moves
-- 55 seconds remaining
-- Best combo: 4x (one mistake broke the streak)
-
-```
-Match points = ~1,800 (with combo breaks)
-Time bonus = 55 × 15 = 825
-Accuracy bonus = Math.floor((16 / 22) × 150) = 109
-Combo bonus = 4 × 25 = 100
-Completion bonus = 500
-Perfect bonus = 0 (not 16 moves)
-Speed bonus = 200 (40-59 seconds)
-
-Final score = 1,800 + 825 + 109 + 100 + 500 + 0 + 200 = 3,534 points
-```
-
-**Example 3: Good Completion**
+**Example 1: Completion**
 
 - 8 pairs matched in 30 moves
 - 35 seconds remaining
@@ -327,7 +421,7 @@ Speed bonus = 0 (less than 40s)
 Final score = 1,500 + 525 + 80 + 75 + 500 + 0 + 0 = 2,680 points
 ```
 
-**Example 4: Time Expired (Incomplete)**
+**Example 2: Time Expired (Incomplete)**
 
 - 5 pairs matched in 28 moves
 - 0 seconds remaining
