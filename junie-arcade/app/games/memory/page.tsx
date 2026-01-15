@@ -141,14 +141,14 @@ export default function MemoryMatchPage() {
     if (gameStarted && !gameOver) {
       playGameMusic();
     }
-  }, [gameStarted, gameOver, playGameMusic]);
+  }, [gameStarted, gameOver]);
 
   // Play victory music when game ends
   useEffect(() => {
     if (gameOver) {
       playVictoryMusic();
     }
-  }, [gameOver, playVictoryMusic]);
+  }, [gameOver]);
 
   // Audio helpers
   const playSound = (path: string, volume = 0.5) => {
