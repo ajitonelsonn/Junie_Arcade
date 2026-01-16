@@ -662,6 +662,8 @@ export default function MemoryMatchPage() {
                   )}
                   <div className="relative group">
                     <input
+                      id="memory-username"
+                      name="username"
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
@@ -669,6 +671,7 @@ export default function MemoryMatchPage() {
                       disabled={!!playerId}
                       className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       maxLength={20}
+                      autoComplete="name"
                       autoFocus
                     />
                     {playerId && (
@@ -680,6 +683,8 @@ export default function MemoryMatchPage() {
 
                   <div className="relative" ref={countryDropdownRef}>
                     <input
+                      id="memory-country"
+                      name="country"
                       type="text"
                       value={countrySearch}
                       onChange={(e) => {
@@ -687,9 +692,10 @@ export default function MemoryMatchPage() {
                         setShowCountryDropdown(true);
                       }}
                       onFocus={() => !playerId && setShowCountryDropdown(true)}
-                      placeholder={country ? country : "Search your country"}
+                      placeholder={country || "Search your country"}
                       disabled={!!playerId}
                       className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      autoComplete="country-name"
                     />
                     {playerId && (
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 text-fuchsia-400 text-xs font-black uppercase tracking-widest pointer-events-none">
