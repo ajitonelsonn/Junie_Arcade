@@ -12,7 +12,6 @@ export default function SessionCleaner() {
     localStorage.removeItem('last_saved_score_jump');
     localStorage.removeItem('last_saved_score_reflex');
     localStorage.removeItem('last_saved_score_memory');
-    console.log('Player session and credentials cleared');
   }, []);
 
   return null;

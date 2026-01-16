@@ -356,7 +356,6 @@ export default function MemoryMatchPage() {
     const lastSaved = localStorage.getItem("last_saved_score_memory");
     const now = Date.now();
     if (lastSaved && now - parseInt(lastSaved) < 5000) {
-      console.log("Score save debounced (client)");
       return;
     }
 

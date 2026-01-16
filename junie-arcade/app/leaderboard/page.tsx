@@ -98,10 +98,11 @@ export default function LeaderboardPage() {
             <Link href="/" className="hover:text-white transition-colors">Arena</Link>
             <Link href="/gallery" className="hover:text-white transition-colors">Gallery</Link>
             <Link href="/leaderboard" className="text-white transition-colors">Leaderboard</Link>
-            <a 
-              href="https://cloud9.devpost.com/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <Link href="/merchandise" className="hover:text-white transition-colors">Merchandise</Link>
+            <a
+              href="https://cloud9.devpost.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hover:text-white cursor-pointer transition-colors"
             >
               Tournament

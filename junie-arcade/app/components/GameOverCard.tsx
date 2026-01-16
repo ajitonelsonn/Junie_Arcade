@@ -57,7 +57,7 @@ export default function GameOverCard({
   // Pre-load html-to-image for faster first save/download
   useEffect(() => {
     import('html-to-image').then(() => {
-      console.log('html-to-image pre-loaded')
+      // html-to-image pre-loaded
     })
   }, [])
 
@@ -82,8 +82,6 @@ export default function GameOverCard({
     setHeroIndex(initialHeroIdx)
     setSelectedJunie(junies[initialJunieIdx])
     setSelectedHero(heroes[initialHeroIdx])
-
-    console.log('Selected Junie:', junies[initialJunieIdx]) // Debug log
   }, [])
 
   useEffect(() => {
@@ -347,7 +345,6 @@ export default function GameOverCard({
       const data = await response.json()
       if (data.url) {
         setUploadedUrl(data.url)
-        console.log('Card uploaded successfully:', data.url)
       } else {
         throw new Error(data.error || 'Upload failed')
       }
@@ -366,13 +363,10 @@ export default function GameOverCard({
     }
 
     setIsDownloading(true)
-    console.log('Starting download...')
 
     try {
       // Dynamically import html-to-image
-      console.log('Importing html-to-image...')
       const { toPng } = await import('html-to-image')
-      console.log('html-to-image loaded successfully')
 
       if (!cardRef.current) throw new Error('Card ref not found')
 
@@ -400,15 +394,13 @@ export default function GameOverCard({
       link.href = dataUrl
       link.click()
 
-      console.log('Download triggered successfully via html-to-image')
       setIsDownloading(false)
 
     } catch (error) {
       console.error('html-to-image error, falling back to manual canvas:', error)
-      
+
       try {
         // Fallback to manual high-quality canvas drawing
-        console.log('Creating ultra-modern professional card design (Manual Fallback)...')
         
         // Create a premium, high-quality canvas (landscape format)
         const canvas = document.createElement('canvas')
@@ -499,7 +491,7 @@ export default function GameOverCard({
               ctx.drawImage(heroImg, canvas.width - heroWidth + 100, (canvas.height - heroHeight) / 2, heroWidth, heroHeight)
               ctx.globalAlpha = 1
             } catch (err) {
-              console.log('Hero image failed to load for fallback')
+              // Hero image failed to load for fallback
             }
           }
 
@@ -512,7 +504,7 @@ export default function GameOverCard({
               ctx.drawImage(mascotImg, 50, 150, mascotSize, mascotSize)
               ctx.globalAlpha = 1
             } catch (err) {
-              console.log('Small mascot image failed to load for fallback')
+              // Small mascot image failed to load for fallback
             }
           }
 
@@ -576,7 +568,7 @@ export default function GameOverCard({
               ctx.globalAlpha = 1
             }
           } catch (err) {
-            console.log('Images failed to load, continuing')
+            // Images failed to load, continuing
           }
 
           // Main title section (League/Valorant style)
@@ -874,7 +866,7 @@ export default function GameOverCard({
             
             // Note: Branding logos are displayed at the top of the card
           } catch (err) {
-            console.log('QR/Branding failed to load for fallback')
+            // QR/Branding failed to load for fallback
           }
 
           // Footer section
@@ -903,12 +895,8 @@ export default function GameOverCard({
         }
 
         await drawComplete()
-        console.log('Ultra-modern professional card created successfully')
-
-        console.log('Canvas captured successfully, size:', canvas.width, 'x', canvas.height)
 
         // Convert to blob and download
-        console.log('Converting to blob...')
         canvas.toBlob((blob) => {
           if (!blob) {
             console.error('Failed to create blob')
@@ -917,7 +905,6 @@ export default function GameOverCard({
             return
           }
 
-          console.log('Blob created, size:', blob.size)
           const url = URL.createObjectURL(blob)
           const link = document.createElement('a')
           const timestamp = new Date().getTime()
@@ -927,13 +914,10 @@ export default function GameOverCard({
           link.click()
           document.body.removeChild(link)
 
-          console.log('Download triggered successfully')
-
           // Clean up
           setTimeout(() => {
             URL.revokeObjectURL(url)
             setIsDownloading(false)
-            console.log('Download complete, cleaned up')
           }, 100)
         }, 'image/png')
       } catch (fallbackError) {
@@ -989,12 +973,7 @@ export default function GameOverCard({
   // Debugging log to trace why continue button might be missing
   useEffect(() => {
     if (hasAutoSaved && allRanks) {
-      console.log('GameOverCard Debug:', {
-        gameType,
-        allRanks,
-        nextGame,
-        playerId: localStorage.getItem('junie_player_id')
-      });
+      // GameOverCard Debug: gameType, allRanks, nextGame, playerId
     }
   }, [hasAutoSaved, allRanks, nextGame, gameType]);
 

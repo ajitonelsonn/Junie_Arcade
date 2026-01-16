@@ -3,8 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 export default function Navigation() {
+  const pathname = usePathname();
+
   return (
     <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
       <motion.div
@@ -39,25 +42,25 @@ export default function Navigation() {
       >
         <Link
           href="/"
-          className="text-white hover:text-white transition-colors"
+          className={pathname === "/" ? "text-white hover:text-white transition-colors" : "hover:text-white cursor-pointer transition-colors"}
         >
           Arena
         </Link>
         <Link
           href="/gallery"
-          className="hover:text-white cursor-pointer transition-colors"
+          className={pathname === "/gallery" ? "text-white hover:text-white transition-colors" : "hover:text-white cursor-pointer transition-colors"}
         >
           Gallery
         </Link>
         <Link
           href="/leaderboard"
-          className="hover:text-white cursor-pointer transition-colors"
+          className={pathname === "/leaderboard" ? "text-white hover:text-white transition-colors" : "hover:text-white cursor-pointer transition-colors"}
         >
           Leaderboard
         </Link>
         <Link
           href="/merchandise"
-          className="hover:text-white cursor-pointer transition-colors"
+          className={pathname === "/merchandise" ? "text-white hover:text-white transition-colors" : "hover:text-white cursor-pointer transition-colors"}
         >
           Merchandise
         </Link>

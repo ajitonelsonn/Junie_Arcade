@@ -207,7 +207,6 @@ export default function JumpMasterPage() {
     const lastSaved = localStorage.getItem("last_saved_score_jump");
     const now = Date.now();
     if (lastSaved && now - parseInt(lastSaved) < 5000) {
-      console.log("Score save debounced (client)");
       return;
     }
     

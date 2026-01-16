@@ -324,7 +324,6 @@ export default function ReflexArenaPage() {
     const lastSaved = localStorage.getItem("last_saved_score_reflex");
     const now = Date.now();
     if (lastSaved && now - parseInt(lastSaved) < 5000) {
-      console.log("Score save debounced (client)");
       return;
     }
     

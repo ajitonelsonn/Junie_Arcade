@@ -96,6 +96,7 @@ export default function GalleryPage() {
             <Link href="/" className="hover:text-white transition-colors">Arena</Link>
             <span className="text-white">Gallery</span>
             <Link href="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link>
+            <Link href="/merchandise" className="hover:text-white transition-colors">Merchandise</Link>
             <a href="https://cloud9.devpost.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Tournament</a>
           </div>
         </nav>
