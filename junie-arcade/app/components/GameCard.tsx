@@ -49,6 +49,7 @@ export default function GameCard({ title, description, icon, href, gradient, gam
                   fill
                   sizes="160px"
                   loading="lazy"
+                  quality={70}
                   className="object-contain filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
                 />
               </motion.div>
@@ -67,9 +68,9 @@ export default function GameCard({ title, description, icon, href, gradient, gam
           </div>
 
           {/* Title */}
-          <h3 className={`text-4xl font-black mb-4 tracking-tight transition-all duration-500 text-transparent bg-clip-text bg-gradient-to-r ${gradient}`}>
+          <h2 className={`text-4xl font-black mb-4 tracking-tight transition-all duration-500 text-transparent bg-clip-text bg-gradient-to-r ${gradient}`}>
             {title}
-          </h3>
+          </h2>
 
           {/* Description */}
           <p className="text-slate-300 text-base leading-relaxed mb-8 flex-grow group-hover:text-white transition-colors duration-500">

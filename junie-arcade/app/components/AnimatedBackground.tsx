@@ -124,6 +124,7 @@ export default function AnimatedBackground() {
                 fill
                 sizes="288px"
                 loading="lazy"
+                quality={60}
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
             </motion.div>
