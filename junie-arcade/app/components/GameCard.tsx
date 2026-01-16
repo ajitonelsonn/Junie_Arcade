@@ -47,7 +47,7 @@ export default function GameCard({ title, description, icon, href, gradient, gam
                   src={gameLogo}
                   alt={title}
                   fill
-                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 300px"
+                  sizes="160px"
                   loading="lazy"
                   className="object-contain filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
                 />

@@ -1,15 +1,24 @@
 'use client';
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import AnimatedBackground from "./components/AnimatedBackground";
 import Navigation from "./components/Navigation";
 import HeroSection from "./components/HeroSection";
 import GamesGrid from "./components/GamesGrid";
-import LeaderboardSection from "./components/LeaderboardSection";
 import SessionCleaner from "./components/SessionCleaner";
-import HowItWorksModal from "./components/HowItWorksModal";
+
+// Dynamically import heavy/below-the-fold components
+const AnimatedBackground = dynamic(() => import("./components/AnimatedBackground"), {
+  ssr: false,
+});
+const LeaderboardSection = dynamic(() => import("./components/LeaderboardSection"), {
+  ssr: false,
+});
+const HowItWorksModal = dynamic(() => import("./components/HowItWorksModal"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);

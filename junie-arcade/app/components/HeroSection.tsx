@@ -16,7 +16,7 @@ const heroImages = [
 
 export default function HeroSection() {
   return (
-    <header className="px-8 pt-24 pb-20 text-center max-w-5xl mx-auto relative">
+    <header className="px-8 pt-24 pb-20 text-center max-w-5xl mx-auto relative contain-[layout]">
       {/* Junie Mascot Animation */}
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-64 h-64">
         <motion.div
@@ -37,6 +37,7 @@ export default function HeroSection() {
             fill
             sizes="256px"
             priority
+            fetchPriority="high"
             className="object-contain drop-shadow-[0_0_30px_rgba(34,211,238,0.6)]"
           />
         </motion.div>

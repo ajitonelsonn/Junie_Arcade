@@ -27,7 +27,17 @@ export default function AnimatedBackground() {
 
   return (
     <div className="fixed inset-0 z-0">
-      <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/lol_.webp')] opacity-20 bg-cover bg-center mix-blend-overlay" />
+      <div className="absolute inset-0 opacity-20 mix-blend-overlay">
+        <Image
+          src="/assets/images/backgrounds/lol_.webp"
+          alt=""
+          fill
+          sizes="100vw"
+          loading="lazy"
+          quality={60}
+          className="object-cover"
+        />
+      </div>
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
       {/* Animated Orbs - reduced on mobile */}
