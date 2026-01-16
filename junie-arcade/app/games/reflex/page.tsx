@@ -10,6 +10,7 @@ import FlagIcon from "@/app/components/FlagIcon";
 import MobileWarningModal from "@/app/components/MobileWarningModal";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
 import { useMusic } from "@/app/components/MusicProvider";
+import { api } from "@/app/lib/api";
 
 interface Target {
   id: number;
@@ -44,7 +45,7 @@ const BAD_TARGETS = [
 
 export default function ReflexArenaPage() {
   const router = useRouter();
-  const { playGameMusic, playVictoryMusic } = useMusic();
+  const { playGameMusic, playVictoryMusic, stopAllMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -56,7 +57,7 @@ export default function ReflexArenaPage() {
   const [countrySearch, setCountrySearch] = useState("");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(50);
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [targets, setTargets] = useState<Target[]>([]);
@@ -66,6 +67,7 @@ export default function ReflexArenaPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [hasPlayedThisSession, setHasPlayedThisSession] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null); // NEW: Countdown state (3, 2, 1, 0=GO)
 
   // Load player ID from local storage if available
   useEffect(() => {
@@ -76,7 +78,9 @@ export default function ReflexArenaPage() {
       // Check if player has already played this game in this session
       const checkStatus = async () => {
         try {
-          const response = await fetch(`/api/leaderboard?view=overall&playerId=${savedPlayerId}`);
+          const response = await fetch(
+            `/api/leaderboard?view=overall&playerId=${savedPlayerId}`
+          );
           const data = await response.json();
           if (data.currentPlayer && data.currentPlayer.reflexScore > 0) {
             setHasPlayedThisSession(true);
@@ -152,6 +156,7 @@ export default function ReflexArenaPage() {
   // Play game music when game starts
   useEffect(() => {
     if (gameStarted && !gameOver) {
+      stopAllMusic();
       playGameMusic();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,6 +165,7 @@ export default function ReflexArenaPage() {
   // Play victory music when game ends
   useEffect(() => {
     if (gameOver) {
+      stopAllMusic();
       playVictoryMusic();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -175,9 +181,29 @@ export default function ReflexArenaPage() {
     }
   };
 
-  // Game timer
+  // NEW: Countdown effect before game starts
   useEffect(() => {
-    if (!gameStarted || gameOver) return;
+    if (!gameStarted || gameOver || countdown === null) return;
+
+    if (countdown > 0) {
+      playSound("/assets/sounds/sfx/click.mp3", 0.3);
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      // Show "GO!" briefly then start the game
+      playSound("/assets/sounds/sfx/pop.mp3", 0.5);
+      const timer = setTimeout(() => {
+        setCountdown(null); // Clear countdown to start game
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [gameStarted, gameOver, countdown]);
+
+  // Game timer - only runs when countdown is complete (null)
+  useEffect(() => {
+    if (!gameStarted || gameOver || countdown !== null) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -193,12 +219,11 @@ export default function ReflexArenaPage() {
     return () => {
       clearInterval(timer);
     };
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, gameOver, countdown]);
 
-
-  // Spawn targets
+  // Spawn targets - only when countdown is complete
   useEffect(() => {
-    if (!gameStarted || gameOver) return;
+    if (!gameStarted || gameOver || countdown !== null) return;
 
     const spawnInterval = setInterval(() => {
       const isGood = Math.random() > 0.25;
@@ -222,10 +247,10 @@ export default function ReflexArenaPage() {
       setTimeout(() => {
         setTargets((prev) => prev.filter((t) => t.id !== newTarget.id));
       }, 1500);
-    }, 600);
+    }, 500);
 
     return () => clearInterval(spawnInterval);
-  }, [gameStarted, gameOver, nextId]);
+  }, [gameStarted, gameOver, countdown, nextId]);
 
   const handleTargetClick = (target: Target, event: React.MouseEvent) => {
     const reactionTime = Date.now() - target.spawnTime;
@@ -278,21 +303,18 @@ export default function ReflexArenaPage() {
         setGameStarted(true);
         setGameOver(false);
         setScore(0);
-        setTimeLeft(60);
+        setTimeLeft(50);
         setCombo(0);
         setMaxCombo(0);
         setTargets([]);
         setFloatingScores([]);
+        setCountdown(3); // NEW: Start countdown from 3
         return;
       }
 
       setIsSaving(true);
       try {
-        const response = await fetch("/api/players", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, country }),
-        });
+        const response = await api.post("/api/players", { username, country });
         const data = await response.json();
         if (data.playerId) {
           setPlayerId(data.playerId);
@@ -303,11 +325,12 @@ export default function ReflexArenaPage() {
           setGameStarted(true);
           setGameOver(false);
           setScore(0);
-          setTimeLeft(60);
+          setTimeLeft(50);
           setCombo(0);
           setMaxCombo(0);
           setTargets([]);
           setFloatingScores([]);
+          setCountdown(3); // NEW: Start countdown from 3
         }
       } catch (error) {
         console.error("Failed to create player session:", error);
@@ -319,29 +342,25 @@ export default function ReflexArenaPage() {
 
   const handleSaveScore = async () => {
     if (!username || !country || isSaving) return;
-    
+
     // Check if score was already saved recently to prevent duplicates
     const lastSaved = localStorage.getItem("last_saved_score_reflex");
     const now = Date.now();
     if (lastSaved && now - parseInt(lastSaved) < 5000) {
       return;
     }
-    
+
     setIsSaving(true);
     localStorage.setItem("last_saved_score_reflex", now.toString());
 
     try {
-      const response = await fetch("/api/scores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          country,
-          gameType: "REFLEX_ARENA",
-          score,
-          maxCombo,
-          playerId,
-        }),
+      const response = await api.post("/api/scores", {
+        username,
+        country,
+        gameType: "REFLEX_ARENA",
+        score,
+        maxCombo,
+        playerId,
       });
       const data = await response.json();
       if (data.playerId) {
@@ -724,9 +743,19 @@ export default function ReflexArenaPage() {
 
                 <motion.button
                   onClick={handleStart}
-                  disabled={!username.trim() || !country || hasPlayedThisSession}
-                  whileHover={username.trim() && country && !hasPlayedThisSession ? { scale: 1.02 } : {}}
-                  whileTap={username.trim() && country && !hasPlayedThisSession ? { scale: 0.98 } : {}}
+                  disabled={
+                    !username.trim() || !country || hasPlayedThisSession
+                  }
+                  whileHover={
+                    username.trim() && country && !hasPlayedThisSession
+                      ? { scale: 1.02 }
+                      : {}
+                  }
+                  whileTap={
+                    username.trim() && country && !hasPlayedThisSession
+                      ? { scale: 0.98 }
+                      : {}
+                  }
                   className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(251,146,60,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   {hasPlayedThisSession ? "Combat Complete" : "Deploy to Arena"}
@@ -745,8 +774,12 @@ export default function ReflexArenaPage() {
                     Player
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-white">{username}</span>
-                    <span className="text-2xl">{countries.find(c => c.name === country)?.flag}</span>
+                    <span className="text-lg font-bold text-white">
+                      {username}
+                    </span>
+                    <span className="text-2xl">
+                      {countries.find((c) => c.name === country)?.flag}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -895,21 +928,49 @@ export default function ReflexArenaPage() {
                   ))}
                 </AnimatePresence>
 
-                {/* Center Instructions (First 3 seconds) */}
-                {timeLeft > 57 && (
+                {/* NEW: Countdown Display (3-2-1-GO) */}
+                {countdown !== null && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
                   >
-                    <div className="bg-black/80 backdrop-blur-xl px-12 py-8 rounded-3xl border-2 border-white/20">
-                      <div className="text-4xl font-black text-white mb-2 text-center">
-                        READY!
-                      </div>
-                      <div className="text-lg text-slate-300 text-center">
-                        Click the good targets 🎯
-                      </div>
+                    <div className="text-center">
+                      {/* Instructions */}
+                      <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-8"
+                      >
+                        <div className="bg-black/80 backdrop-blur-xl px-8 py-4 rounded-2xl border-2 border-white/20 inline-block">
+                          <div className="text-xl font-bold text-white mb-1">
+                            Click GOOD targets ⭐ 🏆 💎 🪙
+                          </div>
+                          <div className="text-lg text-red-400">
+                            Avoid BAD targets 🐛 🦠 💣
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      {/* Countdown Number */}
+                      <motion.div
+                        key={countdown}
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1.2, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        className={`text-[150px] font-black leading-none ${
+                          countdown === 0
+                            ? "text-green-400"
+                            : "text-yellow-400"
+                        }`}
+                        style={{
+                          textShadow: countdown === 0
+                            ? "0 0 60px rgba(74, 222, 128, 0.8)"
+                            : "0 0 60px rgba(250, 204, 21, 0.8)",
+                        }}
+                      >
+                        {countdown === 0 ? "GO!" : countdown}
+                      </motion.div>
                     </div>
                   </motion.div>
                 )}

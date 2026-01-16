@@ -10,6 +10,7 @@ import FlagIcon from "@/app/components/FlagIcon";
 import MobileWarningModal from "@/app/components/MobileWarningModal";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
 import { useMusic } from "@/app/components/MusicProvider";
+import { api } from "@/app/lib/api";
 
 interface Card {
   id: number;
@@ -30,7 +31,7 @@ const cardImages = [
 
 export default function MemoryMatchPage() {
   const router = useRouter();
-  const { playGameMusic, playVictoryMusic } = useMusic();
+  const { playGameMusic, playVictoryMusic, stopAllMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [username, setUsername] = useState("");
@@ -139,16 +140,18 @@ export default function MemoryMatchPage() {
   // Play game music when game starts
   useEffect(() => {
     if (gameStarted && !gameOver) {
+      stopAllMusic();
       playGameMusic();
     }
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, gameOver, playGameMusic]);
 
   // Play victory music when game ends
   useEffect(() => {
     if (gameOver) {
+      stopAllMusic();
       playVictoryMusic();
     }
-  }, [gameOver]);
+  }, [gameOver, playVictoryMusic]);
 
   // Audio helpers
   const playSound = (path: string, volume = 0.5) => {
@@ -259,11 +262,7 @@ export default function MemoryMatchPage() {
 
     setIsSaving(true);
     try {
-      const response = await fetch("/api/players", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, country }),
-      });
+      const response = await api.post("/api/players", { username, country });
       const data = await response.json();
       if (data.playerId) {
         setPlayerId(data.playerId);
@@ -363,17 +362,13 @@ export default function MemoryMatchPage() {
     localStorage.setItem("last_saved_score_memory", now.toString());
 
     try {
-      const response = await fetch("/api/scores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          country,
-          gameType: "MEMORY_MATCH",
-          score,
-          time: 100 - timeLeft,
-          playerId,
-        }),
+      const response = await api.post("/api/scores", {
+        username,
+        country,
+        gameType: "MEMORY_MATCH",
+        score,
+        time: 100 - timeLeft,
+        playerId,
       });
       const data = await response.json();
       if (data.playerId) {

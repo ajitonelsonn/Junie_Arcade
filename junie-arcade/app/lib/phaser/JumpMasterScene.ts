@@ -4,22 +4,26 @@ export default class JumpMasterScene extends Phaser.Scene {
   private player!: any;
   private score = 0;
   private distance = 0;
-  private timeLeft = 50; // Added timer
-  private gameSpeed = 500; // Increased for faster gameplay
+  private timeLeft = 50;
+  private gameSpeed = 500;
   private isGameOver = false;
   private scoreText!: any;
   private timerText!: any;
   private distanceText!: any;
+  private jumpCountText!: any; // NEW: Display remaining jumps
+  private jumpIndicators: Phaser.GameObjects.Image[] = []; // NEW: Visual jump indicators using junie-jump image
   private obstacles!: any;
   private collectibles!: any;
   private onGameEnd?: (score: number, distance: number) => void;
   private ground!: any;
-  private hasDoubleJump = false;
-  private obstacleSpawnDelay = 1800; // Faster initial spawn
-  private collectibleSpawnDelay = 1200; // Faster collectible spawn
+  private jumpsRemaining = 3; // NEW: Changed from hasDoubleJump boolean to jump counter
+  private maxJumps = 3; // NEW: Maximum jumps allowed
+  private obstacleSpawnDelay = 1800;
+  private collectibleSpawnDelay = 1200;
   private gameTimer!: Phaser.Time.TimerEvent;
   private obstacleTimer!: Phaser.Time.TimerEvent;
   private collectibleTimer!: Phaser.Time.TimerEvent;
+  private gameStarted = false; // NEW: Track if game has started after countdown
 
   constructor() {
     super({ key: "JumpMasterScene" });
@@ -56,8 +60,10 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.timeLeft = 50;
     this.gameSpeed = 500;
     this.isGameOver = false;
+    this.jumpsRemaining = this.maxJumps; // NEW: Reset jumps
     this.obstacleSpawnDelay = 1800;
     this.collectibleSpawnDelay = 1200;
+    this.gameStarted = false; // NEW: Game hasn't started yet
 
     // Background Music
     const music = this.sound.add("bgm", { loop: true, volume: 0.5 });
@@ -140,7 +146,7 @@ export default class JumpMasterScene extends Phaser.Scene {
       (p: any, c: any) => {
         const collectible = c as any;
         const type = collectible.getData("type");
-        const points = type === "cloud9" ? 50 : 20; // Increased values
+        const points = type === "cloud9" ? 50 : 20;
 
         this.score += points;
         this.sound.play("coin", { volume: 0.6 });
@@ -182,12 +188,28 @@ export default class JumpMasterScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
+    // NEW: UI - Jump Indicators (visual Junie icons below score)
+    const jumpIndicatorY = 70;
+    const jumpIndicatorStartX = 30;
+    const jumpIndicatorSpacing = 35;
+
+    for (let i = 0; i < this.maxJumps; i++) {
+      const junieIcon = this.add.image(
+        jumpIndicatorStartX + i * jumpIndicatorSpacing,
+        jumpIndicatorY,
+        "junie-jump"
+      );
+      junieIcon.setScale(0.08);
+      junieIcon.setAlpha(1);
+      this.jumpIndicators.push(junieIcon);
+    }
+
     // Instructions
     const instructions = this.add
       .text(
         this.scale.width / 2,
         100,
-        "Press SPACE or CLICK to Jump!\nDouble Jump Available!",
+        "Press SPACE or CLICK to Jump!\n3 Jumps Available in Air!",
         {
           fontSize: "24px",
           color: "#ffffff",
@@ -197,15 +219,83 @@ export default class JumpMasterScene extends Phaser.Scene {
           align: "center",
         }
       )
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(100);
 
-    this.time.delayedCall(3000, () => instructions.destroy());
+    // NEW: Countdown before game starts
+    this.startCountdown(instructions);
 
     // Input
     this.input.keyboard?.on("keydown-SPACE", () => this.jump());
     this.input.on("pointerdown", () => this.jump());
 
-    // Game Timer - counts down from 50
+    // Don't start timers yet - will start after countdown
+  }
+
+  // NEW: Countdown from 3 to GO before starting the game
+  private startCountdown(instructions: Phaser.GameObjects.Text) {
+    let countdownValue = 3;
+
+    const countdownText = this.add
+      .text(this.scale.width / 2, this.scale.height / 2, "3", {
+        fontSize: "120px",
+        color: "#ffff00",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 10,
+      })
+      .setOrigin(0.5)
+      .setDepth(101);
+
+    const countdownTimer = this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        countdownValue--;
+
+        if (countdownValue > 0) {
+          countdownText.setText(countdownValue.toString());
+          // Pulse animation
+          countdownText.setScale(0.5);
+          this.tweens.add({
+            targets: countdownText,
+            scale: 1.2,
+            duration: 500,
+            ease: "Back.easeOut",
+          });
+          // Play sound
+          this.sound.play("jump", { volume: 0.3 });
+        } else {
+          // Show "GO!"
+          countdownText.setText("GO!");
+          countdownText.setTint(0x00ff00); // Use tint instead of setColor
+          countdownText.setScale(0.5);
+          this.tweens.add({
+            targets: countdownText,
+            scale: 1.5,
+            alpha: 0,
+            duration: 800,
+            ease: "Power2",
+            onComplete: () => {
+              countdownText.destroy();
+            },
+          });
+
+          // Start the game
+          this.gameStarted = true;
+          instructions.destroy();
+          this.startGameTimers();
+
+          // Play sound
+          this.sound.play("coin", { volume: 0.5 });
+        }
+      },
+      repeat: 3,
+    });
+  }
+
+  // NEW: Start all game timers after countdown
+  private startGameTimers() {
+    // Game Timer
     this.gameTimer = this.time.addEvent({
       delay: 1000,
       callback: this.updateTimer,
@@ -213,7 +303,7 @@ export default class JumpMasterScene extends Phaser.Scene {
       loop: true,
     });
 
-    // Spawn obstacles with dynamic timing
+    // Spawn obstacles
     this.obstacleTimer = this.time.addEvent({
       delay: this.obstacleSpawnDelay,
       callback: this.spawnObstacle,
@@ -221,7 +311,7 @@ export default class JumpMasterScene extends Phaser.Scene {
       loop: true,
     });
 
-    // Spawn collectibles more frequently
+    // Spawn collectibles
     this.collectibleTimer = this.time.addEvent({
       delay: this.collectibleSpawnDelay,
       callback: this.spawnCollectible,
@@ -233,10 +323,9 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.time.addEvent({
       delay: 100,
       callback: () => {
-        if (!this.isGameOver) {
+        if (!this.isGameOver && this.gameStarted) {
           this.distance += 1;
 
-          // Distance points: 1 point per 10 meters
           if (this.distance % 10 === 0) {
             this.score += 1;
           }
@@ -244,7 +333,6 @@ export default class JumpMasterScene extends Phaser.Scene {
           this.scoreText.setText(`Score: ${this.score}`);
           this.distanceText.setText(`Distance: ${this.distance}m`);
 
-          // Progressive difficulty every 10 seconds (based on timer)
           if (
             this.timeLeft % 10 === 0 &&
             this.timeLeft > 0 &&
@@ -253,7 +341,6 @@ export default class JumpMasterScene extends Phaser.Scene {
             this.increaseDifficulty();
           }
 
-          // Milestone every 100m
           if (this.distance > 0 && this.distance % 100 === 0) {
             this.celebrateMilestone();
           }
@@ -267,7 +354,6 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.timeLeft--;
     this.timerText.setText(`Time: ${this.timeLeft}s`);
 
-    // Warning when time is low
     if (this.timeLeft <= 10) {
       this.timerText.setColor("#ff0000");
       if (this.timeLeft % 2 === 0) {
@@ -281,12 +367,10 @@ export default class JumpMasterScene extends Phaser.Scene {
   }
 
   private increaseDifficulty() {
-    // Increase game speed
     if (this.gameSpeed < 700) {
       this.gameSpeed += 40;
     }
 
-    // Decrease obstacle spawn delay (more frequent)
     if (this.obstacleSpawnDelay > 1000) {
       this.obstacleSpawnDelay -= 150;
       this.obstacleTimer.reset({
@@ -297,7 +381,6 @@ export default class JumpMasterScene extends Phaser.Scene {
       });
     }
 
-    // Increase collectible spawn rate
     if (this.collectibleSpawnDelay > 700) {
       this.collectibleSpawnDelay -= 100;
       this.collectibleTimer.reset({
@@ -308,7 +391,6 @@ export default class JumpMasterScene extends Phaser.Scene {
       });
     }
 
-    // Visual feedback
     this.cameras.main.flash(200, 255, 255, 0, false, undefined, 0.15);
 
     const warning = this.add
@@ -333,7 +415,7 @@ export default class JumpMasterScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.isGameOver) return;
+    if (this.isGameOver || !this.gameStarted) return; // NEW: Don't update until game starts
 
     // Movement
     this.obstacles.getChildren().forEach((obj: any) => {
@@ -352,9 +434,10 @@ export default class JumpMasterScene extends Phaser.Scene {
       }
     });
 
-    // Reset animation if landed
+    // NEW: Reset jumps when landed
     if (this.player.body?.touching.down) {
-      this.hasDoubleJump = false;
+      this.jumpsRemaining = this.maxJumps;
+      this.updateJumpCounter();
 
       if (
         !this.player.anims.isPlaying ||
@@ -370,25 +453,62 @@ export default class JumpMasterScene extends Phaser.Scene {
     }
   }
 
+  // NEW: Update jump counter display
+  private updateJumpCounter() {
+    // Update visual indicators
+    for (let i = 0; i < this.maxJumps; i++) {
+      if (i < this.jumpsRemaining) {
+        // Jump available - full brightness with green tint
+        this.jumpIndicators[i].setAlpha(1);
+        this.jumpIndicators[i].setTint(0x00ff00);
+      } else {
+        // Jump used - faded and darkened
+        this.jumpIndicators[i].setAlpha(0.3);
+        this.jumpIndicators[i].setTint(0x666666);
+      }
+    }
+  }
+
+  // MODIFIED: Jump function for 5 jumps
   private jump() {
     if (this.isGameOver) return;
 
     // First jump - from ground
     if (this.player.body?.touching.down) {
       this.player.setVelocityY(-1000);
-      this.hasDoubleJump = true;
+      this.jumpsRemaining = this.maxJumps - 1; // Use 1 jump
+      this.updateJumpCounter();
       this.sound.play("jump", { volume: 0.5 });
     }
-    // Double jump - in the air
-    else if (this.hasDoubleJump && !this.player.body?.touching.down) {
+    // Air jumps - can jump up to 5 times total
+    else if (this.jumpsRemaining > 0 && !this.player.body?.touching.down) {
       this.player.setVelocityY(-1000);
-      this.hasDoubleJump = false;
-      this.sound.play("jump", { volume: 0.6 });
+      this.jumpsRemaining--;
+      this.updateJumpCounter();
+      this.sound.play("jump", {
+        volume: 0.5 + 0.1 * (this.maxJumps - this.jumpsRemaining),
+      }); // Slightly louder for each jump
+
+      // Visual feedback for air jumps
+      const jumpEffect = this.add.circle(
+        this.player.x,
+        this.player.y + 20,
+        15,
+        0x00ffff,
+        0.6
+      );
+      this.tweens.add({
+        targets: jumpEffect,
+        scale: 2,
+        alpha: 0,
+        duration: 300,
+        onComplete: () => jumpEffect.destroy(),
+      });
     }
   }
 
   private spawnObstacle() {
-    if (this.isGameOver) return;
+    if (this.isGameOver || !this.gameStarted) return; // NEW: Don't spawn during countdown
 
     const obstacle = this.obstacles.create(
       this.scale.width + 50,
@@ -402,7 +522,6 @@ export default class JumpMasterScene extends Phaser.Scene {
       obstacle.body.setSize(obstacle.width * 0.65, obstacle.height * 0.65);
     }
 
-    // 35% chance for double obstacles after 100m
     if (Math.random() < 0.35 && this.distance > 100) {
       this.time.delayedCall(400, () => {
         if (!this.isGameOver) {
@@ -424,9 +543,8 @@ export default class JumpMasterScene extends Phaser.Scene {
   }
 
   private spawnCollectible() {
-    if (this.isGameOver) return;
+    if (this.isGameOver || !this.gameStarted) return; // NEW: Don't spawn during countdown
 
-    // 40% chance for cloud9 (higher value), 60% for coin
     const type = Math.random() > 0.6 ? "cloud9" : "coin";
     const y = Phaser.Math.Between(
       this.scale.height - 380,
@@ -441,7 +559,6 @@ export default class JumpMasterScene extends Phaser.Scene {
 
     collectible.setScale(0.2).setData("type", type);
 
-    // Larger hitbox for easier collection
     if (collectible.body) {
       collectible.body.setSize(
         collectible.width * 1.3,
@@ -449,7 +566,6 @@ export default class JumpMasterScene extends Phaser.Scene {
       );
     }
 
-    // Sometimes spawn collectibles in patterns (chains)
     if (Math.random() < 0.25) {
       this.time.delayedCall(300, () => {
         if (!this.isGameOver) {
@@ -488,7 +604,6 @@ export default class JumpMasterScene extends Phaser.Scene {
   }
 
   private celebrateMilestone() {
-    // Bonus points for milestone
     const bonus = 25;
     this.score += bonus;
 
@@ -531,12 +646,10 @@ export default class JumpMasterScene extends Phaser.Scene {
     if (this.isGameOver) return;
     this.isGameOver = true;
 
-    // Stop timers
     if (this.gameTimer) this.gameTimer.destroy();
     if (this.obstacleTimer) this.obstacleTimer.destroy();
     if (this.collectibleTimer) this.collectibleTimer.destroy();
 
-    // Stop background music and play victory
     this.sound.stopByKey("bgm");
     this.sound.play("victory", { volume: 0.6 });
 
@@ -544,8 +657,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.player.stop();
     this.player.setTexture("junie-happy");
 
-    // Calculate final score with distance bonus
-    const distanceBonus = Math.floor(this.distance / 10); // 1 point per 10m
+    const distanceBonus = Math.floor(this.distance / 10);
     const finalScore = this.score + distanceBonus;
 
     const finalText = this.add
@@ -582,12 +694,10 @@ export default class JumpMasterScene extends Phaser.Scene {
     if (this.isGameOver) return;
     this.isGameOver = true;
 
-    // Stop timers
     if (this.gameTimer) this.gameTimer.destroy();
     if (this.obstacleTimer) this.obstacleTimer.destroy();
     if (this.collectibleTimer) this.collectibleTimer.destroy();
 
-    // Stop background music
     this.sound.stopByKey("bgm");
     this.sound.play("gameover", { volume: 0.7 });
 
@@ -596,7 +706,6 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.player.stop();
     this.player.setTexture("junie-sad");
 
-    // Calculate final score with distance bonus
     const distanceBonus = Math.floor(this.distance / 10);
     const finalScore = this.score + distanceBonus;
 

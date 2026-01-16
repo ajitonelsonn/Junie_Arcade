@@ -1,10 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/app/lib/prisma'
+import { validateApiKey, rateLimit, getClientIp, sanitizeString, isValidGameType, isValidScore } from '@/app/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate API key
+    const authResult = validateApiKey(request)
+    if (!authResult.valid) {
+      return authResult.error
+    }
+
+    // Rate limiting: 30 score submissions per minute per IP
+    const clientIp = getClientIp(request)
+    const rateLimitResult = rateLimit(`scores:${clientIp}`, 30, 60000)
+    if (!rateLimitResult.allowed) {
+      return rateLimitResult.error
+    }
+
     const body = await request.json()
     const { username, country, gameType, score, accuracy, time, maxCombo, distance, playerId } = body
+
+    // Input validation
+    if (!gameType || !isValidGameType(gameType)) {
+      return NextResponse.json(
+        { error: 'Invalid game type' },
+        { status: 400 }
+      )
+    }
+
+    if (score === undefined || !isValidScore(score)) {
+      return NextResponse.json(
+        { error: 'Invalid score value' },
+        { status: 400 }
+      )
+    }
+
+    // Sanitize string inputs
+    const sanitizedUsername = sanitizeString(username, 50)
+    const sanitizedCountry = sanitizeString(country, 100)
 
     // Find player
     let player = null
@@ -16,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!player) {
-      if (!username || !country) {
+      if (!sanitizedUsername || !sanitizedCountry) {
         return NextResponse.json(
           { error: 'Player ID or username/country required' },
           { status: 400 }
@@ -27,21 +60,19 @@ export async function POST(request: NextRequest) {
       // though the frontend should ideally handle this via /api/players
       player = await prisma.player.create({
         data: {
-          username,
-          country: country || null
+          username: sanitizedUsername,
+          country: sanitizedCountry || null
         }
       })
-    } else {
+    } else if (player.country !== sanitizedCountry || (sanitizedUsername && player.username !== sanitizedUsername)) {
       // Update player's country or username if it changed (optional, but good for consistency)
-      if (player.country !== country || (username && player.username !== username)) {
-        player = await prisma.player.update({
-          where: { id: player.id },
-          data: { 
-            country: country || player.country,
-            username: username || player.username
-          }
-        })
-      }
+      player = await prisma.player.update({
+        where: { id: player.id },
+        data: {
+          country: sanitizedCountry || player.country,
+          username: sanitizedUsername || player.username
+        }
+      })
     }
 
     // Create score record - Check if this exact score (same player, gameType, score, and very recent) already exists

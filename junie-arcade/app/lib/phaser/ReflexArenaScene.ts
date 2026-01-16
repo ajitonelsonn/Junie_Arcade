@@ -10,7 +10,7 @@ interface Target {
 
 export default class ReflexArenaScene extends Phaser.Scene {
   private score = 0;
-  private timeLeft = 50; // Changed from 60 to 50
+  private timeLeft = 50;
   private combo = 0;
   private targets: Target[] = [];
   private scoreText!: Phaser.GameObjects.Text;
@@ -19,9 +19,10 @@ export default class ReflexArenaScene extends Phaser.Scene {
   private gameTimer!: Phaser.Time.TimerEvent;
   private spawnTimer!: Phaser.Time.TimerEvent;
   private onGameEnd?: (score: number) => void;
-  private spawnDelay = 600; // Faster initial spawn (was 900)
-  private targetLifetime = 2000; // Slightly longer to accommodate more targets
-  private badTargetChance = 0.3; // Slightly fewer bad targets
+  private spawnDelay = 600;
+  private targetLifetime = 2000;
+  private badTargetChance = 0.3;
+  private gameStarted = false; // NEW: Track if game has started after countdown
 
   constructor() {
     super({ key: "ReflexArenaScene" });
@@ -47,6 +48,10 @@ export default class ReflexArenaScene extends Phaser.Scene {
     // Load Junie sprites
     this.load.image("junie-happy", "/assets/images/junie/junie-happy.png");
     this.load.image("junie-sad", "/assets/images/junie/junie-sad.png");
+
+    // Load audio for countdown
+    this.load.audio("click", "/assets/sounds/sfx/click.mp3");
+    this.load.audio("pop", "/assets/sounds/sfx/pop.mp3");
   }
 
   create() {
@@ -58,6 +63,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
     this.timeLeft = 50;
     this.combo = 0;
     this.targets = [];
+    this.gameStarted = false; // NEW: Game hasn't started yet
 
     // Background with gradient effect
     const bg = this.add
@@ -98,6 +104,91 @@ export default class ReflexArenaScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0);
 
+    // Instructions
+    const instructions = this.add
+      .text(
+        this.scale.width / 2,
+        100,
+        "Click GOOD targets (Stars, Coins, Gems)!\nAvoid BAD targets (Bugs, Viruses, Bombs)!",
+        {
+          fontSize: "22px",
+          color: "#ffffff",
+          fontStyle: "bold",
+          stroke: "#000000",
+          strokeThickness: 4,
+          align: "center",
+        }
+      )
+      .setOrigin(0.5)
+      .setDepth(100);
+
+    // NEW: Countdown before game starts
+    this.startCountdown(instructions);
+  }
+
+  // NEW: Countdown from 3 to GO before starting the game
+  private startCountdown(instructions: Phaser.GameObjects.Text) {
+    let countdownValue = 3;
+
+    const countdownText = this.add
+      .text(this.scale.width / 2, this.scale.height / 2, "3", {
+        fontSize: "120px",
+        color: "#ffff00",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 10,
+      })
+      .setOrigin(0.5)
+      .setDepth(101);
+
+    const countdownTimer = this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        countdownValue--;
+
+        if (countdownValue > 0) {
+          countdownText.setText(countdownValue.toString());
+          // Pulse animation
+          countdownText.setScale(0.5);
+          this.tweens.add({
+            targets: countdownText,
+            scale: 1.2,
+            duration: 500,
+            ease: "Back.easeOut",
+          });
+          // Play sound
+          this.sound.play("click", { volume: 0.3 });
+        } else {
+          // Show "GO!"
+          countdownText.setText("GO!");
+          countdownText.setTint(0x00ff00);
+          countdownText.setScale(0.5);
+          this.tweens.add({
+            targets: countdownText,
+            scale: 1.5,
+            alpha: 0,
+            duration: 800,
+            ease: "Power2",
+            onComplete: () => {
+              countdownText.destroy();
+            },
+          });
+
+          // Start the game
+          this.gameStarted = true;
+          instructions.destroy();
+          this.startGameTimers();
+
+          // Play sound
+          this.sound.play("pop", { volume: 0.5 });
+        }
+      },
+      repeat: 3,
+    });
+  }
+
+  // NEW: Start all game timers after countdown
+  private startGameTimers() {
     // Game timer
     this.gameTimer = this.time.addEvent({
       delay: 1000,
@@ -116,6 +207,8 @@ export default class ReflexArenaScene extends Phaser.Scene {
   }
 
   private updateTimer() {
+    if (!this.gameStarted) return;
+
     this.timeLeft--;
     this.timerText.setText(`Time: ${this.timeLeft}`);
 
@@ -175,6 +268,8 @@ export default class ReflexArenaScene extends Phaser.Scene {
   }
 
   private spawnTarget() {
+    if (!this.gameStarted) return; // NEW: Don't spawn during countdown
+
     // Remove old targets based on their individual lifetime
     this.targets = this.targets.filter((target) => {
       if (this.time.now - target.spawnTime > target.lifetime) {
@@ -251,6 +346,8 @@ export default class ReflexArenaScene extends Phaser.Scene {
   }
 
   private onTargetClick(target: Target) {
+    if (!this.gameStarted) return; // NEW: Don't allow clicking during countdown
+
     const reactionTime = this.time.now - target.spawnTime;
     let points = target.value;
 

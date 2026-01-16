@@ -1,6 +1,7 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { validateApiKey, rateLimit, getClientIp, sanitizeString, isValidGameType, isValidScore } from "@/app/lib/auth";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || "us-east-1",
@@ -10,13 +11,39 @@ const s3Client = new S3Client({
   },
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { image, filename, username, score, gameType, country, playerId } = await request.json();
+    // Validate API key
+    const authResult = validateApiKey(request);
+    if (!authResult.valid) {
+      return authResult.error;
+    }
+
+    // Rate limiting: 20 uploads per minute per IP
+    const clientIp = getClientIp(request);
+    const rateLimitResult = rateLimit(`upload:${clientIp}`, 20, 60000);
+    if (!rateLimitResult.allowed) {
+      return rateLimitResult.error;
+    }
+
+    const { image, filename, username, score, gameType, country } = await request.json();
 
     if (!image) {
       return NextResponse.json({ error: "No image data provided" }, { status: 400 });
     }
+
+    // Validate inputs
+    if (gameType && !isValidGameType(gameType)) {
+      return NextResponse.json({ error: "Invalid game type" }, { status: 400 });
+    }
+
+    if (score !== undefined && !isValidScore(score)) {
+      return NextResponse.json({ error: "Invalid score value" }, { status: 400 });
+    }
+
+    // Sanitize string inputs
+    const sanitizedUsername = sanitizeString(username, 50);
+    const sanitizedCountry = sanitizeString(country, 100);
 
     // Remove the data:image/(png|jpeg|webp);base64, prefix
     const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
@@ -38,25 +65,14 @@ export async function POST(request: Request) {
     const publicUrl = `https://${bucketName}.s3.${process.env.AWS_REGION || "us-east-1"}.amazonaws.com/${key}`;
 
     // Save to database if metadata is provided
-    if (username && score !== undefined && gameType) {
-      // If we have a playerId, use it to ensure we link to the right player
-      // This is especially important for the overall card
-      let linkedPlayerId = playerId;
-      
-      if (!linkedPlayerId) {
-        const player = await prisma.player.findFirst({
-          where: { username, country: country || null }
-        });
-        linkedPlayerId = player?.id;
-      }
-
+    if (sanitizedUsername && score !== undefined && gameType) {
       await prisma.galleryItem.create({
         data: {
           url: publicUrl,
-          username,
-          score: parseInt(score.toString()),
-          gameType: gameType as any,
-          country: country || null,
+          username: sanitizedUsername,
+          score: Number.parseInt(score.toString()),
+          gameType: gameType,
+          country: sanitizedCountry || null,
         },
       });
     }

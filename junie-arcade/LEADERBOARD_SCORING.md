@@ -59,8 +59,8 @@ This document explains how Junie's Arcade calculates scores and rankings across 
 
 **3. Target Spawn Mechanics:**
 
-- **Starting:** Targets spawn every 0.6 seconds, last 2.0 seconds
-- **Bad target chance:** Starts at 30%, increases to 45%
+- **Starting:** Targets spawn every 0.5 seconds, last 1.5 seconds
+- **Bad target chance:** Starts at 25%, increases to 45%
 - Targets are slightly smaller (0.45 scale) for precision challenge
 - Pulsing animation adds visual pressure
 - More targets on screen simultaneously for higher scoring potential
@@ -71,36 +71,35 @@ The game gets dramatically harder as time progresses:
 
 **⏱️ 0-10s (Warmup Phase):**
 
-- Spawn delay: 600ms
-- Target lifetime: 2000ms
-- Bad target chance: 30%
+- Spawn delay: 500ms
+- Target lifetime: 1500ms
+- Bad target chance: 25%
 
 **⏱️ 10-20s (Acceleration):**
 
-- Spawn delay: 520ms
-- Target lifetime: 1850ms
-- Bad target chance: 33%
+- Spawn delay: 500ms
+- Target lifetime: 1500ms
+- Bad target chance: 25%
 
 **⏱️ 20-30s (Intense):**
 
-- Spawn delay: 440ms
-- Target lifetime: 1700ms
-- Bad target chance: 36%
+- Spawn delay: 500ms
+- Target lifetime: 1500ms
+- Bad target chance: 25%
 
 **⏱️ 30-40s (Expert):**
 
-- Spawn delay: 360ms
-- Target lifetime: 1550ms
-- Bad target chance: 39%
+- Spawn delay: 500ms
+- Target lifetime: 1500ms
+- Bad target chance: 25%
 
 **⏱️ 40-50s (INSANE):**
 
-- Spawn delay: 300ms (MAXIMUM SPEED)
-- Target lifetime: 1400ms
-- Bad target chance: 42%
-- "SPEED UP!" warnings
-- Screen shake effects
+- Spawn delay: 500ms
+- Target lifetime: 1500ms
+- Bad target chance: 25%
 - Maximum target density!
+- Fast-paced clicking required!
 
 #### Final Score Calculation
 
@@ -166,12 +165,12 @@ finalScore = sum of all points from clicked targets
 
 **Key Differences from Standard Mode:**
 
-- 10 seconds shorter (50s vs 60s)
-- 50% faster initial spawn rate (600ms vs 900ms)
-- Longer target lifetimes (2000ms vs 1800ms start)
-- Lower initial bad target rate (30% vs 35%)
-- More aggressive gameplay required due to higher target density
-- Faster difficulty progression to match shorter game time
+- Fixed 50 second duration
+- Fast spawn rate (500ms between targets)
+- Short target lifetime (1500ms)
+- Lower bad target rate (25%)
+- Constant fast-paced gameplay throughout
+- High target density for maximum scoring potential
 
 ---
 

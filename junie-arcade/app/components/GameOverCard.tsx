@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import FlagIcon from './FlagIcon'
+import { api } from '@/app/lib/api'
 
 interface GameOverCardProps {
   username: string
@@ -328,18 +329,13 @@ export default function GameOverCard({
       })
 
       const filename = `card-${username}-${score}-${Date.now()}.jpg`
-      const response = await fetch('/api/upload-card', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          image: dataUrl, 
-          filename,
-          username,
-          score,
-          gameType,
-          country,
-          playerId: localStorage.getItem('junie_player_id')
-        }),
+      const response = await api.post('/api/upload-card', {
+        image: dataUrl,
+        filename,
+        username,
+        score,
+        gameType,
+        country
       })
 
       const data = await response.json()

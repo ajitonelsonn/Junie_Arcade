@@ -11,6 +11,7 @@ import FlagIcon from "@/app/components/FlagIcon";
 import MobileWarningModal from "@/app/components/MobileWarningModal";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
 import { useMusic } from "@/app/components/MusicProvider";
+import { api } from "@/app/lib/api";
 
 const PhaserGame = dynamic(() => import("@/app/components/PhaserGame"), {
   ssr: false,
@@ -18,7 +19,7 @@ const PhaserGame = dynamic(() => import("@/app/components/PhaserGame"), {
 
 export default function JumpMasterPage() {
   const router = useRouter();
-  const { stopMenuMusic, playVictoryMusic } = useMusic();
+  const { stopMenuMusic, playVictoryMusic, stopAllMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -40,11 +41,13 @@ export default function JumpMasterPage() {
     const savedPlayerId = localStorage.getItem("junie_player_id");
     if (savedPlayerId) {
       setPlayerId(savedPlayerId);
-      
+
       // Check if player has already played this game in this session
       const checkStatus = async () => {
         try {
-          const response = await fetch(`/api/leaderboard?view=overall&playerId=${savedPlayerId}`);
+          const response = await fetch(
+            `/api/leaderboard?view=overall&playerId=${savedPlayerId}`
+          );
           const data = await response.json();
           if (data.currentPlayer && data.currentPlayer.jumpScore > 0) {
             setHasPlayedThisSession(true);
@@ -127,7 +130,7 @@ export default function JumpMasterPage() {
   // Stop menu music when game starts (Phaser handles its own game music)
   useEffect(() => {
     if (gameStarted && !gameOver) {
-      stopMenuMusic();
+      stopAllMusic();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStarted, gameOver]);
@@ -175,18 +178,14 @@ export default function JumpMasterPage() {
 
       setIsSaving(true);
       try {
-        const response = await fetch("/api/players", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, country }),
-        });
+        const response = await api.post("/api/players", { username, country });
         const data = await response.json();
         if (data.playerId) {
           setPlayerId(data.playerId);
           localStorage.setItem("junie_player_id", data.playerId);
           localStorage.setItem("junie_username", username);
           localStorage.setItem("junie_country", country);
-          
+
           setGameStarted(true);
           setGameOver(false);
           setScore(0);
@@ -202,29 +201,25 @@ export default function JumpMasterPage() {
 
   const handleSaveScore = async () => {
     if (!username || !country || isSaving) return;
-    
+
     // Check if score was already saved recently to prevent duplicates
     const lastSaved = localStorage.getItem("last_saved_score_jump");
     const now = Date.now();
     if (lastSaved && now - parseInt(lastSaved) < 5000) {
       return;
     }
-    
+
     setIsSaving(true);
     localStorage.setItem("last_saved_score_jump", now.toString());
 
     try {
-      const response = await fetch("/api/scores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          country,
-          gameType: "JUMP_MASTER",
-          score,
-          distance,
-          playerId,
-        }),
+      const response = await api.post("/api/scores", {
+        username,
+        country,
+        gameType: "JUMP_MASTER",
+        score,
+        distance,
+        playerId,
       });
       const data = await response.json();
       if (data.playerId) {
@@ -608,9 +603,19 @@ export default function JumpMasterPage() {
 
                 <motion.button
                   onClick={handleStart}
-                  disabled={!username.trim() || !country || hasPlayedThisSession}
-                  whileHover={username.trim() && country && !hasPlayedThisSession ? { scale: 1.02 } : {}}
-                  whileTap={username.trim() && country && !hasPlayedThisSession ? { scale: 0.98 } : {}}
+                  disabled={
+                    !username.trim() || !country || hasPlayedThisSession
+                  }
+                  whileHover={
+                    username.trim() && country && !hasPlayedThisSession
+                      ? { scale: 1.02 }
+                      : {}
+                  }
+                  whileTap={
+                    username.trim() && country && !hasPlayedThisSession
+                      ? { scale: 0.98 }
+                      : {}
+                  }
                   className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   {hasPlayedThisSession ? "Game Played" : "Deploy Runner"}
@@ -633,8 +638,12 @@ export default function JumpMasterPage() {
                     Player
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-white">{username}</span>
-                    <span className="text-2xl">{countries.find(c => c.name === country)?.flag}</span>
+                    <span className="text-lg font-bold text-white">
+                      {username}
+                    </span>
+                    <span className="text-2xl">
+                      {countries.find((c) => c.name === country)?.flag}
+                    </span>
                   </div>
                 </div>
               </div>
