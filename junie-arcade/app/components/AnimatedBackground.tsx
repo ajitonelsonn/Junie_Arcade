@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -21,13 +21,13 @@ export default function AnimatedBackground() {
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   return (
     <div className="fixed inset-0 z-0">
-      <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/bg-space.jpg')] opacity-20 bg-cover bg-center mix-blend-overlay" />
+      <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/lol_.webp')] opacity-20 bg-cover bg-center mix-blend-overlay" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
       {/* Animated Orbs - reduced on mobile */}
@@ -41,7 +41,7 @@ export default function AnimatedBackground() {
               y: [0, 50, 0],
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            style={{ willChange: 'transform' }}
+            style={{ willChange: "transform" }}
             className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px]"
           />
           <motion.div
@@ -52,7 +52,7 @@ export default function AnimatedBackground() {
               y: [0, 100, 0],
             }}
             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            style={{ willChange: 'transform' }}
+            style={{ willChange: "transform" }}
             className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px]"
           />
         </>
@@ -89,7 +89,7 @@ export default function AnimatedBackground() {
                 delay: i * 3,
                 ease: "linear",
               }}
-              style={{ willChange: 'transform' }}
+              style={{ willChange: "transform" }}
               className={`absolute ${
                 i === 0
                   ? "top-[10%] left-[5%]"
