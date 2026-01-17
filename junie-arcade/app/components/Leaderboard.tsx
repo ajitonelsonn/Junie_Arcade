@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import FlagIcon from './FlagIcon'
 import GameOverCard from './GameOverCard'
+import CelebrationEffect from './CelebrationEffect'
 
 interface LeaderboardEntry {
   rank: number
@@ -34,6 +35,11 @@ export default function Leaderboard() {
   const [countries, setCountries] = useState<Array<{ name: string; flag: string; code: string }>>([])
   const [showOverallCard, setShowOverallCard] = useState(false)
   const [currentPlayerStats, setCurrentPlayerStats] = useState<any>(null)
+
+  // State for tracking new top 3 entries (celebration effect)
+  const [previousTop3, setPreviousTop3] = useState<string[]>([])
+  const [celebratingUsernames, setCelebratingUsernames] = useState<string[]>([])
+  const isFirstLoad = useRef(true)
 
   useEffect(() => {
     // Check for showOverall query param
@@ -71,6 +77,40 @@ export default function Leaderboard() {
       setCurrentPlayerStats((prev: any) => ({ ...prev, rank: parseInt(rank) }));
     }
   }, [currentPlayerStats]);
+
+  // Detect new top 3 entries and trigger celebration
+  useEffect(() => {
+    // Only check for celebrations on the overall tab
+    if (activeTab !== 'overall' || entries.length === 0) return;
+
+    const currentTop3 = entries
+      .filter(e => e.rank <= 3)
+      .map(e => e.username);
+
+    // Skip celebration on first load (no previous data to compare)
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      setPreviousTop3(currentTop3);
+      return;
+    }
+
+    // Find users who are newly in top 3 (weren't in previous top 3)
+    const newEntrants = currentTop3.filter(username => !previousTop3.includes(username));
+
+    // Always update previous top 3 for next comparison
+    setPreviousTop3(currentTop3);
+
+    if (newEntrants.length > 0) {
+      setCelebratingUsernames(newEntrants);
+      // Clear celebration after 3.5 seconds
+      const timer = setTimeout(() => {
+        setCelebratingUsernames([]);
+      }, 3500);
+
+      // Cleanup timeout on unmount or new celebration
+      return () => clearTimeout(timer);
+    }
+  }, [entries, activeTab]);
 
   const fetchLeaderboard = async () => {
     try {
@@ -390,12 +430,27 @@ export default function Leaderboard() {
                     <m.div
                       layout
                       initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      animate={{
+                        opacity: 1,
+                        x: 0,
+                        scale: celebratingUsernames.includes(entry.username) ? [1, 1.02, 1] : 1
+                      }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ delay: index * 0.05 }}
+                      transition={{
+                        delay: index * 0.05,
+                        scale: { duration: 0.5, repeat: celebratingUsernames.includes(entry.username) ? 2 : 0 }
+                      }}
                       key={`${entry.username}-${entry.gameType}-${entry.rank}`}
                       className={`grid grid-cols-12 gap-4 items-center px-8 py-6 group transition-all duration-300 relative overflow-hidden ${entry.rank <= 3 ? style.bg : 'hover:bg-white/[0.03]'}`}
                     >
+                      {/* Celebration Effect for new top 3 entries */}
+                      {entry.rank <= 3 && (
+                        <CelebrationEffect
+                          rank={entry.rank}
+                          isActive={celebratingUsernames.includes(entry.username)}
+                        />
+                      )}
+
                       {/* Hero Silhouette for Top 3 */}
                       {entry.rank <= 3 && (
                         <div className="absolute right-0 top-0 bottom-0 w-32 opacity-[0.08] pointer-events-none group-hover:opacity-20 transition-opacity">
