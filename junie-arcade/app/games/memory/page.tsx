@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import GameOverCard from "@/app/components/GameOverCard";
 import FlagIcon from "@/app/components/FlagIcon";
 import MobileWarningModal from "@/app/components/MobileWarningModal";
@@ -394,6 +394,7 @@ export default function MemoryMatchPage() {
   ];
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-fuchsia-500/30 overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 z-0">
@@ -401,7 +402,7 @@ export default function MemoryMatchPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
         {/* Animated Orbs */}
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.4, 0.2],
@@ -411,7 +412,7 @@ export default function MemoryMatchPage() {
           transition={{ duration: 21, repeat: Infinity, ease: "linear" }}
           className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-purple-600/30 rounded-full blur-[140px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1.3, 1, 1.3],
             opacity: [0.3, 0.5, 0.3],
@@ -421,7 +422,7 @@ export default function MemoryMatchPage() {
           transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
           className="absolute top-1/2 -right-40 w-[600px] h-[600px] bg-fuchsia-500/30 rounded-full blur-[120px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.2, 0.3, 0.2],
@@ -433,7 +434,7 @@ export default function MemoryMatchPage() {
         {/* Floating Hero Characters */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
           {heroImages.map((img, i) => (
-            <motion.div
+            <m.div
               key={i}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{
@@ -469,12 +470,12 @@ export default function MemoryMatchPage() {
                 sizes="256px"
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
         {/* Floating Junie Mascots */}
-        <motion.div
+        <m.div
           animate={{
             y: [0, -32, 0],
             rotate: [0, 14, -14, 0],
@@ -494,9 +495,9 @@ export default function MemoryMatchPage() {
             sizes="128px"
             className="object-contain drop-shadow-[0_0_20px_rgba(192,38,211,0.6)]"
           />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           animate={{
             y: [0, -26, 0],
             rotate: [0, -9, 9, 0],
@@ -517,9 +518,9 @@ export default function MemoryMatchPage() {
             sizes="112px"
             className="object-contain drop-shadow-[0_0_20px_rgba(236,72,153,0.5)]"
           />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           animate={{
             y: [0, -21, 0],
             rotate: [0, 9, -9, 0],
@@ -540,13 +541,13 @@ export default function MemoryMatchPage() {
             sizes="96px"
             className="object-contain drop-shadow-[0_0_15px_rgba(192,38,211,0.4)]"
           />
-        </motion.div>
+        </m.div>
       </div>
 
       <div className="relative z-10">
         {/* Header */}
         <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
@@ -556,8 +557,8 @@ export default function MemoryMatchPage() {
                 Back to Arena
               </span>
             </Link>
-          </motion.div>
-          <motion.div
+          </m.div>
+          <m.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-4"
@@ -587,13 +588,13 @@ export default function MemoryMatchPage() {
               </div>
               <div className="text-xs font-bold text-white">Hackathon 2026</div>
             </div>
-          </motion.div>
+          </m.div>
         </nav>
 
         {/* Main Content */}
         <div className="px-4 sm:px-8 pb-4 max-w-7xl mx-auto">
           {/* Title Section */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-2"
@@ -622,11 +623,11 @@ export default function MemoryMatchPage() {
                 Pattern recognition at scale.
               </span>
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Username Input Screen */}
           {!gameStarted && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-lg mx-auto"
@@ -755,7 +756,7 @@ export default function MemoryMatchPage() {
                   </div>
                 </div>
 
-                <motion.button
+                <m.button
                   onClick={initializeGame}
                   disabled={
                     !username.trim() || !country || hasPlayedThisSession
@@ -775,14 +776,14 @@ export default function MemoryMatchPage() {
                   {hasPlayedThisSession
                     ? "Protocol Complete"
                     : "Initialize Matrix"}
-                </motion.button>
+                </m.button>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Game Screen */}
           {gameStarted && !gameOver && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="h-[calc(100vh-180px)] flex flex-col"
@@ -854,7 +855,7 @@ export default function MemoryMatchPage() {
                 <div className="grid grid-cols-8 gap-2 sm:gap-3 w-full max-w-7xl">
                   <AnimatePresence>
                     {cards.map((card, index) => (
-                      <motion.div
+                      <m.div
                         key={card.id}
                         initial={{ opacity: 0, scale: 0.8, rotateY: -180 }}
                         animate={{ opacity: 1, scale: 1, rotateY: 0 }}
@@ -871,7 +872,7 @@ export default function MemoryMatchPage() {
                         onClick={() => handleCardClick(index)}
                       >
                         <div className="relative w-full h-full perspective-1000">
-                          <motion.div
+                          <m.div
                             className="relative w-full h-full"
                             animate={{
                               rotateY:
@@ -920,24 +921,24 @@ export default function MemoryMatchPage() {
                                   className="object-cover"
                                 />
                                 {card.matched && (
-                                  <motion.div
+                                  <m.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     className="absolute inset-0 bg-green-500/20 backdrop-blur-[1px] flex items-center justify-center"
                                   >
                                     <span className="text-6xl">✓</span>
-                                  </motion.div>
+                                  </m.div>
                                 )}
                               </div>
                             </div>
-                          </motion.div>
+                          </m.div>
                         </div>
-                      </motion.div>
+                      </m.div>
                     ))}
                   </AnimatePresence>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Game Over Screen */}
@@ -987,5 +988,6 @@ export default function MemoryMatchPage() {
         }}
       />
     </div>
+    </LazyMotion>
   );
 }

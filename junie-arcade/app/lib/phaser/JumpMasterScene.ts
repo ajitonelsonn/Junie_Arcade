@@ -557,7 +557,7 @@ export default class JumpMasterScene extends Phaser.Scene {
       type,
     ) as any;
 
-    collectible.setScale(0.2).setData("type", type);
+    collectible.setScale(0.17).setData("type", type);
 
     if (collectible.body) {
       collectible.body.setSize(
@@ -574,7 +574,7 @@ export default class JumpMasterScene extends Phaser.Scene {
             y + Phaser.Math.Between(-80, 80),
             type,
           ) as any;
-          followUp.setScale(0.2).setData("type", type);
+          followUp.setScale(0.17).setData("type", type);
           if (followUp.body) {
             followUp.body.setSize(followUp.width * 1.3, followUp.height * 1.3);
           }

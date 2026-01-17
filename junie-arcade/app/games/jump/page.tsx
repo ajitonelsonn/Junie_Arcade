@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import FlagIcon from "@/app/components/FlagIcon";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
 import { useMusic } from "@/app/components/MusicProvider";
@@ -256,6 +256,7 @@ export default function JumpMasterPage() {
   ];
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-hidden">
       {/* Animated Background - Matching Home Page Style */}
       <div className="fixed inset-0 z-0">
@@ -273,7 +274,7 @@ export default function JumpMasterPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
         {/* Animated Orbs */}
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.4, 0.2],
@@ -283,7 +284,7 @@ export default function JumpMasterPage() {
           transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
           className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-cyan-600/30 rounded-full blur-[140px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1.3, 1, 1.3],
             opacity: [0.3, 0.5, 0.3],
@@ -293,7 +294,7 @@ export default function JumpMasterPage() {
           transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
           className="absolute top-1/2 -right-40 w-[600px] h-[600px] bg-blue-500/30 rounded-full blur-[120px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.2, 0.3, 0.2],
@@ -305,7 +306,7 @@ export default function JumpMasterPage() {
         {/* Floating Hero Characters - Decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
           {heroImages.map((img, i) => (
-            <motion.div
+            <m.div
               key={i}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{
@@ -343,12 +344,12 @@ export default function JumpMasterPage() {
                 quality={50}
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
         {/* Floating Junie Mascots */}
-        <motion.div
+        <m.div
           animate={{
             y: [0, -35, 0],
             rotate: [0, 12, -12, 0],
@@ -370,9 +371,9 @@ export default function JumpMasterPage() {
             quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(34,211,238,0.6)]"
           />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           animate={{
             y: [0, -28, 0],
             rotate: [0, -8, 8, 0],
@@ -395,9 +396,9 @@ export default function JumpMasterPage() {
             quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]"
           />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           animate={{
             y: [0, -22, 0],
             rotate: [0, 10, -10, 0],
@@ -420,13 +421,13 @@ export default function JumpMasterPage() {
             quality={70}
             className="object-contain drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]"
           />
-        </motion.div>
+        </m.div>
       </div>
 
       <div className="relative z-10">
         {/* Header */}
         <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
@@ -436,8 +437,8 @@ export default function JumpMasterPage() {
                 Back to Arena
               </span>
             </Link>
-          </motion.div>
-          <motion.div
+          </m.div>
+          <m.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-4"
@@ -467,13 +468,13 @@ export default function JumpMasterPage() {
               </div>
               <div className="text-xs font-bold text-white">Hackathon 2026</div>
             </div>
-          </motion.div>
+          </m.div>
         </nav>
 
         {/* Main Content */}
         <div className="px-8 pb-4 max-w-7xl mx-auto">
           {/* Title Section */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-3"
@@ -502,11 +503,11 @@ export default function JumpMasterPage() {
                 the endless cloud pipeline.
               </span>
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Username Input Screen */}
           {!gameStarted && !gameOver && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-lg mx-auto"
@@ -638,7 +639,7 @@ export default function JumpMasterPage() {
                   </div>
                 </div>
 
-                <motion.button
+                <m.button
                   onClick={handleStart}
                   disabled={
                     !username.trim() || !country || hasPlayedThisSession
@@ -656,14 +657,14 @@ export default function JumpMasterPage() {
                   className="w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   {hasPlayedThisSession ? "Game Played" : "Deploy Runner"}
-                </motion.button>
+                </m.button>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Loading Screen - while game assets load */}
           {gameStarted && !gameOver && (!JumpMasterScene || !PhaserGame) && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-20"
@@ -673,12 +674,12 @@ export default function JumpMasterPage() {
                 <p className="text-lg font-bold text-white mb-2">Initializing Game Engine</p>
                 <p className="text-sm text-slate-400">Loading Phaser assets...</p>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Game Screen */}
           {gameStarted && !gameOver && JumpMasterScene && PhaserGame && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex flex-col items-center"
@@ -722,7 +723,7 @@ export default function JumpMasterPage() {
                     }}
                   />
                 </div>
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
@@ -737,9 +738,9 @@ export default function JumpMasterPage() {
                       Jump!
                     </span>
                   </div>
-                </motion.div>
+                </m.div>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Game Over Screen */}
@@ -788,5 +789,6 @@ export default function JumpMasterPage() {
         }}
       />
     </div>
+    </LazyMotion>
   );
 }

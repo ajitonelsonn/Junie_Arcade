@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import FlagIcon from "@/app/components/FlagIcon";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
 import { useMusic } from "@/app/components/MusicProvider";
@@ -394,6 +394,7 @@ export default function ReflexArenaPage() {
   ];
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-orange-500/30 overflow-hidden">
       {/* Animated Background - Matching Home Page Style */}
       <div className="fixed inset-0 z-0">
@@ -411,7 +412,7 @@ export default function ReflexArenaPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
         {/* Animated Orbs */}
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.4, 0.2],
@@ -421,7 +422,7 @@ export default function ReflexArenaPage() {
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-orange-600/30 rounded-full blur-[140px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1.3, 1, 1.3],
             opacity: [0.3, 0.5, 0.3],
@@ -431,7 +432,7 @@ export default function ReflexArenaPage() {
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
           className="absolute top-1/2 -right-40 w-[600px] h-[600px] bg-yellow-500/30 rounded-full blur-[120px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.2, 0.3, 0.2],
@@ -443,7 +444,7 @@ export default function ReflexArenaPage() {
         {/* Floating Hero Characters - Decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
           {heroImages.map((img, i) => (
-            <motion.div
+            <m.div
               key={i}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{
@@ -481,12 +482,12 @@ export default function ReflexArenaPage() {
                 quality={50}
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
         {/* Floating Junie Mascots */}
-        <motion.div
+        <m.div
           animate={{
             y: [0, -30, 0],
             rotate: [0, 15, -15, 0],
@@ -508,9 +509,9 @@ export default function ReflexArenaPage() {
             quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(251,146,60,0.6)]"
           />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           animate={{
             y: [0, -25, 0],
             rotate: [0, -10, 10, 0],
@@ -533,9 +534,9 @@ export default function ReflexArenaPage() {
             quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(234,179,8,0.5)]"
           />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           animate={{
             y: [0, -20, 0],
             rotate: [0, 8, -8, 0],
@@ -558,13 +559,13 @@ export default function ReflexArenaPage() {
             quality={70}
             className="object-contain drop-shadow-[0_0_15px_rgba(251,146,60,0.4)]"
           />
-        </motion.div>
+        </m.div>
       </div>
 
       <div className="relative z-10">
         {/* Header */}
         <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
@@ -574,8 +575,8 @@ export default function ReflexArenaPage() {
                 Back to Arena
               </span>
             </Link>
-          </motion.div>
-          <motion.div
+          </m.div>
+          <m.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-4"
@@ -605,13 +606,13 @@ export default function ReflexArenaPage() {
               </div>
               <div className="text-xs font-bold text-white">Hackathon 2026</div>
             </div>
-          </motion.div>
+          </m.div>
         </nav>
 
         {/* Main Content */}
         <div className="px-8 pb-4 max-w-7xl mx-auto">
           {/* Title Section */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-3"
@@ -640,11 +641,11 @@ export default function ReflexArenaPage() {
                 Every millisecond counts.
               </span>
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Username Input Screen */}
           {!gameStarted && !gameOver && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-lg mx-auto"
@@ -776,7 +777,7 @@ export default function ReflexArenaPage() {
                   </div>
                 </div>
 
-                <motion.button
+                <m.button
                   onClick={handleStart}
                   disabled={
                     !username.trim() || !country || hasPlayedThisSession
@@ -794,14 +795,14 @@ export default function ReflexArenaPage() {
                   className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(251,146,60,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   {hasPlayedThisSession ? "Combat Complete" : "Deploy to Arena"}
-                </motion.button>
+                </m.button>
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Game Screen */}
           {gameStarted && !gameOver && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               {/* Player Info Bar */}
               <div className="flex items-center justify-center gap-2 mb-2 max-w-5xl mx-auto">
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl px-4 py-2 border border-white/10 flex items-center gap-3">
@@ -835,22 +836,22 @@ export default function ReflexArenaPage() {
                     Combo
                   </div>
                   <div className="flex items-center gap-1">
-                    <motion.div
+                    <m.div
                       key={combo}
                       initial={{ scale: 1.5 }}
                       animate={{ scale: 1 }}
                       className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500"
                     >
                       {combo}x
-                    </motion.div>
+                    </m.div>
                     {combo >= 5 && (
-                      <motion.span
+                      <m.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         className="text-sm"
                       >
                         🔥
-                      </motion.span>
+                      </m.span>
                     )}
                   </div>
                 </div>
@@ -889,7 +890,7 @@ export default function ReflexArenaPage() {
                 {/* Targets */}
                 <AnimatePresence>
                   {targets.map((target) => (
-                    <motion.div
+                    <m.div
                       key={target.id}
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{
@@ -910,7 +911,7 @@ export default function ReflexArenaPage() {
                       }}
                       onClick={(e) => handleTargetClick(target, e)}
                     >
-                      <motion.div
+                      <m.div
                         whileHover={{ scale: 1.2, rotate: 10 }}
                         whileTap={{ scale: 0.9 }}
                         className={`relative ${
@@ -927,22 +928,22 @@ export default function ReflexArenaPage() {
                           className="transition-all"
                         />
                         {target.type === "good" && (
-                          <motion.div
+                          <m.div
                             className="absolute inset-0 border-4 border-green-400 rounded-full"
                             initial={{ scale: 1, opacity: 0.8 }}
                             animate={{ scale: 1.5, opacity: 0 }}
                             transition={{ duration: 1, repeat: Infinity }}
                           />
                         )}
-                      </motion.div>
-                    </motion.div>
+                      </m.div>
+                    </m.div>
                   ))}
                 </AnimatePresence>
 
                 {/* Floating Scores */}
                 <AnimatePresence>
                   {floatingScores.map((floatingScore) => (
-                    <motion.div
+                    <m.div
                       key={floatingScore.id}
                       initial={{ opacity: 1, y: 0, scale: 1 }}
                       animate={{ opacity: 0, y: -80, scale: 1.5 }}
@@ -959,20 +960,20 @@ export default function ReflexArenaPage() {
                     >
                       {floatingScore.value > 0 ? "+" : ""}
                       {floatingScore.value}
-                    </motion.div>
+                    </m.div>
                   ))}
                 </AnimatePresence>
 
                 {/* NEW: Countdown Display (3-2-1-GO) */}
                 {countdown !== null && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
                   >
                     <div className="text-center">
                       {/* Instructions */}
-                      <motion.div
+                      <m.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-8"
@@ -985,10 +986,10 @@ export default function ReflexArenaPage() {
                             Avoid BAD targets 🐛 🦠 💣
                           </div>
                         </div>
-                      </motion.div>
+                      </m.div>
 
                       {/* Countdown Number */}
-                      <motion.div
+                      <m.div
                         key={countdown}
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1.2, opacity: 1 }}
@@ -1005,12 +1006,12 @@ export default function ReflexArenaPage() {
                         }}
                       >
                         {countdown === 0 ? "GO!" : countdown}
-                      </motion.div>
+                      </m.div>
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Game Over Screen */}
@@ -1059,5 +1060,6 @@ export default function ReflexArenaPage() {
         }}
       />
     </div>
+    </LazyMotion>
   );
 }
