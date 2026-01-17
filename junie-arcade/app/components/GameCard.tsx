@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 interface GameCardProps {
   title: string
@@ -17,7 +17,7 @@ interface GameCardProps {
 export default function GameCard({ title, description, icon, href, gradient, gameLogo }: GameCardProps) {
   return (
     <Link href={href}>
-      <motion.div
+      <m.div
         whileHover={{ scale: 1.03, y: -10 }}
         whileTap={{ scale: 0.98 }}
         className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl cursor-pointer transition-all duration-500 h-full min-h-[380px] flex flex-col hover:border-white/20 hover:shadow-[0_0_40px_rgba(255,255,255,0.1)]"
@@ -37,7 +37,7 @@ export default function GameCard({ title, description, icon, href, gradient, gam
           {/* Icon / Logo */}
           <div className="mb-6 h-20 flex items-center">
             {gameLogo ? (
-              <motion.div
+              <m.div
                 whileHover={{ scale: 1.1 }}
                 transition={{ duration: 0.5 }}
                 style={{ willChange: 'transform' }}
@@ -52,9 +52,9 @@ export default function GameCard({ title, description, icon, href, gradient, gam
                   quality={70}
                   className="object-contain filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
                 />
-              </motion.div>
+              </m.div>
             ) : (
-              <motion.div
+              <m.div
                 whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                 transition={{ duration: 0.5 }}
                 style={{ willChange: 'transform' }}
@@ -63,7 +63,7 @@ export default function GameCard({ title, description, icon, href, gradient, gam
                 <div className={`text-7xl filter drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] transform transition-transform duration-500`}>
                   {icon}
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </div>
 
@@ -79,7 +79,7 @@ export default function GameCard({ title, description, icon, href, gradient, gam
 
           {/* Button */}
           <div className="mt-auto">
-            <motion.div
+            <m.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="relative"
@@ -91,10 +91,10 @@ export default function GameCard({ title, description, icon, href, gradient, gam
               <button className={`relative w-full bg-gradient-to-r ${gradient} text-white font-black py-4 px-8 rounded-2xl text-lg uppercase tracking-wider shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all duration-300`}>
                 Enter Arena
               </button>
-            </motion.div>
+            </m.div>
           </div>
         </div>
-      </motion.div>
+      </m.div>
     </Link>
   )
 }

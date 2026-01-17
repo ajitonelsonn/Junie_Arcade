@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 const heroImages = [
   "/assets/images/hero/Jinx_Render.webp",
@@ -19,7 +19,7 @@ export default function HeroSection() {
     <header className="px-8 pt-24 pb-20 text-center max-w-5xl mx-auto relative contain-[layout]">
       {/* Junie Mascot Animation */}
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-64 h-64">
-        <motion.div
+        <m.div
           animate={{
             y: [0, -20, 0],
             rotate: [0, 10, -10, 0],
@@ -40,10 +40,10 @@ export default function HeroSection() {
             fetchPriority="high"
             className="object-contain drop-shadow-[0_0_30px_rgba(34,211,238,0.6)]"
           />
-        </motion.div>
+        </m.div>
 
         {/* Secondary Junie Animation - Idle/Floating */}
-        <motion.div
+        <m.div
           initial={{ x: -150, opacity: 0 }}
           animate={{
             x: [-150, -120, -150],
@@ -64,9 +64,9 @@ export default function HeroSection() {
             sizes="96px"
             className="object-contain"
           />
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ x: 150, opacity: 0 }}
           animate={{
             x: [150, 120, 150],
@@ -87,10 +87,10 @@ export default function HeroSection() {
             sizes="96px"
             className="object-contain"
           />
-        </motion.div>
+        </m.div>
       </div>
 
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
@@ -120,7 +120,7 @@ export default function HeroSection() {
           <span className="text-white"> Push your limits</span> and claim
           your spot on the leaderboard.
         </p>
-      </motion.div>
+      </m.div>
     </header>
   );
 }

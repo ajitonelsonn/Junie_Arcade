@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 export default function Navigation() {
@@ -10,7 +10,7 @@ export default function Navigation() {
 
   return (
     <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="flex items-center gap-4"
@@ -34,8 +34,8 @@ export default function Navigation() {
           style={{ width: 'auto', height: 'auto' }}
           className="opacity-90 hover:opacity-100 transition-opacity"
         />
-      </motion.div>
-      <motion.div
+      </m.div>
+      <m.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400"
@@ -72,7 +72,7 @@ export default function Navigation() {
         >
           Tournament
         </a>
-      </motion.div>
+      </m.div>
     </nav>
   );
 }

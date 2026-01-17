@@ -6,14 +6,16 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import GameOverCard from "@/app/components/GameOverCard";
 import FlagIcon from "@/app/components/FlagIcon";
-import MobileWarningModal from "@/app/components/MobileWarningModal";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
 import { useMusic } from "@/app/components/MusicProvider";
 import { api } from "@/app/lib/api";
 
-const PhaserGame = dynamic(() => import("@/app/components/PhaserGame"), {
+// Dynamically import components only shown conditionally
+const GameOverCard = dynamic(() => import("@/app/components/GameOverCard"), {
+  ssr: false,
+});
+const MobileWarningModal = dynamic(() => import("@/app/components/MobileWarningModal"), {
   ssr: false,
 });
 
@@ -60,6 +62,7 @@ export default function JumpMasterPage() {
     }
   }, []);
   const [JumpMasterScene, setJumpMasterScene] = useState<any>(null);
+  const [PhaserGame, setPhaserGame] = useState<any>(null);
   const [showMobileWarning, setShowMobileWarning] = useState(false);
 
   // Check for mobile phone on mount
@@ -69,11 +72,18 @@ export default function JumpMasterPage() {
     }
   }, []);
 
+  // Defer loading PhaserGame and JumpMasterScene until game starts to reduce initial bundle
   useEffect(() => {
-    import("@/app/lib/phaser/JumpMasterScene").then((mod) => {
-      setJumpMasterScene(() => mod.default);
-    });
-  }, []);
+    if (gameStarted && !JumpMasterScene) {
+      Promise.all([
+        import("@/app/components/PhaserGame"),
+        import("@/app/lib/phaser/JumpMasterScene"),
+      ]).then(([phaserMod, sceneMod]) => {
+        setPhaserGame(() => phaserMod.default);
+        setJumpMasterScene(() => sceneMod.default);
+      });
+    }
+  }, [gameStarted, JumpMasterScene]);
 
   // Fetch countries on mount
   useEffect(() => {
@@ -249,7 +259,17 @@ export default function JumpMasterPage() {
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-hidden">
       {/* Animated Background - Matching Home Page Style */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/valorant_.webp')] opacity-30 bg-cover bg-center mix-blend-overlay" />
+        <div className="absolute inset-0 opacity-30 mix-blend-overlay">
+          <Image
+            src="/assets/images/backgrounds/valorant_.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            loading="lazy"
+            quality={60}
+            className="object-cover"
+          />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
         {/* Animated Orbs */}
@@ -318,7 +338,9 @@ export default function JumpMasterPage() {
                 src={img}
                 alt="Hero"
                 fill
-                sizes="256px"
+                sizes="(max-width: 768px) 200px, 256px"
+                loading="lazy"
+                quality={50}
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
             </motion.div>
@@ -344,6 +366,8 @@ export default function JumpMasterPage() {
             alt="Junie Jump"
             fill
             sizes="128px"
+            loading="lazy"
+            quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(34,211,238,0.6)]"
           />
         </motion.div>
@@ -367,6 +391,8 @@ export default function JumpMasterPage() {
             alt="Junie Happy"
             fill
             sizes="112px"
+            loading="lazy"
+            quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]"
           />
         </motion.div>
@@ -390,6 +416,8 @@ export default function JumpMasterPage() {
             alt="Junie Idle"
             fill
             sizes="96px"
+            loading="lazy"
+            quality={70}
             className="object-contain drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]"
           />
         </motion.div>
@@ -492,6 +520,9 @@ export default function JumpMasterPage() {
                         alt="Jump Master"
                         fill
                         sizes="80px"
+                        priority
+                        fetchPriority="high"
+                        quality={70}
                         className="object-contain filter drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]"
                       />
                     </div>
@@ -630,8 +661,23 @@ export default function JumpMasterPage() {
             </motion.div>
           )}
 
+          {/* Loading Screen - while game assets load */}
+          {gameStarted && !gameOver && (!JumpMasterScene || !PhaserGame) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-20"
+            >
+              <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/10 shadow-2xl text-center">
+                <div className="w-16 h-16 border-4 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mx-auto mb-6" />
+                <p className="text-lg font-bold text-white mb-2">Initializing Game Engine</p>
+                <p className="text-sm text-slate-400">Loading Phaser assets...</p>
+              </div>
+            </motion.div>
+          )}
+
           {/* Game Screen */}
-          {gameStarted && !gameOver && JumpMasterScene && (
+          {gameStarted && !gameOver && JumpMasterScene && PhaserGame && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

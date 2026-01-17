@@ -1,12 +1,12 @@
 'use client';
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import GameCard from "./GameCard";
 
 export default function GamesGrid() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-32">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -20,8 +20,8 @@ export default function GamesGrid() {
           brandIcon="/assets/images/logos/webstorm-logo.png"
           gameLogo="/assets/images/logos/game_logo/reflex_arena.png"
         />
-      </motion.div>
-      <motion.div
+      </m.div>
+      <m.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -35,8 +35,8 @@ export default function GamesGrid() {
           brandIcon="/assets/images/logos/intellij-logo.png"
           gameLogo="/assets/images/logos/game_logo/jump_master.png"
         />
-      </motion.div>
-      <motion.div
+      </m.div>
+      <m.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
@@ -50,7 +50,7 @@ export default function GamesGrid() {
           brandIcon="/assets/images/logos/pycharm-logo.png"
           gameLogo="/assets/images/logos/game_logo/memory_match.png"
         />
-      </motion.div>
+      </m.div>
     </div>
   );
 }

@@ -3,14 +3,21 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import GameOverCard from "@/app/components/GameOverCard";
 import FlagIcon from "@/app/components/FlagIcon";
-import MobileWarningModal from "@/app/components/MobileWarningModal";
 import { isMobilePhone } from "@/app/utils/deviceDetection";
 import { useMusic } from "@/app/components/MusicProvider";
 import { api } from "@/app/lib/api";
+
+// Dynamically import components only shown conditionally
+const GameOverCard = dynamic(() => import("@/app/components/GameOverCard"), {
+  ssr: false,
+});
+const MobileWarningModal = dynamic(() => import("@/app/components/MobileWarningModal"), {
+  ssr: false,
+});
 
 interface Target {
   id: number;
@@ -390,7 +397,17 @@ export default function ReflexArenaPage() {
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-orange-500/30 overflow-hidden">
       {/* Animated Background - Matching Home Page Style */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/lol.webp')] opacity-30 bg-cover bg-center mix-blend-overlay" />
+        <div className="absolute inset-0 opacity-30 mix-blend-overlay">
+          <Image
+            src="/assets/images/backgrounds/lol.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            loading="lazy"
+            quality={60}
+            className="object-cover"
+          />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
         {/* Animated Orbs */}
@@ -459,7 +476,9 @@ export default function ReflexArenaPage() {
                 src={img}
                 alt="Hero"
                 fill
-                sizes="256px"
+                sizes="(max-width: 768px) 200px, 256px"
+                loading="lazy"
+                quality={50}
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
             </motion.div>
@@ -485,6 +504,8 @@ export default function ReflexArenaPage() {
             alt="Junie Happy"
             fill
             sizes="128px"
+            loading="lazy"
+            quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(251,146,60,0.6)]"
           />
         </motion.div>
@@ -508,6 +529,8 @@ export default function ReflexArenaPage() {
             alt="Junie Jump"
             fill
             sizes="112px"
+            loading="lazy"
+            quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(234,179,8,0.5)]"
           />
         </motion.div>
@@ -531,6 +554,8 @@ export default function ReflexArenaPage() {
             alt="Junie Idle"
             fill
             sizes="96px"
+            loading="lazy"
+            quality={70}
             className="object-contain drop-shadow-[0_0_15px_rgba(251,146,60,0.4)]"
           />
         </motion.div>
@@ -632,6 +657,10 @@ export default function ReflexArenaPage() {
                         src="/assets/images/logos/game_logo/reflex_arena.png"
                         alt="Reflex Arena"
                         fill
+                        sizes="80px"
+                        priority
+                        fetchPriority="high"
+                        quality={70}
                         className="object-contain filter drop-shadow-[0_0_15px_rgba(251,146,60,0.4)]"
                       />
                     </div>

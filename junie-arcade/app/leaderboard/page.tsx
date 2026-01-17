@@ -46,47 +46,35 @@ export default function LeaderboardPage() {
           className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px]"
         />
 
-        {/* Floating Hero Characters - Decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
-          {heroImages.map((img, i) => (
+        {/* Floating Hero Characters - Subtle decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 hidden lg:block">
+          {heroImages.slice(0, 4).map((img, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{
-                opacity: [0, 0.5, 0],
-                scale: [0.8, 1, 1.2],
-                x: i % 2 === 0 ? [0, 40, 0] : [0, -40, 0],
-                y: [0, -80, 0],
+                opacity: [0, 0.4, 0],
+                scale: [0.8, 1, 1.1],
+                y: [0, -60, 0],
               }}
               transition={{
-                duration: 25,
+                duration: 30,
                 repeat: Infinity,
-                delay: i * 4,
+                delay: i * 6,
                 ease: "linear",
               }}
-              className={`absolute ${
-                i === 0
-                  ? "top-[10%] left-[2%]"
-                  : i === 1
-                  ? "top-[20%] right-[5%]"
-                  : i === 2
-                  ? "top-[45%] left-[5%]"
-                  : i === 3
-                  ? "top-[65%] right-[2%]"
-                  : i === 4
-                  ? "bottom-[15%] left-[8%]"
-                  : i === 5
-                  ? "bottom-[25%] right-[15%]"
-                  : i === 6
-                  ? "bottom-[45%] left-[2%]"
-                  : "bottom-[65%] right-[10%]"
-              } w-64 h-[400px]`}
+              className={`absolute w-48 h-75 ${
+                ["top-[15%] left-[2%]", "top-[30%] right-[3%]", "bottom-[25%] left-[3%]", "bottom-[15%] right-[5%]"][i]
+              }`}
             >
               <Image
                 src={img}
-                alt="Hero"
+                alt=""
                 fill
-                className="object-contain filter grayscale brightness-110 contrast-125 opacity-30"
+                sizes="192px"
+                loading="lazy"
+                quality={50}
+                className="object-contain filter grayscale brightness-110 contrast-125"
               />
             </motion.div>
           ))}
@@ -145,101 +133,75 @@ export default function LeaderboardPage() {
           </div>
         </nav>
 
-        {/* Header Section */}
-        <header className="px-8 pt-16 pb-12 text-center max-w-5xl mx-auto relative">
-          {/* Junie Mascot Decoration */}
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-48 h-48 opacity-80">
-            <motion.div
-              animate={{
-                y: [0, -15, 0],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="relative w-full h-full"
-            >
-              <Image
-                src="/assets/images/junie/junie-happy.png"
-                alt="Junie Mascot"
-                fill
-                className="object-contain drop-shadow-[0_0_20px_rgba(255,70,85,0.4)]"
-              />
-            </motion.div>
-          </div>
-
+        {/* Header Section - Compact for better leaderboard visibility */}
+        <header className="px-8 pt-6 pb-4 text-center max-w-5xl mx-auto relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="pt-20"
+            transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-3 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4655] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff4655]"></span>
               </span>
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff4655]">
-                Competitive Integrity Verified
+                Live Rankings
               </span>
             </div>
 
-            <h1 className="text-6xl md:text-9xl font-black mb-6 tracking-tighter leading-none italic uppercase">
+            <h1 className="text-4xl md:text-6xl font-black mb-2 tracking-tighter leading-none italic uppercase">
               <span className="inline-block text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500">
                 Global
-              </span>
-              <br />
+              </span>{" "}
               <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#ff4655] via-[#ff4655] to-orange-600">
                 Leaderboard
               </span>
             </h1>
 
-            <p className="text-xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed uppercase tracking-tight">
-              Witness the legends of the arena. The top performers
-              <span className="text-white"> pushing the limits</span> of the{" "}
-              <span className="text-[#ff4655]">Junie Arcade Protocol</span>.
+            <p className="text-sm text-slate-400 font-medium max-w-xl mx-auto uppercase tracking-tight">
+              Top performers of the{" "}
+              <span className="text-[#ff4655]">Junie Arcade Protocol</span>
             </p>
           </motion.div>
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 md:px-8 pb-32">
-          <div className="max-w-5xl mx-auto relative">
+        <main className="container mx-auto px-4 md:px-8 pb-16">
+          <div className="max-w-6xl mx-auto relative">
             {/* Decorative Corner Accents */}
-            <div className="absolute -top-10 -left-10 w-20 h-20 border-l-2 border-t-2 border-[#ff4655]/30 pointer-events-none hidden md:block" />
-            <div className="absolute -bottom-10 -right-10 w-20 h-20 border-r-2 border-b-2 border-[#ff4655]/30 pointer-events-none hidden md:block" />
+            <div className="absolute -top-6 -left-6 w-12 h-12 border-l-2 border-t-2 border-[#ff4655]/30 pointer-events-none hidden md:block" />
+            <div className="absolute -bottom-6 -right-6 w-12 h-12 border-r-2 border-b-2 border-[#ff4655]/30 pointer-events-none hidden md:block" />
 
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
+              transition={{ delay: 0.1, duration: 0.6 }}
             >
               <Leaderboard />
             </motion.div>
           </div>
         </main>
 
-        <footer className="border-t border-white/5 bg-[#020617]/80 backdrop-blur-xl py-16">
+        <footer className="border-t border-white/5 bg-[#020617]/80 backdrop-blur-xl py-8">
           <div className="container mx-auto px-8 text-center">
-            <div className="flex justify-center items-center gap-12 mb-10 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
+            <div className="flex justify-center items-center gap-8 mb-4 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
               <Image
                 src="/assets/images/logos/cloud9-logo.png"
                 alt="C9"
-                width={80}
-                height={25}
+                width={60}
+                height={20}
                 style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/assets/images/logos/jetbrains-logo.png"
                 alt="JB"
-                width={80}
-                height={25}
+                width={60}
+                height={20}
                 style={{ width: "auto", height: "auto" }}
               />
             </div>
-            <p className="text-slate-500 text-sm font-medium uppercase tracking-[0.3em] mb-4">
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-[0.3em]">
               © 2026 Cloud9 x JetBrains Hackathon
             </p>
           </div>
