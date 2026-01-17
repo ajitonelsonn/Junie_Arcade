@@ -1,6 +1,5 @@
 'use client'
 
-import { m } from 'framer-motion'
 import * as Flags from 'country-flag-icons/react/3x2'
 
 interface FlagIconProps {
@@ -22,18 +21,12 @@ export default function FlagIcon({ code, className = "w-6 h-4", animate = true }
     )
   }
 
-  if (!animate) {
-    return <Flag className={`${className} rounded-sm object-cover shadow-sm`} />
-  }
-
+  // Use CSS animations instead of framer-motion to avoid LazyMotion conflicts
   return (
-    <m.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.1 }}
-      className="inline-block"
+    <div
+      className={`inline-block ${animate ? 'animate-flag-in hover:scale-110' : ''} transition-transform duration-200`}
     >
       <Flag className={`${className} rounded-sm object-cover shadow-sm`} />
-    </m.div>
+    </div>
   )
 }
