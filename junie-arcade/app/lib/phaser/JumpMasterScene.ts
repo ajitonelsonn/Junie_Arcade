@@ -103,7 +103,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.player = this.physics.add.sprite(
       150,
       this.scale.height - 200,
-      "junie-run-1"
+      "junie-run-1",
     );
     this.player.setScale(0.35);
 
@@ -121,11 +121,11 @@ export default class JumpMasterScene extends Phaser.Scene {
     if (this.player.body) {
       this.player.body.setSize(
         this.player.width * 0.7,
-        this.player.height * 0.8
+        this.player.height * 0.8,
       );
       this.player.body.setOffset(
         this.player.width * 0.15,
-        this.player.height * 0.1
+        this.player.height * 0.1,
       );
     }
 
@@ -138,7 +138,7 @@ export default class JumpMasterScene extends Phaser.Scene {
       this.obstacles,
       this.endGame,
       undefined,
-      this
+      this,
     );
     this.physics.add.overlap(
       this.player,
@@ -154,7 +154,7 @@ export default class JumpMasterScene extends Phaser.Scene {
         collectible.destroy();
       },
       undefined,
-      this
+      this,
     );
 
     // UI - Score
@@ -197,7 +197,7 @@ export default class JumpMasterScene extends Phaser.Scene {
       const junieIcon = this.add.image(
         jumpIndicatorStartX + i * jumpIndicatorSpacing,
         jumpIndicatorY,
-        "junie-jump"
+        "junie-jump",
       );
       junieIcon.setScale(0.08);
       junieIcon.setAlpha(1);
@@ -217,7 +217,7 @@ export default class JumpMasterScene extends Phaser.Scene {
           stroke: "#000000",
           strokeThickness: 4,
           align: "center",
-        }
+        },
       )
       .setOrigin(0.5)
       .setDepth(100);
@@ -495,7 +495,7 @@ export default class JumpMasterScene extends Phaser.Scene {
         this.player.y + 20,
         15,
         0x00ffff,
-        0.6
+        0.6,
       );
       this.tweens.add({
         targets: jumpEffect,
@@ -513,7 +513,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     const obstacle = this.obstacles.create(
       this.scale.width + 50,
       this.scale.height - 125,
-      "bug"
+      "bug",
     ) as any;
 
     obstacle.setScale(0.13);
@@ -528,13 +528,13 @@ export default class JumpMasterScene extends Phaser.Scene {
           const obstacle2 = this.obstacles.create(
             this.scale.width + 50,
             this.scale.height - 125,
-            "bug"
+            "bug",
           ) as any;
           obstacle2.setScale(0.13);
           if (obstacle2.body) {
             obstacle2.body.setSize(
               obstacle2.width * 0.65,
-              obstacle2.height * 0.65
+              obstacle2.height * 0.65,
             );
           }
         }
@@ -548,13 +548,13 @@ export default class JumpMasterScene extends Phaser.Scene {
     const type = Math.random() > 0.6 ? "cloud9" : "coin";
     const y = Phaser.Math.Between(
       this.scale.height - 380,
-      this.scale.height - 200
+      this.scale.height - 200,
     );
 
     const collectible = this.collectibles.create(
       this.scale.width + 50,
       y,
-      type
+      type,
     ) as any;
 
     collectible.setScale(0.2).setData("type", type);
@@ -562,7 +562,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     if (collectible.body) {
       collectible.body.setSize(
         collectible.width * 1.3,
-        collectible.height * 1.3
+        collectible.height * 1.3,
       );
     }
 
@@ -572,7 +572,7 @@ export default class JumpMasterScene extends Phaser.Scene {
           const followUp = this.collectibles.create(
             this.scale.width + 50,
             y + Phaser.Math.Between(-80, 80),
-            type
+            type,
           ) as any;
           followUp.setScale(0.2).setData("type", type);
           if (followUp.body) {
@@ -619,7 +619,7 @@ export default class JumpMasterScene extends Phaser.Scene {
           stroke: "#000000",
           strokeThickness: 8,
           align: "center",
-        }
+        },
       )
       .setOrigin(0.5);
 
@@ -672,7 +672,7 @@ export default class JumpMasterScene extends Phaser.Scene {
           align: "center",
           stroke: "#000000",
           strokeThickness: 6,
-        }
+        },
       )
       .setOrigin(0.5)
       .setAlpha(0);
@@ -721,7 +721,7 @@ export default class JumpMasterScene extends Phaser.Scene {
           align: "center",
           stroke: "#000000",
           strokeThickness: 6,
-        }
+        },
       )
       .setOrigin(0.5)
       .setAlpha(0);

@@ -17,7 +17,7 @@ interface GameOverCardProps {
     value: string | number
     color?: string
   }[]
-  onSaveScore: () => void
+  onSaveScore: () => void | Promise<void>
   isSaving: boolean
 }
 
@@ -86,14 +86,6 @@ export default function GameOverCard({
   }, [])
 
   useEffect(() => {
-    // Auto-save score to database when game is over
-    if (!hasAutoSaved) {
-      onSaveScore()
-      setHasAutoSaved(true)
-    }
-  }, [hasAutoSaved, onSaveScore])
-
-  useEffect(() => {
     const fetchCountries = async () => {
       try {
         const response = await fetch('/api/countries')
@@ -104,9 +96,26 @@ export default function GameOverCard({
       }
     }
     fetchCountries()
+  }, [])
 
-    // Fetch all rankings for the current player
-    const fetchRankings = async () => {
+  // Auto-save score and then fetch rankings
+  useEffect(() => {
+    const saveAndFetchRankings = async () => {
+      if (hasAutoSaved) return
+
+      // First, save the score
+      try {
+        await onSaveScore()
+      } catch (error) {
+        console.error('Failed to save score:', error)
+      }
+
+      setHasAutoSaved(true)
+
+      // Wait a bit for the database to update
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Then fetch rankings
       const playerId = localStorage.getItem('junie_player_id')
       if (playerId) {
         try {
@@ -126,8 +135,9 @@ export default function GameOverCard({
         }
       }
     }
-    fetchRankings()
-  }, [hasAutoSaved])
+
+    saveAndFetchRankings()
+  }, [hasAutoSaved, onSaveScore])
 
   // Auto-start camera with 5-second countdown when game over card appears
   useEffect(() => {
