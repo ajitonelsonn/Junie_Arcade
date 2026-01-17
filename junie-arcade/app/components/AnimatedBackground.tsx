@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const heroImages = [
@@ -43,7 +43,7 @@ export default function AnimatedBackground() {
       {/* Animated Orbs - reduced on mobile */}
       {!isMobile && (
         <>
-          <motion.div
+          <m.div
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.3, 0.5, 0.3],
@@ -54,7 +54,7 @@ export default function AnimatedBackground() {
             style={{ willChange: "transform" }}
             className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px]"
           />
-          <motion.div
+          <m.div
             animate={{
               scale: [1.2, 1, 1.2],
               opacity: [0.3, 0.4, 0.3],
@@ -70,7 +70,7 @@ export default function AnimatedBackground() {
 
       {/* Single orb on mobile for performance */}
       {isMobile && (
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.2, 0.3, 0.2],
@@ -84,7 +84,7 @@ export default function AnimatedBackground() {
       {!isMobile && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
           {heroImages.map((img, i) => (
-            <motion.div
+            <m.div
               key={i}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{
@@ -127,7 +127,7 @@ export default function AnimatedBackground() {
                 quality={60}
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
-            </motion.div>
+            </m.div>
           ))}
         </div>
       )}

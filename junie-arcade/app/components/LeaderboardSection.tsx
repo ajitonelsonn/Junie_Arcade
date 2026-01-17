@@ -1,12 +1,12 @@
 'use client';
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Leaderboard from "./Leaderboard";
 
 export default function LeaderboardSection() {
   return (
     <div className="max-w-4xl mx-auto">
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
@@ -40,7 +40,7 @@ export default function LeaderboardSection() {
         </div>
 
         <Leaderboard />
-      </motion.div>
+      </m.div>
     </div>
   );
 }

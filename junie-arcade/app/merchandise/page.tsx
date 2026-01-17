@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import Navigation from "../components/Navigation";
 import AnimatedBackground from "../components/AnimatedBackground";
 
@@ -24,6 +24,7 @@ export default function MerchandisePage() {
   ];
 
   return (
+    <LazyMotion features={domAnimation} strict>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
       <AnimatedBackground />
 
@@ -31,7 +32,7 @@ export default function MerchandisePage() {
         <Navigation />
 
         <main className="container mx-auto px-8 py-20">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto mb-20"
@@ -47,11 +48,11 @@ export default function MerchandisePage() {
               <span className="text-white">Timor-Leste</span>. Exclusively
               available for our top competitors at the GDC Event.
             </p>
-          </motion.div>
+          </m.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto mb-24">
             {merchandise.map((item, index) => (
-              <motion.div
+              <m.div
                 key={item.name}
                 initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -80,11 +81,11 @@ export default function MerchandisePage() {
                     </p>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -119,7 +120,7 @@ export default function MerchandisePage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </main>
 
         <footer className="border-t border-white/5 bg-[#020617]/80 backdrop-blur-xl py-16">
@@ -132,5 +133,6 @@ export default function MerchandisePage() {
         </footer>
       </div>
     </div>
+    </LazyMotion>
   );
 }

@@ -3,7 +3,7 @@
 import Leaderboard from "../components/Leaderboard";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 
 export default function LeaderboardPage() {
   const heroImages = [
@@ -18,6 +18,7 @@ export default function LeaderboardPage() {
   ];
 
   return (
+    <LazyMotion features={domAnimation} strict>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
       {/* Dynamic Background - Consistent with Home and Gallery */}
       <div className="fixed inset-0 z-0">
@@ -25,7 +26,7 @@ export default function LeaderboardPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
 
         {/* Animated Orbs */}
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -35,7 +36,7 @@ export default function LeaderboardPage() {
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.3, 0.4, 0.3],
@@ -49,7 +50,7 @@ export default function LeaderboardPage() {
         {/* Floating Hero Characters - Subtle decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 hidden lg:block">
           {heroImages.slice(0, 4).map((img, i) => (
-            <motion.div
+            <m.div
               key={i}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{
@@ -76,7 +77,7 @@ export default function LeaderboardPage() {
                 quality={50}
                 className="object-contain filter grayscale brightness-110 contrast-125"
               />
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>
@@ -135,7 +136,7 @@ export default function LeaderboardPage() {
 
         {/* Header Section - Compact for better leaderboard visibility */}
         <header className="px-8 pt-6 pb-4 text-center max-w-5xl mx-auto relative">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -163,7 +164,7 @@ export default function LeaderboardPage() {
               Top performers of the{" "}
               <span className="text-[#ff4655]">Junie Arcade Protocol</span>
             </p>
-          </motion.div>
+          </m.div>
         </header>
 
         {/* Main Content */}
@@ -173,13 +174,13 @@ export default function LeaderboardPage() {
             <div className="absolute -top-6 -left-6 w-12 h-12 border-l-2 border-t-2 border-[#ff4655]/30 pointer-events-none hidden md:block" />
             <div className="absolute -bottom-6 -right-6 w-12 h-12 border-r-2 border-b-2 border-[#ff4655]/30 pointer-events-none hidden md:block" />
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6 }}
             >
               <Leaderboard />
-            </motion.div>
+            </m.div>
           </div>
         </main>
 
@@ -208,5 +209,6 @@ export default function LeaderboardPage() {
         </footer>
       </div>
     </div>
+    </LazyMotion>
   );
 }

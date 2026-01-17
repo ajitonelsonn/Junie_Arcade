@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import * as Flags from 'country-flag-icons/react/3x2'
 
 interface FlagIconProps {
@@ -27,13 +27,13 @@ export default function FlagIcon({ code, className = "w-6 h-4", animate = true }
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.1 }}
       className="inline-block"
     >
       <Flag className={`${className} rounded-sm object-cover shadow-sm`} />
-    </motion.div>
+    </m.div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import FlagIcon from './FlagIcon'
 import GameOverCard from './GameOverCard'
@@ -84,6 +84,14 @@ export default function Leaderboard() {
 
       const response = await fetch(`/api/leaderboard?view=${activeTab}${playerId ? `&playerId=${playerId}` : ''}`)
       const data = await response.json()
+
+      // Check for API errors or missing data
+      if (data.error || !data.leaderboard || !Array.isArray(data.leaderboard)) {
+        console.error('Leaderboard API error:', data.error || 'Invalid response structure')
+        setEntries([])
+        setLoading(false)
+        return
+      }
 
       // Transform data based on view type
       if (activeTab === 'overall') {
@@ -232,7 +240,7 @@ export default function Leaderboard() {
     <div className="flex flex-col gap-8 relative">
       {/* Decorative Floating Mascot */}
       <div className="absolute -top-24 -right-12 w-32 h-32 pointer-events-none z-20 hidden lg:block">
-        <motion.div
+        <m.div
           animate={{ 
             y: [0, -15, 0],
             rotate: [0, 10, -10, 0],
@@ -247,11 +255,11 @@ export default function Leaderboard() {
             height={128} 
             className="object-contain drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]"
           />
-        </motion.div>
+        </m.div>
       </div>
 
       <div className="absolute -bottom-12 -left-12 w-28 h-28 pointer-events-none z-20 hidden lg:block opacity-60">
-        <motion.div
+        <m.div
           animate={{ 
             y: [0, 10, 0],
             rotate: [-5, 5, -5]
@@ -265,7 +273,7 @@ export default function Leaderboard() {
             height={112} 
             className="object-contain"
           />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Tab Navigation - Valorant Style */}
@@ -301,7 +309,7 @@ export default function Leaderboard() {
 
               {/* Bottom Active Indicator */}
               {activeTab === tab.id && (
-                <motion.div 
+                <m.div 
                   layoutId="activeTab"
                   className="absolute bottom-0 left-2 right-6 h-1 bg-[#ff4655] skew-x-[-12deg]"
                 />
@@ -360,12 +368,12 @@ export default function Leaderboard() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 space-y-6">
               <div className="relative w-16 h-16">
-                <motion.div
+                <m.div
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
                   className="absolute inset-0 border-t-2 border-[#ff4655] rounded-full"
                 />
-                <motion.div
+                <m.div
                   animate={{ rotate: -360 }}
                   transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
                   className="absolute inset-2 border-b-2 border-cyan-400 rounded-full"
@@ -379,7 +387,7 @@ export default function Leaderboard() {
                 {entries.map((entry, index) => {
                   const style = getRankStyle(entry.rank)
                   return (
-                    <motion.div
+                    <m.div
                       layout
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -503,7 +511,7 @@ export default function Leaderboard() {
                           </div>
                         )}
                       </div>
-                    </motion.div>
+                    </m.div>
                   )
                 })}
               </AnimatePresence>
