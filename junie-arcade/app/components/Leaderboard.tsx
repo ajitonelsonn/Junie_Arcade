@@ -28,7 +28,19 @@ interface LeaderboardEntry {
   memoryScore?: number | null
 }
 
-export default function Leaderboard() {
+export interface NewChampionData {
+  username: string
+  rank: number
+  score: number
+  country?: string | null
+  countryCode?: string | null
+}
+
+interface LeaderboardProps {
+  onNewChampion?: (champion: NewChampionData) => void
+}
+
+export default function Leaderboard({ onNewChampion }: LeaderboardProps = {}) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overall' | 'reflex' | 'jump' | 'memory'>('overall')
@@ -55,9 +67,11 @@ export default function Leaderboard() {
       try {
         const response = await fetch('/api/countries')
         const data = await response.json()
-        setCountries(data)
+        // Ensure we always set an array
+        setCountries(Array.isArray(data) ? data : [])
       } catch (error) {
         console.error('Failed to fetch countries:', error)
+        setCountries([])
       }
     }
     fetchCountries()
@@ -81,11 +95,11 @@ export default function Leaderboard() {
   // Detect new top 3 entries and trigger celebration
   useEffect(() => {
     // Only check for celebrations on the overall tab
-    if (activeTab !== 'overall' || entries.length === 0) return;
+    // Add defensive check to ensure entries is a valid array
+    if (activeTab !== 'overall' || !Array.isArray(entries) || entries.length === 0) return;
 
-    const currentTop3 = entries
-      .filter(e => e.rank <= 3)
-      .map(e => e.username);
+    const currentTop3Entries = entries.filter(e => e.rank <= 3);
+    const currentTop3 = currentTop3Entries.map(e => e.username);
 
     // Skip celebration on first load (no previous data to compare)
     if (isFirstLoad.current) {
@@ -102,6 +116,25 @@ export default function Leaderboard() {
 
     if (newEntrants.length > 0) {
       setCelebratingUsernames(newEntrants);
+
+      // Notify parent about the highest-ranked new champion
+      if (onNewChampion) {
+        // Find the entry with the best (lowest) rank among new entrants
+        const bestNewChampion = currentTop3Entries
+          .filter(e => newEntrants.includes(e.username))
+          .sort((a, b) => a.rank - b.rank)[0];
+
+        if (bestNewChampion) {
+          onNewChampion({
+            username: bestNewChampion.username,
+            rank: bestNewChampion.rank,
+            score: bestNewChampion.score,
+            country: bestNewChampion.country,
+            countryCode: getCountryCode(bestNewChampion.country),
+          });
+        }
+      }
+
       // Clear celebration after 3.5 seconds
       const timer = setTimeout(() => {
         setCelebratingUsernames([]);
@@ -182,6 +215,8 @@ export default function Leaderboard() {
     if (!countryName) return null
     // If it's already a 2-character code, return it
     if (countryName.length === 2) return countryName.toUpperCase()
+    // Defensive check to ensure countries is an array before calling find
+    if (!Array.isArray(countries)) return null
     const country = countries.find(c => c.name === countryName)
     return country?.code || null
   }

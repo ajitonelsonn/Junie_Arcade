@@ -1,11 +1,22 @@
 "use client";
 
-import Leaderboard from "../components/Leaderboard";
+import { useState, useCallback } from "react";
+import Leaderboard, { NewChampionData } from "../components/Leaderboard";
+import NewChampionAnnouncement from "../components/NewChampionAnnouncement";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 
 export default function LeaderboardPage() {
+  const [newChampion, setNewChampion] = useState<NewChampionData | null>(null);
+
+  const handleNewChampion = useCallback((champion: NewChampionData) => {
+    setNewChampion(champion);
+  }, []);
+
+  const handleAnnouncementComplete = useCallback(() => {
+    setNewChampion(null);
+  }, []);
   const heroImages = [
     "/assets/images/hero/Jinx_Render.webp",
     "/assets/images/hero/Yasuo_Render.webp",
@@ -20,6 +31,11 @@ export default function LeaderboardPage() {
   return (
     <LazyMotion features={domAnimation} strict>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
+      {/* New Champion Announcement Overlay */}
+      <NewChampionAnnouncement
+        champion={newChampion}
+        onComplete={handleAnnouncementComplete}
+      />
       {/* Dynamic Background - Consistent with Home and Gallery */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/lol_.webp')] opacity-20 bg-cover bg-center mix-blend-overlay" />
@@ -179,7 +195,7 @@ export default function LeaderboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6 }}
             >
-              <Leaderboard />
+              <Leaderboard onNewChampion={handleNewChampion} />
             </m.div>
           </div>
         </main>

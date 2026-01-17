@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import FlagIcon from './FlagIcon'
@@ -1057,7 +1057,7 @@ export default function GameOverCard({
 
   return (
     <>
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-4xl mx-auto"
@@ -1071,7 +1071,7 @@ export default function GameOverCard({
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <AnimatePresence mode="wait">
             {selectedHero && selectedHero.length > 0 && (
-              <motion.img 
+              <m.img 
                 key={selectedHero}
                 initial={{ opacity: 0, scale: 1.1 }}
                 animate={{ opacity: 0.12, scale: 1 }}
@@ -1085,7 +1085,7 @@ export default function GameOverCard({
           </AnimatePresence>
           <AnimatePresence mode="wait">
             {selectedJunie && selectedJunie.length > 0 && (
-              <motion.img 
+              <m.img 
                 key={selectedJunie}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 0.15, x: 0 }}
@@ -1110,7 +1110,7 @@ export default function GameOverCard({
           <div className={`absolute inset-0 bg-gradient-to-r ${getGameColor()} opacity-5`} />
           
           <div className="relative z-10 flex items-center gap-6 mb-4 md:mb-0">
-            <motion.div 
+            <m.div 
               initial={{ rotate: -10, scale: 0.8 }}
               animate={{ rotate: 0, scale: 1 }}
               className="w-24 h-24 relative drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
@@ -1129,7 +1129,7 @@ export default function GameOverCard({
               {/* Dynamic floating mascot next to title */}
               <AnimatePresence mode="wait">
                 {selectedJunie && selectedJunie.length > 0 && (
-                <motion.img
+                <m.img
                   key={selectedJunie}
                   initial={{ opacity: 0, scale: 0.5, x: 20 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -1140,7 +1140,7 @@ export default function GameOverCard({
                 />
                 )}
               </AnimatePresence>
-            </motion.div>
+            </m.div>
             <div>
               <h2 className="text-sm font-black text-[#ff4655] uppercase tracking-[0.3em] mb-1">Mission Accomplished</h2>
               <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase">{getGameTitle()}</h1>
@@ -1168,14 +1168,14 @@ export default function GameOverCard({
                       // Countdown display (auto start)
                       <div className="flex flex-col items-center">
                         <div className="w-32 h-32 rounded-full border-4 border-[#ff4655] flex items-center justify-center mb-4 bg-[#ff4655]/10 relative">
-                          <motion.span
+                          <m.span
                             key={countdown}
                             initial={{ scale: 1.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className="text-7xl font-black text-[#ff4655]"
                           >
                             {countdown}
-                          </motion.span>
+                          </m.span>
                           <div className="absolute inset-0 rounded-full border-4 border-[#ff4655] animate-ping opacity-20" />
                         </div>
                         <h3 className="text-white font-black uppercase tracking-wider mb-2">Camera Starting...</h3>
@@ -1189,7 +1189,7 @@ export default function GameOverCard({
                         </div>
                         <h3 className="text-white font-black uppercase tracking-wider mb-2">Access Granted</h3>
                         <p className="text-slate-500 text-xs mb-6">Capture your victory pose to immortalize this moment in the arena.</p>
-                        <motion.button
+                        <m.button
                           onClick={startCamera}
                           data-export-hide="true"
                           whileHover={{ scale: 1.05 }}
@@ -1197,7 +1197,7 @@ export default function GameOverCard({
                           className="px-6 py-3 bg-[#ff4655] text-white font-black uppercase tracking-widest text-xs skew-x-[-10deg]"
                         >
                           <span className="inline-block skew-x-[10deg]">Initiate Capture</span>
-                        </motion.button>
+                        </m.button>
                       </>
                     )}
                   </div>
@@ -1213,7 +1213,7 @@ export default function GameOverCard({
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f1923] via-transparent to-transparent opacity-60" />
                     {!uploadedUrl && (
                       <div data-export-hide="true" className="absolute top-4 right-4 z-10">
-                        <motion.button
+                        <m.button
                           onClick={async () => {
                             setSelfieData(null);
                             await startCamera();
@@ -1223,7 +1223,7 @@ export default function GameOverCard({
                           className="group px-4 py-2 bg-white hover:bg-white/90 text-black text-xs font-black uppercase tracking-wider backdrop-blur-xl transition-all rounded-full shadow-[0_0_20px_rgba(255,255,255,0.3)] border border-white/50"
                         >
                           <span className="group-hover:tracking-widest transition-all">Retake</span>
-                        </motion.button>
+                        </m.button>
                       </div>
                     )}
                   </div>
@@ -1233,7 +1233,7 @@ export default function GameOverCard({
               {/* Camera Modal Overlay */}
               <AnimatePresence>
                 {showCamera && (
-                  <motion.div 
+                  <m.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -1258,7 +1258,7 @@ export default function GameOverCard({
                             <div className="absolute bottom-0 left-0 right-0 pb-24 z-50">
                               <div className="flex flex-col items-center">
                                 <div className="w-32 h-32 rounded-full border-4 border-[#ff4655] flex items-center justify-center mb-3 bg-[#ff4655]/10 relative backdrop-blur-sm">
-                                  <motion.span
+                                  <m.span
                                     key={captureCountdown}
                                     initial={{ scale: 1.5, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
@@ -1266,7 +1266,7 @@ export default function GameOverCard({
                                     className="text-7xl font-black text-[#ff4655]"
                                   >
                                     {captureCountdown}
-                                  </motion.span>
+                                  </m.span>
                                   <div className="absolute inset-0 rounded-full border-4 border-[#ff4655] animate-ping opacity-20" />
                                 </div>
                                 <div className="bg-black/80 backdrop-blur-md px-6 py-2 rounded-full">
@@ -1332,7 +1332,7 @@ export default function GameOverCard({
                         </div>
                       )}
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
               
@@ -1397,7 +1397,7 @@ export default function GameOverCard({
 
               <div className="grid grid-cols-2 gap-4">
                 {stats.map((stat, index) => (
-                  <motion.div
+                  <m.div
                     key={index}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -1411,7 +1411,7 @@ export default function GameOverCard({
                     <div className={`text-2xl font-black italic tracking-tighter ${stat.color || 'text-white'}`}>
                       {stat.value}
                     </div>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
 
@@ -1533,7 +1533,7 @@ export default function GameOverCard({
                   </div>
                 </div>
 
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex flex-col sm:flex-row items-center gap-6 bg-black/40 p-6 border border-white/5"
@@ -1559,7 +1559,7 @@ export default function GameOverCard({
                       {uploadedUrl ? 'Copy Access URL' : 'Save Card to Generate URL'}
                     </button>
                   </div>
-                </motion.div>
+                </m.div>
               </div>
             </div>
 
@@ -1585,11 +1585,11 @@ export default function GameOverCard({
           <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em]">System Stable // {new Date().getFullYear()}</span>
         </div>
       </div>
-    </motion.div>
+    </m.div>
 
     <AnimatePresence>
       {showExitModal && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -1597,7 +1597,7 @@ export default function GameOverCard({
         >
           <div className="max-w-md w-full text-center">
             {isCalculating ? (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="relative"
@@ -1608,21 +1608,21 @@ export default function GameOverCard({
                 <div className="relative space-y-10 py-12">
                   <div className="relative w-32 h-32 mx-auto">
                     {/* Outer Rotating Ring */}
-                    <motion.div
+                    <m.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                       className="absolute inset-0 border-t-2 border-b-2 border-l-2 border-transparent border-t-emerald-500/50 border-b-cyan-500/50 rounded-full"
                     />
                     
                     {/* Inner Faster Rotating Ring */}
-                    <motion.div
+                    <m.div
                       animate={{ rotate: -360 }}
                       transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                       className="absolute inset-4 border-r-2 border-l-2 border-transparent border-r-emerald-400 border-l-cyan-400 rounded-full"
                     />
                     
                     {/* Pulsing Core */}
-                    <motion.div
+                    <m.div
                       animate={{ 
                         scale: [0.9, 1.1, 0.9],
                         opacity: [0.5, 1, 0.5]
@@ -1631,20 +1631,20 @@ export default function GameOverCard({
                       className="absolute inset-8 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.5)] flex items-center justify-center text-3xl"
                     >
                       📊
-                    </motion.div>
+                    </m.div>
                   </div>
 
                   <div className="space-y-4">
-                    <motion.h3 
+                    <m.h3 
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.2 }}
                       className="text-4xl font-black text-white uppercase tracking-tighter italic"
                     >
                       Analyzing <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Results</span>
-                    </motion.h3>
+                    </m.h3>
                     
-                    <motion.div
+                    <m.div
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.4 }}
@@ -1655,7 +1655,7 @@ export default function GameOverCard({
                       </p>
                       <div className="flex gap-1">
                         {[0, 1, 2].map((i) => (
-                          <motion.div
+                          <m.div
                             key={i}
                             animate={{ 
                               scale: [1, 1.5, 1],
@@ -1670,16 +1670,16 @@ export default function GameOverCard({
                           />
                         ))}
                       </div>
-                    </motion.div>
+                    </m.div>
                   </div>
 
                   {/* Cyberpunk Decorative Lines */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-b from-emerald-500/0 to-emerald-500/50" />
                   <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-t from-cyan-500/0 to-cyan-500/50" />
                 </div>
-              </motion.div>
+              </m.div>
             ) : (
-              <motion.div
+              <m.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="bg-[#0f1923] border border-white/10 p-10 relative overflow-hidden"
@@ -1721,10 +1721,10 @@ export default function GameOverCard({
                 >
                   [ Close and Return ]
                 </button>
-              </motion.div>
+              </m.div>
             )}
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
     </>
