@@ -1109,13 +1109,13 @@ export default function GameOverCard({
     <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="max-w-4xl mx-auto"
+      className="w-full max-w-4xl mx-auto px-2 sm:px-4"
     >
       <div
         ref={cardRef}
         data-card-clone="true"
-        className="bg-gradient-to-br from-[#0a0e13] via-[#0f1923] to-[#0a0e13] border border-white/10 shadow-2xl overflow-hidden relative"
-        style={{ boxShadow: `0 0 60px ${theme.glow}, 0 0 100px ${theme.glow}` }}
+        className="bg-gradient-to-br from-[#0a0e13] via-[#0f1923] to-[#0a0e13] border border-white/10 shadow-2xl overflow-hidden relative text-sm sm:text-base"
+        style={{ boxShadow: `0 0 40px ${theme.glow}, 0 0 60px ${theme.glow}` }}
       >
         {/* VALORANT-Style Angular Top Accent */}
         <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden">
@@ -1198,14 +1198,14 @@ export default function GameOverCard({
           <div className={`absolute bottom-0 right-0 h-full w-[2px] bg-gradient-to-t from-[${theme.primary}] to-transparent`} />
         </div>
 
-        {/* Floating Protocol Text */}
-        <div className="absolute top-3 right-4 opacity-20 pointer-events-none flex items-center gap-3">
-          <div className="h-px w-12 bg-white/40" />
-          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60">JUNIE ARCADE // 2026</div>
+        {/* Floating Protocol Text - Hidden on very small screens */}
+        <div className="absolute top-2 sm:top-3 right-2 sm:right-4 opacity-20 pointer-events-none hidden xs:flex items-center gap-2 sm:gap-3">
+          <div className="h-px w-8 sm:w-12 bg-white/40" />
+          <div className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white/60">JUNIE ARCADE // 2026</div>
         </div>
 
         {/* Header with Game Branding - VALORANT/LoL Style */}
-        <div data-card-header="true" className="relative p-6 md:p-8 border-b border-white/10 overflow-hidden">
+        <div data-card-header="true" className="relative p-4 sm:p-6 md:p-8 border-b border-white/10 overflow-hidden">
           {/* Angular Background Gradient */}
           <div className={`absolute inset-0 bg-gradient-to-br ${theme.darkGradient}`} />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent" />
@@ -1218,9 +1218,9 @@ export default function GameOverCard({
             className={`absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[${theme.primary}] to-transparent origin-left`}
           />
 
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
             {/* Left: Game Logo & Title */}
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3 sm:gap-5">
               <m.div
                 initial={{ rotate: -10, scale: 0.8 }}
                 animate={{ rotate: 0, scale: 1 }}
@@ -1228,7 +1228,7 @@ export default function GameOverCard({
               >
                 {/* Hexagonal Frame (LoL style) */}
                 <div
-                  className="w-20 h-20 md:w-24 md:h-24 relative flex items-center justify-center"
+                  className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 relative flex items-center justify-center"
                   style={{
                     clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                     background: `linear-gradient(135deg, ${theme.primary}20, transparent)`
@@ -1247,11 +1247,11 @@ export default function GameOverCard({
                         alt={getGameTitle()}
                         width={60}
                         height={60}
-                        className="object-contain"
+                        className="object-contain w-8 h-8 sm:w-12 sm:h-12 md:w-[60px] md:h-[60px]"
                         style={{ filter: `drop-shadow(0 0 10px ${theme.glow})` }}
                       />
                     ) : (
-                      <span className="text-5xl">🎮</span>
+                      <span className="text-3xl sm:text-5xl">🎮</span>
                     )}
                   </div>
                 </div>
@@ -1264,7 +1264,7 @@ export default function GameOverCard({
                       initial={{ opacity: 0, scale: 0.5, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.5 }}
-                      className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full overflow-hidden border-2 bg-black/80"
+                      className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-7 h-7 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 bg-black/80"
                       style={{ borderColor: theme.primary }}
                     >
                       <img
@@ -1279,16 +1279,16 @@ export default function GameOverCard({
 
               <div>
                 {/* Tagline Badge */}
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.primary }} />
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                  <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.primary }} />
                   <span
-                    className="text-[10px] font-black uppercase tracking-[0.25em]"
+                    className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.25em]"
                     style={{ color: theme.primary }}
                   >
                     {theme.tagline}
                   </span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
+                <h1 className="text-xl sm:text-3xl md:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
                   {getGameTitle()}
                 </h1>
               </div>
@@ -1296,9 +1296,9 @@ export default function GameOverCard({
 
             {/* Right: Score Display (VALORANT Match Score Style) */}
             <div className="text-center md:text-right">
-              <div className="flex items-center justify-center md:justify-end gap-2 mb-1">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Final Rating</span>
-                <div className="w-8 h-[1px] bg-white/20" />
+              <div className="flex items-center justify-center md:justify-end gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                <span className="text-[8px] sm:text-[10px] font-black text-white/40 uppercase tracking-[0.15em] sm:tracking-[0.2em]">Final Rating</span>
+                <div className="w-6 sm:w-8 h-[1px] bg-white/20" />
               </div>
               <m.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -1307,43 +1307,43 @@ export default function GameOverCard({
                 className="relative"
               >
                 <span
-                  className="text-5xl md:text-7xl font-black italic tracking-tighter"
+                  className="text-3xl sm:text-5xl md:text-7xl font-black italic tracking-tighter"
                   style={{
                     color: theme.primary,
-                    textShadow: `0 0 40px ${theme.glow}, 0 0 80px ${theme.glow}`
+                    textShadow: `0 0 30px ${theme.glow}, 0 0 60px ${theme.glow}`
                   }}
                 >
                   {score.toLocaleString()}
                 </span>
-                <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mt-1">Points</div>
+                <div className="text-[8px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] sm:tracking-[0.3em] mt-0.5 sm:mt-1">Points</div>
               </m.div>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 relative">
+        <div className="p-3 sm:p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8 relative">
           {/* Left Column: Player & Selfie (Agent Card Style) */}
-          <div className="lg:col-span-5 space-y-5">
+          <div className="lg:col-span-5 space-y-3 sm:space-y-5">
             <div className="relative group">
               {/* Selfie Container with Esports Frame */}
               <div
-                className="aspect-[4/5] bg-gradient-to-br from-slate-900 to-slate-950 border overflow-hidden relative"
+                className="aspect-[4/5] sm:aspect-[4/5] bg-gradient-to-br from-slate-900 to-slate-950 border overflow-hidden relative"
                 style={{ borderColor: `${theme.primary}30` }}
               >
                 {/* Corner Brackets */}
-                <div className="absolute top-2 left-2 w-6 h-6 border-l-2 border-t-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
-                <div className="absolute top-2 right-2 w-6 h-6 border-r-2 border-t-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
-                <div className="absolute bottom-2 left-2 w-6 h-6 border-l-2 border-b-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
-                <div className="absolute bottom-2 right-2 w-6 h-6 border-r-2 border-b-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
+                <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 w-4 h-4 sm:w-6 sm:h-6 border-l-2 border-t-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
+                <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 sm:w-6 sm:h-6 border-r-2 border-t-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
+                <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 w-4 h-4 sm:w-6 sm:h-6 border-l-2 border-b-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
+                <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 w-4 h-4 sm:w-6 sm:h-6 border-r-2 border-b-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
 
                 {!selfieData && !showCamera && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
                     {countdown !== null ? (
                       // Countdown display (auto start)
                       <div className="flex flex-col items-center">
                         <div
-                          className="w-28 h-28 md:w-32 md:h-32 flex items-center justify-center mb-4 relative"
+                          className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex items-center justify-center mb-3 sm:mb-4 relative"
                           style={{
                             clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                             background: `${theme.primary}20`
@@ -1353,7 +1353,7 @@ export default function GameOverCard({
                             key={countdown}
                             initial={{ scale: 1.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="text-6xl md:text-7xl font-black"
+                            className="text-4xl sm:text-6xl md:text-7xl font-black"
                             style={{ color: theme.primary }}
                           >
                             {countdown}
@@ -1368,29 +1368,29 @@ export default function GameOverCard({
                             }}
                           />
                         </div>
-                        <h3 className="text-white font-black uppercase tracking-wider mb-2">Initializing Camera...</h3>
-                        <p className="text-slate-400 text-xs">Prepare for victory capture!</p>
+                        <h3 className="text-white font-black uppercase tracking-wider mb-1 sm:mb-2 text-sm sm:text-base">Initializing Camera...</h3>
+                        <p className="text-slate-400 text-[10px] sm:text-xs">Prepare for victory capture!</p>
                       </div>
                     ) : (
                       // Default state (no countdown)
                       <>
                         <div
-                          className="w-20 h-20 flex items-center justify-center mb-4"
+                          className="w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center mb-3 sm:mb-4"
                           style={{
                             clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                             background: 'rgba(255,255,255,0.05)'
                           }}
                         >
-                          <span className="text-4xl">👤</span>
+                          <span className="text-2xl sm:text-4xl">👤</span>
                         </div>
-                        <h3 className="text-white font-black uppercase tracking-wider mb-2">Agent Profile</h3>
-                        <p className="text-slate-500 text-xs mb-6 max-w-[200px]">Capture your victory pose for the arena records.</p>
+                        <h3 className="text-white font-black uppercase tracking-wider mb-1 sm:mb-2 text-sm sm:text-base">Agent Profile</h3>
+                        <p className="text-slate-500 text-[10px] sm:text-xs mb-4 sm:mb-6 max-w-[180px] sm:max-w-[200px]">Capture your victory pose for the arena records.</p>
                         <m.button
                           onClick={startCamera}
                           data-export-hide="true"
                           whileHover={{ scale: 1.05, boxShadow: `0 0 30px ${theme.glow}` }}
                           whileTap={{ scale: 0.95 }}
-                          className="px-6 py-3 text-white font-black uppercase tracking-widest text-xs"
+                          className="px-4 py-2 sm:px-6 sm:py-3 text-white font-black uppercase tracking-widest text-[10px] sm:text-xs"
                           style={{
                             background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
                             clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
@@ -1547,17 +1547,17 @@ export default function GameOverCard({
               
               {/* Player Name Badge - Esports Style */}
               <div
-                className="absolute -bottom-3 -right-3 p-4 shadow-xl"
+                className="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 p-2 sm:p-4 shadow-xl"
                 style={{
                   background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
-                  clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)'
+                  clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)'
                 }}
               >
-                <div className="flex items-center gap-3">
-                  <FlagIcon code={getCountryCode()} className="w-9 h-6" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <FlagIcon code={getCountryCode()} className="w-6 h-4 sm:w-9 sm:h-6" />
                   <div>
-                    <div className="text-[9px] font-black text-black/50 uppercase tracking-widest leading-none mb-0.5">Champion</div>
-                    <div className="text-lg font-black text-white uppercase tracking-tight leading-tight drop-shadow-md">{username}</div>
+                    <div className="text-[7px] sm:text-[9px] font-black text-black/50 uppercase tracking-widest leading-none mb-0.5">Champion</div>
+                    <div className="text-sm sm:text-lg font-black text-white uppercase tracking-tight leading-tight drop-shadow-md">{username}</div>
                   </div>
                 </div>
               </div>
@@ -1565,14 +1565,14 @@ export default function GameOverCard({
 
             {/* Country Info Bar - Tactical Style */}
             <div
-              className="flex items-center justify-between py-3 px-4 border-l-2"
+              className="flex items-center justify-between py-2 px-3 sm:py-3 sm:px-4 border-l-2"
               style={{ borderColor: theme.primary, background: `${theme.primary}08` }}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className="w-1 h-1 rounded-full" style={{ backgroundColor: theme.primary }} />
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.15em]">Region</span>
+                <span className="text-[8px] sm:text-[10px] font-black text-white/40 uppercase tracking-[0.1em] sm:tracking-[0.15em]">Region</span>
               </div>
-              <span className="text-sm font-black text-white uppercase italic tracking-tight">{country}</span>
+              <span className="text-xs sm:text-sm font-black text-white uppercase italic tracking-tight">{country}</span>
             </div>
 
             {/* BIG Overall Rank Display - Only for Ultimate Champion card */}
@@ -1581,17 +1581,17 @@ export default function GameOverCard({
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3, type: 'spring' }}
-                className="relative p-6 text-center overflow-hidden"
+                className="relative p-4 sm:p-6 text-center overflow-hidden"
                 style={{
                   background: `linear-gradient(135deg, ${theme.primary}15, ${theme.primary}05)`,
                   border: `2px solid ${theme.primary}40`
                 }}
               >
                 {/* Corner Decorations */}
-                <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2" style={{ borderColor: theme.primary }} />
-                <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2" style={{ borderColor: theme.primary }} />
-                <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2" style={{ borderColor: theme.primary }} />
-                <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2" style={{ borderColor: theme.primary }} />
+                <div className="absolute top-0 left-0 w-3 h-3 sm:w-4 sm:h-4 border-l-2 border-t-2" style={{ borderColor: theme.primary }} />
+                <div className="absolute top-0 right-0 w-3 h-3 sm:w-4 sm:h-4 border-r-2 border-t-2" style={{ borderColor: theme.primary }} />
+                <div className="absolute bottom-0 left-0 w-3 h-3 sm:w-4 sm:h-4 border-l-2 border-b-2" style={{ borderColor: theme.primary }} />
+                <div className="absolute bottom-0 right-0 w-3 h-3 sm:w-4 sm:h-4 border-r-2 border-b-2" style={{ borderColor: theme.primary }} />
 
                 {/* Trophy for Top 3 */}
                 {allRanks.overall <= 3 && (
@@ -1599,13 +1599,13 @@ export default function GameOverCard({
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.5, type: 'spring' }}
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 text-4xl"
+                    className="absolute -top-2 sm:-top-3 left-1/2 -translate-x-1/2 text-2xl sm:text-4xl"
                   >
                     {allRanks.overall === 1 ? '🥇' : allRanks.overall === 2 ? '🥈' : '🥉'}
                   </m.div>
                 )}
 
-                <div className="text-[10px] font-black uppercase tracking-[0.3em] mb-2 mt-2" style={{ color: theme.primary }}>
+                <div className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2 mt-1 sm:mt-2" style={{ color: theme.primary }}>
                   Global Tournament Rank
                 </div>
 
@@ -1613,13 +1613,13 @@ export default function GameOverCard({
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.4, type: 'spring' }}
-                  className="text-7xl md:text-8xl font-black text-white italic tracking-tighter leading-none"
-                  style={{ textShadow: `0 0 40px ${theme.glow}, 0 0 80px ${theme.glow}` }}
+                  className="text-5xl sm:text-7xl md:text-8xl font-black text-white italic tracking-tighter leading-none"
+                  style={{ textShadow: `0 0 30px ${theme.glow}, 0 0 60px ${theme.glow}` }}
                 >
                   #{allRanks.overall}
                 </m.div>
 
-                <div className="text-[9px] font-bold text-white/40 uppercase tracking-wider mt-2">
+                <div className="text-[8px] sm:text-[9px] font-bold text-white/40 uppercase tracking-wider mt-1 sm:mt-2">
                   Out of all participants
                 </div>
 
@@ -1642,24 +1642,24 @@ export default function GameOverCard({
                 <m.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 text-center border"
+                  className="p-3 sm:p-4 text-center border"
                   style={{ borderColor: `${theme.primary}30`, background: `${theme.primary}08` }}
                 >
-                  <div className="flex items-center justify-center gap-3 mb-2">
+                  <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
                     <m.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-4 h-4 border-2 border-t-transparent rounded-full"
+                      className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-t-transparent rounded-full"
                       style={{ borderColor: theme.primary, borderTopColor: 'transparent' }}
                     />
-                    <p className="text-slate-400 text-xs font-medium">Syncing session progress...</p>
+                    <p className="text-slate-400 text-[10px] sm:text-xs font-medium">Syncing session progress...</p>
                   </div>
                   <button
                     onClick={() => {
                       setHasAutoSaved(false);
                       setTimeout(() => setHasAutoSaved(true), 100);
                     }}
-                    className="text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-opacity"
+                    className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-opacity"
                     style={{ color: theme.primary }}
                   >
                     Manual Sync
@@ -1669,7 +1669,7 @@ export default function GameOverCard({
 
               {/* Ranks Section - OVERALL card only (Tournament Summary Style) */}
               {allRanks && gameType === 'OVERALL' && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                   {[
                     { label: 'Overall', val: allRanks.overall, color: '#10b981', icon: '🏆' },
                     { label: 'Reflex', val: allRanks.reflex, color: '#ff4655', icon: '⚡' },
@@ -1681,30 +1681,30 @@ export default function GameOverCard({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className="relative p-3 text-center overflow-hidden"
+                      className="relative p-2 sm:p-3 text-center overflow-hidden"
                       style={{
                         background: `linear-gradient(135deg, ${rank.color}15, transparent)`,
                         borderLeft: `2px solid ${rank.color}`
                       }}
                     >
-                      <div className="absolute top-1 right-1 text-lg opacity-20">{rank.icon}</div>
-                      <div className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: rank.color }}>
+                      <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 text-sm sm:text-lg opacity-20">{rank.icon}</div>
+                      <div className="text-[7px] sm:text-[9px] font-black uppercase tracking-widest mb-0.5 sm:mb-1" style={{ color: rank.color }}>
                         {rank.label}
                       </div>
-                      <div className="text-xl font-black text-white italic">#{rank.val || '--'}</div>
+                      <div className="text-base sm:text-xl font-black text-white italic">#{rank.val || '--'}</div>
                     </m.div>
                   ))}
                 </div>
               )}
 
               {/* Stats Grid - Match Statistics Style */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1.5 h-1.5" style={{ backgroundColor: theme.primary }} />
-                  <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Match Statistics</span>
+              <div className="space-y-1.5 sm:space-y-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                  <div className="w-1 h-1 sm:w-1.5 sm:h-1.5" style={{ backgroundColor: theme.primary }} />
+                  <span className="text-[8px] sm:text-[10px] font-black text-white/50 uppercase tracking-[0.15em] sm:tracking-[0.2em]">Match Statistics</span>
                   <div className="flex-1 h-px bg-white/10" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   {stats
                     // For OVERALL card, filter out rank stats since they're shown in the ranks section above
                     .filter(stat => {
@@ -1720,7 +1720,7 @@ export default function GameOverCard({
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.1 * index }}
-                      className="relative p-4 overflow-hidden group transition-all hover:scale-[1.02]"
+                      className="relative p-2.5 sm:p-4 overflow-hidden group transition-all hover:scale-[1.02]"
                       style={{
                         background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))',
                         borderLeft: `2px solid ${theme.primary}60`
@@ -1728,13 +1728,13 @@ export default function GameOverCard({
                     >
                       {/* Index Badge */}
                       <div
-                        className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center text-[10px] font-black opacity-20"
+                        className="absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-[8px] sm:text-[10px] font-black opacity-20"
                         style={{ background: `linear-gradient(135deg, ${theme.primary}30, transparent)` }}
                       >
                         {String(index + 1).padStart(2, '0')}
                       </div>
-                      <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.15em] mb-1">{stat.label}</div>
-                      <div className={`text-xl md:text-2xl font-black italic tracking-tighter ${stat.color || 'text-white'}`}>
+                      <div className="text-[8px] sm:text-[10px] font-black text-white/40 uppercase tracking-[0.1em] sm:tracking-[0.15em] mb-0.5 sm:mb-1">{stat.label}</div>
+                      <div className={`text-base sm:text-xl md:text-2xl font-black italic tracking-tighter ${stat.color || 'text-white'}`}>
                         {stat.value}
                       </div>
                       {/* Hover Glow */}
@@ -1748,21 +1748,21 @@ export default function GameOverCard({
               </div>
 
             {/* Action Buttons - Esports Tournament Style */}
-            <div data-export-hide="true" className="space-y-3 pt-4">
+            <div data-export-hide="true" className="space-y-2 sm:space-y-3 pt-3 sm:pt-4">
               {isAllRanksLoading && (
                 <m.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="py-4 flex flex-col items-center justify-center border"
+                  className="py-3 sm:py-4 flex flex-col items-center justify-center border"
                   style={{ borderColor: `${theme.primary}30`, background: `${theme.primary}08` }}
                 >
                   <m.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-6 h-6 border-2 border-t-transparent rounded-full mb-2"
+                    className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-t-transparent rounded-full mb-1.5 sm:mb-2"
                     style={{ borderColor: theme.primary, borderTopColor: 'transparent' }}
                   />
-                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: theme.primary }}>
+                  <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest" style={{ color: theme.primary }}>
                     Identifying Next Mission...
                   </span>
                 </m.div>
@@ -1774,14 +1774,14 @@ export default function GameOverCard({
                   <m.div
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    className="relative overflow-hidden py-4 px-6 text-center group"
+                    className="relative overflow-hidden py-3 sm:py-4 px-4 sm:px-6 text-center group"
                     style={{
                       background: 'linear-gradient(135deg, #ffffff, #e0e0e0)',
-                      clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))'
+                      clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))'
                     }}
                   >
-                    <div className="relative z-10 flex items-center justify-center gap-3 font-black text-black uppercase tracking-[0.1em] text-sm">
-                      <span className="text-lg">▶</span>
+                    <div className="relative z-10 flex items-center justify-center gap-2 sm:gap-3 font-black text-black uppercase tracking-[0.05em] sm:tracking-[0.1em] text-xs sm:text-sm">
+                      <span className="text-base sm:text-lg">▶</span>
                       Continue to {nextGame.name}
                     </div>
                     <m.div
@@ -1798,15 +1798,15 @@ export default function GameOverCard({
                   onClick={handleGenerateLeaderboardCard}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full relative overflow-hidden py-4 px-6 group"
+                  className="w-full relative overflow-hidden py-3 sm:py-4 px-4 sm:px-6 group"
                   style={{
                     background: 'linear-gradient(135deg, #10b981, #06d6a0)',
-                    clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))',
+                    clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))',
                     boxShadow: '0 0 30px rgba(16, 185, 129, 0.3)'
                   }}
                 >
-                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.1em] text-sm">
-                    <span className="text-lg">🏆</span>
+                  <div className="relative z-10 flex items-center justify-center gap-2 sm:gap-3 font-black text-white uppercase tracking-[0.05em] sm:tracking-[0.1em] text-xs sm:text-sm">
+                    <span className="text-base sm:text-lg">🏆</span>
                     Generate Leaderboard Card
                   </div>
                 </m.button>
@@ -1818,11 +1818,12 @@ export default function GameOverCard({
                   onClick={handleExit}
                   whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.05)' }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full relative overflow-hidden py-3 px-6 border border-white/20 group transition-colors"
+                  className="w-full relative overflow-hidden py-2.5 sm:py-3 px-4 sm:px-6 border border-white/20 group transition-colors"
                 >
-                  <div className="relative z-10 flex items-center justify-center gap-2 font-black text-white/50 group-hover:text-white uppercase tracking-[0.1em] text-xs transition-colors">
+                  <div className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 font-black text-white/50 group-hover:text-white uppercase tracking-[0.05em] sm:tracking-[0.1em] text-[10px] sm:text-xs transition-colors">
                     <span>🚪</span>
-                    Exit & Generate Leaderboard Card
+                    <span className="hidden xs:inline">Exit & Generate Leaderboard Card</span>
+                    <span className="xs:hidden">Exit & Get Card</span>
                   </div>
                 </m.button>
               )}
@@ -1833,10 +1834,10 @@ export default function GameOverCard({
                   <m.div
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
-                    className="py-3 px-6 border-2 text-center transition-colors hover:bg-opacity-10"
+                    className="py-2.5 sm:py-3 px-4 sm:px-6 border-2 text-center transition-colors hover:bg-opacity-10"
                     style={{ borderColor: theme.primary, backgroundColor: `${theme.primary}10` }}
                   >
-                    <div className="flex items-center justify-center gap-2 font-black uppercase tracking-[0.1em] text-sm" style={{ color: theme.primary }}>
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 font-black uppercase tracking-[0.05em] sm:tracking-[0.1em] text-xs sm:text-sm" style={{ color: theme.primary }}>
                       <span>✕</span>
                       Exit to Home
                     </div>
@@ -1845,29 +1846,30 @@ export default function GameOverCard({
               )}
 
               {/* Save & Export Row */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <m.button
                   onClick={saveCardToS3}
                   disabled={isUploading || !!uploadedUrl}
                   whileHover={{ scale: isUploading || uploadedUrl ? 1 : 1.02 }}
                   whileTap={{ scale: isUploading || uploadedUrl ? 1 : 0.98 }}
-                  className="relative overflow-hidden py-3 px-4 disabled:opacity-60 group"
+                  className="relative overflow-hidden py-2.5 sm:py-3 px-3 sm:px-4 disabled:opacity-60 group"
                   style={{
                     background: uploadedUrl
                       ? 'linear-gradient(135deg, #10b981, #059669)'
                       : `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
-                    clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))'
+                    clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))'
                   }}
                 >
-                  <div className="relative z-10 flex items-center justify-center gap-2 font-black text-white uppercase tracking-[0.1em] text-xs">
+                  <div className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 font-black text-white uppercase tracking-[0.05em] sm:tracking-[0.1em] text-[10px] sm:text-xs">
                     {isUploading ? (
                       <>
                         <m.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                          className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full"
                         />
-                        Uploading...
+                        <span className="hidden xs:inline">Uploading...</span>
+                        <span className="xs:hidden">...</span>
                       </>
                     ) : uploadedUrl ? (
                       <>
@@ -1877,7 +1879,8 @@ export default function GameOverCard({
                     ) : (
                       <>
                         <span>💾</span>
-                        Save Card
+                        <span className="hidden xs:inline">Save Card</span>
+                        <span className="xs:hidden">Save</span>
                       </>
                     )}
                   </div>
@@ -1888,17 +1891,18 @@ export default function GameOverCard({
                   disabled={isDownloading || !uploadedUrl}
                   whileHover={{ scale: isDownloading || !uploadedUrl ? 1 : 1.02 }}
                   whileTap={{ scale: isDownloading || !uploadedUrl ? 1 : 0.98 }}
-                  className="relative overflow-hidden py-3 px-4 border border-white/20 disabled:opacity-40 group transition-colors hover:bg-white/5"
+                  className="relative overflow-hidden py-2.5 sm:py-3 px-3 sm:px-4 border border-white/20 disabled:opacity-40 group transition-colors hover:bg-white/5"
                 >
-                  <div className="relative z-10 flex items-center justify-center gap-2 font-black text-white uppercase tracking-[0.1em] text-xs">
+                  <div className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 font-black text-white uppercase tracking-[0.05em] sm:tracking-[0.1em] text-[10px] sm:text-xs">
                     {isDownloading ? (
                       <>
                         <m.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                          className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full"
                         />
-                        Exporting...
+                        <span className="hidden xs:inline">Exporting...</span>
+                        <span className="xs:hidden">...</span>
                       </>
                     ) : (
                       <>
@@ -1917,23 +1921,23 @@ export default function GameOverCard({
             </div>
 
               {/* Share & QR Section - Tournament Share Card */}
-              <div className="border-t border-white/10 pt-5 mt-2">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5" style={{ backgroundColor: theme.primary }} />
-                    <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.15em]">Share Victory</span>
+              <div className="border-t border-white/10 pt-3 sm:pt-5 mt-1 sm:mt-2">
+                <div className="flex items-center justify-between mb-2 sm:mb-4">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="w-1 h-1 sm:w-1.5 sm:h-1.5" style={{ backgroundColor: theme.primary }} />
+                    <span className="text-[8px] sm:text-[10px] font-black text-white/50 uppercase tracking-[0.1em] sm:tracking-[0.15em]">Share Victory</span>
                   </div>
-                  <div className="flex items-center gap-3 opacity-60">
-                    <img src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" className="h-4" />
-                    <div className="w-px h-3 bg-white/20" />
-                    <img src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" className="h-4" />
+                  <div className="flex items-center gap-2 sm:gap-3 opacity-60">
+                    <img src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" className="h-3 sm:h-4" />
+                    <div className="w-px h-2 sm:h-3 bg-white/20" />
+                    <img src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" className="h-3 sm:h-4" />
                   </div>
                 </div>
 
                 <m.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col sm:flex-row items-center gap-5 p-5"
+                  className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5 p-3 sm:p-5"
                   style={{
                     background: 'linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2))',
                     borderLeft: `2px solid ${theme.primary}40`
@@ -1942,23 +1946,23 @@ export default function GameOverCard({
                   {/* QR Code with Frame */}
                   <div className="relative">
                     <div
-                      className="absolute -inset-2 opacity-30"
+                      className="absolute -inset-1.5 sm:-inset-2 opacity-30"
                       style={{
                         background: `linear-gradient(135deg, ${theme.primary}40, transparent)`,
-                        clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)'
+                        clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)'
                       }}
                     />
-                    <div className="relative p-2 bg-white">
-                      <img src={qrCodeUrl} alt="QR Code" className="w-28 h-28 sm:w-32 sm:h-32" />
+                    <div className="relative p-1.5 sm:p-2 bg-white">
+                      <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32" />
                     </div>
                     {/* Corner Accents */}
-                    <div className="absolute -top-1 -left-1 w-3 h-3 border-l-2 border-t-2" style={{ borderColor: theme.primary }} />
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 border-r-2 border-b-2" style={{ borderColor: theme.primary }} />
+                    <div className="absolute -top-0.5 -left-0.5 sm:-top-1 sm:-left-1 w-2 h-2 sm:w-3 sm:h-3 border-l-2 border-t-2" style={{ borderColor: theme.primary }} />
+                    <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 border-r-2 border-b-2" style={{ borderColor: theme.primary }} />
                   </div>
 
                   <div className="text-center sm:text-left flex-1">
-                    <h4 className="text-white font-black uppercase tracking-wider text-sm mb-1">Challenge Issued</h4>
-                    <p className="text-slate-500 text-[10px] leading-relaxed mb-4 max-w-[200px]">
+                    <h4 className="text-white font-black uppercase tracking-wider text-xs sm:text-sm mb-0.5 sm:mb-1">Challenge Issued</h4>
+                    <p className="text-slate-500 text-[9px] sm:text-[10px] leading-relaxed mb-2 sm:mb-4 max-w-[180px] sm:max-w-[200px] mx-auto sm:mx-0">
                       Scan to share your victory or copy the secure link below.
                     </p>
                     <m.button
@@ -1969,7 +1973,7 @@ export default function GameOverCard({
                       disabled={!uploadedUrl}
                       whileHover={{ scale: uploadedUrl ? 1.02 : 1 }}
                       whileTap={{ scale: uploadedUrl ? 0.98 : 1 }}
-                      className="text-[10px] font-black uppercase tracking-wider px-4 py-2 transition-all disabled:opacity-30"
+                      className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-3 py-1.5 sm:px-4 sm:py-2 transition-all disabled:opacity-30"
                       style={{
                         color: uploadedUrl ? theme.primary : 'rgba(255,255,255,0.4)',
                         border: `1px solid ${uploadedUrl ? theme.primary + '50' : 'rgba(255,255,255,0.2)'}`
@@ -1983,14 +1987,14 @@ export default function GameOverCard({
             </div>
 
             {/* Footer Return Link */}
-            <div data-export-hide="true" className="mt-6">
+            <div data-export-hide="true" className="mt-4 sm:mt-6">
               <Link href="/">
                 <m.div
                   whileHover={{ opacity: 1 }}
-                  className="group flex items-center gap-4 opacity-60 transition-opacity"
+                  className="group flex items-center gap-2 sm:gap-4 opacity-60 transition-opacity"
                 >
                   <div className="h-px flex-1 bg-white/10 group-hover:bg-opacity-30 transition-colors" style={{ backgroundColor: `${theme.primary}20` }} />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] transition-colors" style={{ color: `${theme.primary}80` }}>
+                  <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors" style={{ color: `${theme.primary}80` }}>
                     Return to Menu
                   </span>
                   <div className="h-px flex-1 bg-white/10 group-hover:bg-opacity-30 transition-colors" style={{ backgroundColor: `${theme.primary}20` }} />
@@ -2002,15 +2006,15 @@ export default function GameOverCard({
 
         {/* Bottom Banner Branding - Tournament Footer */}
         <div
-          className="px-6 md:px-8 py-3 flex items-center justify-between"
+          className="px-3 sm:px-6 md:px-8 py-2 sm:py-3 flex items-center justify-between"
           style={{ background: `linear-gradient(90deg, ${theme.primary}10, transparent, ${theme.primary}10)` }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-1.5 h-1.5 rotate-45" style={{ backgroundColor: theme.primary }} />
-            <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Junie Arcade Protocol</span>
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rotate-45" style={{ backgroundColor: theme.primary }} />
+            <span className="text-[7px] sm:text-[9px] font-black text-white/40 uppercase tracking-[0.15em] sm:tracking-[0.3em]">Junie Arcade</span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Cloud9 x JetBrains</span>
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <span className="text-[7px] sm:text-[9px] font-black text-white/30 uppercase tracking-[0.1em] sm:tracking-[0.2em]">C9 x JetBrains</span>
             <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
           </div>
         </div>
@@ -2023,15 +2027,15 @@ export default function GameOverCard({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-6"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4 sm:p-6"
         >
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5" style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px'
+            backgroundSize: '40px 40px'
           }} />
 
-          <div className="max-w-md w-full text-center relative">
+          <div className="max-w-sm sm:max-w-md w-full text-center relative">
             {isCalculating ? (
               <m.div
                 initial={{ opacity: 0 }}
@@ -2044,9 +2048,9 @@ export default function GameOverCard({
                   style={{ background: `radial-gradient(circle, ${theme.glow}, transparent 70%)` }}
                 />
 
-                <div className="relative space-y-10 py-12">
+                <div className="relative space-y-6 sm:space-y-10 py-8 sm:py-12">
                   {/* Hexagonal Loading Indicator */}
-                  <div className="relative w-32 h-32 mx-auto">
+                  <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto">
                     <m.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
@@ -2059,7 +2063,7 @@ export default function GameOverCard({
                     <m.div
                       animate={{ rotate: -360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-4"
+                      className="absolute inset-3 sm:inset-4"
                       style={{
                         clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                         border: `2px solid ${theme.primary}60`
@@ -2071,7 +2075,7 @@ export default function GameOverCard({
                         opacity: [0.6, 1, 0.6]
                       }}
                       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute inset-8 flex items-center justify-center text-3xl"
+                      className="absolute inset-6 sm:inset-8 flex items-center justify-center text-2xl sm:text-3xl"
                       style={{
                         clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                         background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
@@ -2082,12 +2086,12 @@ export default function GameOverCard({
                     </m.div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <m.h3
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.2 }}
-                      className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter italic"
+                      className="text-2xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tighter italic"
                     >
                       Analyzing{' '}
                       <span
@@ -2102,12 +2106,12 @@ export default function GameOverCard({
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.4 }}
-                      className="flex flex-col items-center gap-3"
+                      className="flex flex-col items-center gap-2 sm:gap-3"
                     >
-                      <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">
+                      <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em]">
                         Calculating leaderboard position
                       </p>
-                      <div className="flex gap-1.5">
+                      <div className="flex gap-1 sm:gap-1.5">
                         {[0, 1, 2].map((i) => (
                           <m.div
                             key={i}
@@ -2120,7 +2124,7 @@ export default function GameOverCard({
                               repeat: Infinity,
                               delay: i * 0.2
                             }}
-                            className="w-2 h-2 rounded-full"
+                            className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full"
                             style={{ backgroundColor: theme.primary }}
                           />
                         ))}
@@ -2143,41 +2147,41 @@ export default function GameOverCard({
                 <div className="h-1" style={{ background: `linear-gradient(90deg, ${theme.primary}, ${theme.secondary})` }} />
 
                 {/* Corner Accents */}
-                <div className="absolute top-0 left-0 w-12 h-12 border-l-2 border-t-2 pointer-events-none" style={{ borderColor: `${theme.primary}40` }} />
-                <div className="absolute bottom-0 right-0 w-12 h-12 border-r-2 border-b-2 pointer-events-none" style={{ borderColor: `${theme.primary}40` }} />
+                <div className="absolute top-0 left-0 w-8 h-8 sm:w-12 sm:h-12 border-l-2 border-t-2 pointer-events-none" style={{ borderColor: `${theme.primary}40` }} />
+                <div className="absolute bottom-0 right-0 w-8 h-8 sm:w-12 sm:h-12 border-r-2 border-b-2 pointer-events-none" style={{ borderColor: `${theme.primary}40` }} />
 
-                <div className="p-8 md:p-10">
+                <div className="p-5 sm:p-8 md:p-10">
                   <div
-                    className="text-sm font-black uppercase tracking-[0.2em] mb-6 italic"
+                    className="text-xs sm:text-sm font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-4 sm:mb-6 italic"
                     style={{ color: theme.primary }}
                   >
                     Tournament Summary
                   </div>
 
-                  <div className="mb-8">
-                    <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Your Final Rank</div>
+                  <div className="mb-5 sm:mb-8">
+                    <div className="text-[9px] sm:text-[10px] font-black text-white/40 uppercase tracking-widest mb-1.5 sm:mb-2">Your Final Rank</div>
                     <div
-                      className="text-7xl md:text-8xl font-black text-white italic tracking-tighter"
+                      className="text-5xl sm:text-7xl md:text-8xl font-black text-white italic tracking-tighter"
                       style={{ textShadow: `0 0 40px ${theme.glow}` }}
                     >
                       #{playerRank || '??'}
                     </div>
                   </div>
 
-                  <div className="space-y-3 mb-8">
+                  <div className="space-y-2 sm:space-y-3 mb-5 sm:mb-8">
                     <div
-                      className="flex items-center justify-between py-2 px-3"
+                      className="flex items-center justify-between py-1.5 sm:py-2 px-2 sm:px-3"
                       style={{ background: `${theme.primary}08`, borderLeft: `2px solid ${theme.primary}40` }}
                     >
-                      <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Player</span>
-                      <span className="text-sm font-black text-white uppercase italic">{username}</span>
+                      <span className="text-[9px] sm:text-[10px] font-black text-white/40 uppercase tracking-widest">Player</span>
+                      <span className="text-xs sm:text-sm font-black text-white uppercase italic">{username}</span>
                     </div>
                     <div
-                      className="flex items-center justify-between py-2 px-3"
+                      className="flex items-center justify-between py-1.5 sm:py-2 px-2 sm:px-3"
                       style={{ background: `${theme.primary}08`, borderLeft: `2px solid ${theme.primary}40` }}
                     >
-                      <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Score</span>
-                      <span className="text-sm font-black uppercase italic" style={{ color: theme.primary }}>
+                      <span className="text-[9px] sm:text-[10px] font-black text-white/40 uppercase tracking-widest">Score</span>
+                      <span className="text-xs sm:text-sm font-black uppercase italic" style={{ color: theme.primary }}>
                         {score.toLocaleString()} PTS
                       </span>
                     </div>
@@ -2187,10 +2191,10 @@ export default function GameOverCard({
                     <m.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full py-4 px-8 text-black font-black text-sm uppercase tracking-widest transition-colors"
+                      className="w-full py-3 sm:py-4 px-6 sm:px-8 text-black font-black text-xs sm:text-sm uppercase tracking-wider sm:tracking-widest transition-colors"
                       style={{
                         background: 'linear-gradient(135deg, #ffffff, #e0e0e0)',
-                        clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)'
+                        clipPath: 'polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%)'
                       }}
                     >
                       View Hall of Fame
@@ -2199,7 +2203,7 @@ export default function GameOverCard({
 
                   <button
                     onClick={() => setShowExitModal(false)}
-                    className="mt-5 text-[10px] font-black text-white/30 hover:text-white uppercase tracking-[0.2em] transition-colors"
+                    className="mt-4 sm:mt-5 text-[9px] sm:text-[10px] font-black text-white/30 hover:text-white uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors"
                   >
                     [ Close ]
                   </button>
