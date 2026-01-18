@@ -21,6 +21,46 @@ interface GameOverCardProps {
   isSaving: boolean
 }
 
+// Esports-inspired accent colors per game type
+const GAME_THEMES = {
+  REFLEX_ARENA: {
+    primary: '#ff4655',
+    secondary: '#fd4556',
+    glow: 'rgba(255, 70, 85, 0.4)',
+    gradient: 'from-[#ff4655] via-[#fd4556] to-[#ff7566]',
+    darkGradient: 'from-[#ff4655]/20 to-[#ff4655]/5',
+    name: 'Reflex Arena',
+    tagline: 'PRECISION COMBAT'
+  },
+  JUMP_MASTER: {
+    primary: '#00eeff',
+    secondary: '#0ff',
+    glow: 'rgba(0, 238, 255, 0.4)',
+    gradient: 'from-[#00eeff] via-[#00d4ff] to-[#00b4ff]',
+    darkGradient: 'from-[#00eeff]/20 to-[#00eeff]/5',
+    name: 'Jump Master',
+    tagline: 'AERIAL SUPERIORITY'
+  },
+  MEMORY_MATCH: {
+    primary: '#c284f9',
+    secondary: '#a855f7',
+    glow: 'rgba(194, 132, 249, 0.4)',
+    gradient: 'from-[#c284f9] via-[#a855f7] to-[#9333ea]',
+    darkGradient: 'from-[#c284f9]/20 to-[#c284f9]/5',
+    name: 'Memory Match',
+    tagline: 'NEURAL EXCELLENCE'
+  },
+  OVERALL: {
+    primary: '#10b981',
+    secondary: '#06d6a0',
+    glow: 'rgba(16, 185, 129, 0.4)',
+    gradient: 'from-emerald-400 via-cyan-500 to-teal-400',
+    darkGradient: 'from-emerald-500/20 to-cyan-500/5',
+    name: 'Ultimate Champion',
+    tagline: 'TOURNAMENT VICTOR'
+  }
+}
+
 export default function GameOverCard({
   username,
   country,
@@ -171,6 +211,9 @@ export default function GameOverCard({
     return countryData?.code || 'US'
   }
 
+  // Get current game theme
+  const theme = GAME_THEMES[gameType] || GAME_THEMES.OVERALL
+
   const getGameLogo = () => {
     switch (gameType) {
       case 'REFLEX_ARENA': return '/assets/images/logos/game_logo/reflex_arena.png'
@@ -181,45 +224,13 @@ export default function GameOverCard({
     }
   }
 
-  const getGameTitle = () => {
-    switch (gameType) {
-      case 'REFLEX_ARENA': return 'Reflex Arena'
-      case 'JUMP_MASTER': return 'Jump Master'
-      case 'MEMORY_MATCH': return 'Memory Match'
-      case 'OVERALL': return 'Ultimate Champion'
-      default: return 'Game'
-    }
-  }
+  const getGameTitle = () => theme.name
 
-  const getGameColor = () => {
-    switch (gameType) {
-      case 'REFLEX_ARENA': return 'from-[#ff4655] to-[#ff4655]/80' // Valorant Red
-      case 'JUMP_MASTER': return 'from-[#00eeff] to-[#00eeff]/80' // Cyber Cyan
-      case 'MEMORY_MATCH': return 'from-[#c284f9] to-[#c284f9]/80' // LoL Magic Purple
-      case 'OVERALL': return 'from-emerald-400 to-cyan-500'
-      default: return 'from-slate-500 to-gray-500'
-    }
-  }
+  const getGameColor = () => theme.gradient
 
-  const getGameGlow = () => {
-    switch (gameType) {
-      case 'REFLEX_ARENA': return 'shadow-[#ff4655]/20'
-      case 'JUMP_MASTER': return 'shadow-[#00eeff]/20'
-      case 'MEMORY_MATCH': return 'shadow-[#c284f9]/20'
-      case 'OVERALL': return 'shadow-emerald-500/20'
-      default: return 'shadow-white/10'
-    }
-  }
+  const getGameGlow = () => `shadow-[${theme.primary}]/30`
 
-  const getAccentColor = () => {
-    switch (gameType) {
-      case 'REFLEX_ARENA': return 'text-[#ff4655]'
-      case 'JUMP_MASTER': return 'text-[#00eeff]'
-      case 'MEMORY_MATCH': return 'text-[#c284f9]'
-      case 'OVERALL': return 'text-emerald-400'
-      default: return 'text-white'
-    }
-  }
+  const getAccentColor = () => `text-[${theme.primary}]`
 
   const startCamera = async () => {
     try {
@@ -1075,138 +1086,289 @@ export default function GameOverCard({
       <div
         ref={cardRef}
         data-card-clone="true"
-        className="bg-[#0f1923] border border-white/10 shadow-2xl overflow-hidden relative"
+        className="bg-gradient-to-br from-[#0a0e13] via-[#0f1923] to-[#0a0e13] border border-white/10 shadow-2xl overflow-hidden relative"
+        style={{ boxShadow: `0 0 60px ${theme.glow}, 0 0 100px ${theme.glow}` }}
       >
+        {/* VALORANT-Style Angular Top Accent */}
+        <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden">
+          <m.div
+            initial={{ x: '-100%' }}
+            animate={{ x: '100%' }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            className={`absolute inset-0 bg-gradient-to-r from-transparent via-[${theme.primary}] to-transparent`}
+          />
+          <div className={`absolute inset-0 bg-gradient-to-r ${theme.gradient}`} />
+        </div>
+
         {/* Hero and Small Mascot Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Hexagonal Grid Pattern (LoL/Valorant style) */}
+          <div className="absolute inset-0 opacity-[0.02]" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px'
+          }} />
+
+          {/* Diagonal Scan Lines (Valorant style) */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, white 2px, white 3px)',
+            backgroundSize: '20px 20px'
+          }} />
+
           <AnimatePresence mode="wait">
             {selectedHero && selectedHero.length > 0 && (
-              <m.img 
+              <m.img
                 key={selectedHero}
-                initial={{ opacity: 0, scale: 1.1 }}
-                animate={{ opacity: 0.12, scale: 1 }}
+                initial={{ opacity: 0, scale: 1.1, x: 50 }}
+                animate={{ opacity: 0.15, scale: 1, x: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1.5 }}
                 src={`/assets/images/hero/${selectedHero}`}
-                alt="Hero background" 
-                className="absolute -right-16 top-1/2 -translate-y-1/2 h-[90%] object-contain grayscale-0"
+                alt="Hero background"
+                className="absolute -right-16 top-1/2 -translate-y-1/2 h-[95%] object-contain"
+                style={{ filter: 'saturate(0.8) brightness(0.9)' }}
               />
             )}
           </AnimatePresence>
           <AnimatePresence mode="wait">
             {selectedJunie && selectedJunie.length > 0 && (
-              <m.img 
+              <m.img
                 key={selectedJunie}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 0.15, x: 0 }}
+                initial={{ opacity: 0, x: -20, y: 20 }}
+                animate={{ opacity: 0.2, x: 0, y: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 1 }}
                 src={`/assets/images/junie/${selectedJunie}`}
-                alt="Small mascot accent" 
-                className="absolute left-8 top-32 w-24 h-24 object-contain brightness-125"
+                alt="Small mascot accent"
+                className="absolute left-4 top-36 w-28 h-28 object-contain"
+                style={{ filter: `drop-shadow(0 0 20px ${theme.glow})` }}
               />
             )}
           </AnimatePresence>
-        </div>
-        <div className="absolute top-0 left-0 w-32 h-32 border-l border-t border-[#ff4655]/30 -translate-x-16 -translate-y-16 pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-32 h-32 border-r border-b border-[#ff4655]/30 translate-x-16 translate-y-16 pointer-events-none" />
-        <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
-          <div className="text-4xl font-black italic tracking-tighter text-white">JUNIE ARCADE // 2026</div>
+
+          {/* Radial Glow from center */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-20"
+            style={{ background: `radial-gradient(circle, ${theme.glow} 0%, transparent 70%)` }}
+          />
         </div>
 
-        {/* Header with Game Branding */}
-        <div data-card-header="true" className="relative p-8 flex flex-col md:flex-row items-center justify-between border-b border-white/10 overflow-hidden">
-          {/* Animated Background Pulse */}
-          <div className={`absolute inset-0 bg-gradient-to-r ${getGameColor()} opacity-5`} />
-          
-          <div className="relative z-10 flex items-center gap-6 mb-4 md:mb-0">
-            <m.div 
-              initial={{ rotate: -10, scale: 0.8 }}
-              animate={{ rotate: 0, scale: 1 }}
-              className="w-24 h-24 relative drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-            >
-              {getGameLogo() ? (
-                <Image 
-                  src={getGameLogo()!} 
-                  alt={getGameTitle()} 
-                  fill 
-                  className="object-contain"
-                />
-              ) : (
-                <span className="text-7xl">🎮</span>
-              )}
-              
-              {/* Dynamic floating mascot next to title */}
-              <AnimatePresence mode="wait">
-                {selectedJunie && selectedJunie.length > 0 && (
-                <m.img
-                  key={selectedJunie}
-                  initial={{ opacity: 0, scale: 0.5, x: 20 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.5, x: -20 }}
-                  src={`/assets/images/junie/${selectedJunie}`}
-                  alt="Dynamic Junie"
-                  className="absolute -top-6 -right-6 w-12 h-12 object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-                />
-                )}
-              </AnimatePresence>
-            </m.div>
-            <div>
-              <h2 className="text-sm font-black text-[#ff4655] uppercase tracking-[0.3em] mb-1">Mission Accomplished</h2>
-              <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase">{getGameTitle()}</h1>
+        {/* Corner Accents (VALORANT style) */}
+        <div className="absolute top-0 left-0 w-20 h-20 pointer-events-none">
+          <div className={`absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[${theme.primary}] to-transparent`} />
+          <div className={`absolute top-0 left-0 h-full w-[2px] bg-gradient-to-b from-[${theme.primary}] to-transparent`} />
+        </div>
+        <div className="absolute top-0 right-0 w-20 h-20 pointer-events-none">
+          <div className={`absolute top-0 right-0 w-full h-[2px] bg-gradient-to-l from-[${theme.primary}] to-transparent`} />
+          <div className={`absolute top-0 right-0 h-full w-[2px] bg-gradient-to-b from-[${theme.primary}] to-transparent`} />
+        </div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 pointer-events-none">
+          <div className={`absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-[${theme.primary}] to-transparent`} />
+          <div className={`absolute bottom-0 left-0 h-full w-[2px] bg-gradient-to-t from-[${theme.primary}] to-transparent`} />
+        </div>
+        <div className="absolute bottom-0 right-0 w-20 h-20 pointer-events-none">
+          <div className={`absolute bottom-0 right-0 w-full h-[2px] bg-gradient-to-l from-[${theme.primary}] to-transparent`} />
+          <div className={`absolute bottom-0 right-0 h-full w-[2px] bg-gradient-to-t from-[${theme.primary}] to-transparent`} />
+        </div>
+
+        {/* Floating Protocol Text */}
+        <div className="absolute top-3 right-4 opacity-20 pointer-events-none flex items-center gap-3">
+          <div className="h-px w-12 bg-white/40" />
+          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60">JUNIE ARCADE // 2026</div>
+        </div>
+
+        {/* Header with Game Branding - VALORANT/LoL Style */}
+        <div data-card-header="true" className="relative p-6 md:p-8 border-b border-white/10 overflow-hidden">
+          {/* Angular Background Gradient */}
+          <div className={`absolute inset-0 bg-gradient-to-br ${theme.darkGradient}`} />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent" />
+
+          {/* Animated Pulse Line */}
+          <m.div
+            initial={{ opacity: 0.3, scaleX: 0 }}
+            animate={{ opacity: [0.3, 0.6, 0.3], scaleX: 1 }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className={`absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[${theme.primary}] to-transparent origin-left`}
+          />
+
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Left: Game Logo & Title */}
+            <div className="flex items-center gap-5">
+              <m.div
+                initial={{ rotate: -10, scale: 0.8 }}
+                animate={{ rotate: 0, scale: 1 }}
+                className="relative"
+              >
+                {/* Hexagonal Frame (LoL style) */}
+                <div
+                  className="w-20 h-20 md:w-24 md:h-24 relative flex items-center justify-center"
+                  style={{
+                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                    background: `linear-gradient(135deg, ${theme.primary}20, transparent)`
+                  }}
+                >
+                  <div
+                    className="w-[90%] h-[90%] flex items-center justify-center"
+                    style={{
+                      clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                      background: 'rgba(0,0,0,0.5)'
+                    }}
+                  >
+                    {getGameLogo() ? (
+                      <Image
+                        src={getGameLogo()!}
+                        alt={getGameTitle()}
+                        width={60}
+                        height={60}
+                        className="object-contain"
+                        style={{ filter: `drop-shadow(0 0 10px ${theme.glow})` }}
+                      />
+                    ) : (
+                      <span className="text-5xl">🎮</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Floating Junie Badge */}
+                <AnimatePresence mode="wait">
+                  {selectedJunie && selectedJunie.length > 0 && (
+                    <m.div
+                      key={selectedJunie}
+                      initial={{ opacity: 0, scale: 0.5, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full overflow-hidden border-2 bg-black/80"
+                      style={{ borderColor: theme.primary }}
+                    >
+                      <img
+                        src={`/assets/images/junie/${selectedJunie}`}
+                        alt="Junie"
+                        className="w-full h-full object-contain"
+                      />
+                    </m.div>
+                  )}
+                </AnimatePresence>
+              </m.div>
+
+              <div>
+                {/* Tagline Badge */}
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.primary }} />
+                  <span
+                    className="text-[10px] font-black uppercase tracking-[0.25em]"
+                    style={{ color: theme.primary }}
+                  >
+                    {theme.tagline}
+                  </span>
+                </div>
+                <h1 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
+                  {getGameTitle()}
+                </h1>
+              </div>
             </div>
-          </div>
 
-          <div className="relative z-10 text-center md:text-right">
-            <div className="text-xs font-black text-white/40 uppercase tracking-widest mb-1">Ultimate Rating</div>
-            <div className={`text-6xl font-black ${getAccentColor()} italic tracking-tighter`}>
-              {score.toLocaleString()}
+            {/* Right: Score Display (VALORANT Match Score Style) */}
+            <div className="text-center md:text-right">
+              <div className="flex items-center justify-center md:justify-end gap-2 mb-1">
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Final Rating</span>
+                <div className="w-8 h-[1px] bg-white/20" />
+              </div>
+              <m.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2, type: 'spring' }}
+                className="relative"
+              >
+                <span
+                  className="text-5xl md:text-7xl font-black italic tracking-tighter"
+                  style={{
+                    color: theme.primary,
+                    textShadow: `0 0 40px ${theme.glow}, 0 0 80px ${theme.glow}`
+                  }}
+                >
+                  {score.toLocaleString()}
+                </span>
+                <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mt-1">Points</div>
+              </m.div>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
-          {/* Left Column: Player & Selfie (LoL/Valorant Agent Style) */}
-          <div className="lg:col-span-5 space-y-6">
+        <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 relative">
+          {/* Left Column: Player & Selfie (Agent Card Style) */}
+          <div className="lg:col-span-5 space-y-5">
             <div className="relative group">
-              {/* Selfie Container with Valorant Frame */}
-              <div className="aspect-[4/5] bg-slate-900 border border-white/10 overflow-hidden relative">
+              {/* Selfie Container with Esports Frame */}
+              <div
+                className="aspect-[4/5] bg-gradient-to-br from-slate-900 to-slate-950 border overflow-hidden relative"
+                style={{ borderColor: `${theme.primary}30` }}
+              >
+                {/* Corner Brackets */}
+                <div className="absolute top-2 left-2 w-6 h-6 border-l-2 border-t-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
+                <div className="absolute top-2 right-2 w-6 h-6 border-r-2 border-t-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
+                <div className="absolute bottom-2 left-2 w-6 h-6 border-l-2 border-b-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
+                <div className="absolute bottom-2 right-2 w-6 h-6 border-r-2 border-b-2 pointer-events-none z-20" style={{ borderColor: theme.primary }} />
+
                 {!selfieData && !showCamera && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                     {countdown !== null ? (
                       // Countdown display (auto start)
                       <div className="flex flex-col items-center">
-                        <div className="w-32 h-32 rounded-full border-4 border-[#ff4655] flex items-center justify-center mb-4 bg-[#ff4655]/10 relative">
+                        <div
+                          className="w-28 h-28 md:w-32 md:h-32 flex items-center justify-center mb-4 relative"
+                          style={{
+                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                            background: `${theme.primary}20`
+                          }}
+                        >
                           <m.span
                             key={countdown}
                             initial={{ scale: 1.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="text-7xl font-black text-[#ff4655]"
+                            className="text-6xl md:text-7xl font-black"
+                            style={{ color: theme.primary }}
                           >
                             {countdown}
                           </m.span>
-                          <div className="absolute inset-0 rounded-full border-4 border-[#ff4655] animate-ping opacity-20" />
+                          <m.div
+                            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                            className="absolute inset-0"
+                            style={{
+                              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                              border: `2px solid ${theme.primary}`
+                            }}
+                          />
                         </div>
-                        <h3 className="text-white font-black uppercase tracking-wider mb-2">Camera Starting...</h3>
-                        <p className="text-slate-400 text-xs">Get ready for your victory shot!</p>
+                        <h3 className="text-white font-black uppercase tracking-wider mb-2">Initializing Camera...</h3>
+                        <p className="text-slate-400 text-xs">Prepare for victory capture!</p>
                       </div>
                     ) : (
                       // Default state (no countdown)
                       <>
-                        <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center mb-4 bg-white/5">
+                        <div
+                          className="w-20 h-20 flex items-center justify-center mb-4"
+                          style={{
+                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                            background: 'rgba(255,255,255,0.05)'
+                          }}
+                        >
                           <span className="text-4xl">👤</span>
                         </div>
-                        <h3 className="text-white font-black uppercase tracking-wider mb-2">Access Granted</h3>
-                        <p className="text-slate-500 text-xs mb-6">Capture your victory pose to immortalize this moment in the arena.</p>
+                        <h3 className="text-white font-black uppercase tracking-wider mb-2">Agent Profile</h3>
+                        <p className="text-slate-500 text-xs mb-6 max-w-[200px]">Capture your victory pose for the arena records.</p>
                         <m.button
                           onClick={startCamera}
                           data-export-hide="true"
-                          whileHover={{ scale: 1.05 }}
+                          whileHover={{ scale: 1.05, boxShadow: `0 0 30px ${theme.glow}` }}
                           whileTap={{ scale: 0.95 }}
-                          className="px-6 py-3 bg-[#ff4655] text-white font-black uppercase tracking-widest text-xs skew-x-[-10deg]"
+                          className="px-6 py-3 text-white font-black uppercase tracking-widest text-xs"
+                          style={{
+                            background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                            clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+                          }}
                         >
-                          <span className="inline-block skew-x-[10deg]">Initiate Capture</span>
+                          Initiate Capture
                         </m.button>
                       </>
                     )}
@@ -1218,9 +1380,17 @@ export default function GameOverCard({
                     <img
                       src={selfieData}
                       alt="Player selfie"
-                      className="w-full h-full object-cover brightness-110 contrast-110"
+                      className="w-full h-full object-cover"
+                      style={{ filter: 'brightness(1.05) contrast(1.1) saturate(0.95)' }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f1923] via-transparent to-transparent opacity-60" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e13] via-transparent to-transparent opacity-70" />
+                    {/* Scan Line Effect */}
+                    <m.div
+                      animate={{ y: ['0%', '100%'] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                      className="absolute left-0 right-0 h-[2px] opacity-20"
+                      style={{ background: `linear-gradient(90deg, transparent, ${theme.primary}, transparent)` }}
+                    />
                     {!uploadedUrl && (
                       <div data-export-hide="true" className="absolute top-4 right-4 z-10">
                         <m.button
@@ -1230,9 +1400,10 @@ export default function GameOverCard({
                           }}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          className="group px-4 py-2 bg-white hover:bg-white/90 text-black text-xs font-black uppercase tracking-wider backdrop-blur-xl transition-all rounded-full shadow-[0_0_20px_rgba(255,255,255,0.3)] border border-white/50"
+                          className="px-4 py-2 bg-black/60 backdrop-blur-md text-white text-xs font-black uppercase tracking-wider border transition-all"
+                          style={{ borderColor: `${theme.primary}50` }}
                         >
-                          <span className="group-hover:tracking-widest transition-all">Retake</span>
+                          Retake
                         </m.button>
                       </div>
                     )}
@@ -1346,159 +1517,267 @@ export default function GameOverCard({
                 )}
               </AnimatePresence>
               
-              <div className="absolute -bottom-4 -right-4 bg-[#ff4655] p-4 skew-x-[-10deg] shadow-xl">
-                <div className="skew-x-[10deg] flex items-center gap-3">
-                  <FlagIcon code={getCountryCode()} className="w-10 h-7" />
+              {/* Player Name Badge - Esports Style */}
+              <div
+                className="absolute -bottom-3 -right-3 p-4 shadow-xl"
+                style={{
+                  background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                  clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)'
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <FlagIcon code={getCountryCode()} className="w-9 h-6" />
                   <div>
-                    <div className="text-xs font-black text-black/60 uppercase tracking-widest leading-none">Champion</div>
-                    <div className="text-xl font-black text-white uppercase tracking-tighter leading-tight">{username}</div>
+                    <div className="text-[9px] font-black text-black/50 uppercase tracking-widest leading-none mb-0.5">Champion</div>
+                    <div className="text-lg font-black text-white uppercase tracking-tight leading-tight drop-shadow-md">{username}</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Country Info Bar */}
-            <div className="flex items-center justify-between border-b border-white/5 py-4 px-2">
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Origin</span>
-              <span className="text-sm font-black text-white uppercase italic">{country}</span>
+            {/* Country Info Bar - Tactical Style */}
+            <div
+              className="flex items-center justify-between py-3 px-4 border-l-2"
+              style={{ borderColor: theme.primary, background: `${theme.primary}08` }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full" style={{ backgroundColor: theme.primary }} />
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.15em]">Region</span>
+              </div>
+              <span className="text-sm font-black text-white uppercase italic tracking-tight">{country}</span>
             </div>
           </div>
 
           {/* Right Column: Stats & Actions */}
           <div className="lg:col-span-7 flex flex-col">
-            <div className="flex-1 space-y-6">
-              {/* Force refresh button if rankings not loaded */}
+            <div className="flex-1 space-y-5">
+              {/* Sync Status Indicator */}
               {!allRanks && gameType !== 'OVERALL' && (
-                <div className="bg-white/5 border border-white/10 p-4 rounded-xl text-center mb-4">
-                  <p className="text-slate-400 text-xs mb-3 italic">Syncing session progress...</p>
-                  <button 
+                <m.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 text-center border"
+                  style={{ borderColor: `${theme.primary}30`, background: `${theme.primary}08` }}
+                >
+                  <div className="flex items-center justify-center gap-3 mb-2">
+                    <m.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      className="w-4 h-4 border-2 border-t-transparent rounded-full"
+                      style={{ borderColor: theme.primary, borderTopColor: 'transparent' }}
+                    />
+                    <p className="text-slate-400 text-xs font-medium">Syncing session progress...</p>
+                  </div>
+                  <button
                     onClick={() => {
                       setHasAutoSaved(false);
                       setTimeout(() => setHasAutoSaved(true), 100);
                     }}
-                    className="text-[10px] font-black text-cyan-400 uppercase tracking-widest hover:text-cyan-300 transition-colors"
+                    className="text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-opacity"
+                    style={{ color: theme.primary }}
                   >
-                    🔄 Manual Sync
+                    Manual Sync
                   </button>
-                </div>
+                </m.div>
               )}
 
-              {/* Positions / Ranks Section - Only show on OVERALL card per user request */}
+              {/* Ranks Section - OVERALL card only (Tournament Summary Style) */}
               {allRanks && gameType === 'OVERALL' && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-center">
-                    <div className="text-[8px] font-black text-emerald-400 uppercase tracking-widest mb-1">Overall</div>
-                    <div className="text-xl font-black text-white italic">#{allRanks.overall || '--'}</div>
-                  </div>
-                  <div className="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl text-center">
-                    <div className="text-[8px] font-black text-yellow-400 uppercase tracking-widest mb-1">Reflex</div>
-                    <div className="text-xl font-black text-white italic">#{allRanks.reflex || '--'}</div>
-                  </div>
-                  <div className="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-center">
-                    <div className="text-[8px] font-black text-cyan-400 uppercase tracking-widest mb-1">Jump</div>
-                    <div className="text-xl font-black text-white italic">#{allRanks.jump || '--'}</div>
-                  </div>
-                  <div className="bg-purple-500/10 border border-purple-500/30 p-3 rounded-xl text-center">
-                    <div className="text-[8px] font-black text-purple-400 uppercase tracking-widest mb-1">Memory</div>
-                    <div className="text-xl font-black text-white italic">#{allRanks.memory || '--'}</div>
-                  </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { label: 'Overall', val: allRanks.overall, color: '#10b981', icon: '🏆' },
+                    { label: 'Reflex', val: allRanks.reflex, color: '#ff4655', icon: '⚡' },
+                    { label: 'Jump', val: allRanks.jump, color: '#00eeff', icon: '🚀' },
+                    { label: 'Memory', val: allRanks.memory, color: '#c284f9', icon: '🧠' }
+                  ].map((rank, i) => (
+                    <m.div
+                      key={rank.label}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="relative p-3 text-center overflow-hidden"
+                      style={{
+                        background: `linear-gradient(135deg, ${rank.color}15, transparent)`,
+                        borderLeft: `2px solid ${rank.color}`
+                      }}
+                    >
+                      <div className="absolute top-1 right-1 text-lg opacity-20">{rank.icon}</div>
+                      <div className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: rank.color }}>
+                        {rank.label}
+                      </div>
+                      <div className="text-xl font-black text-white italic">#{rank.val || '--'}</div>
+                    </m.div>
+                  ))}
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                {stats.map((stat, index) => (
-                  <m.div
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                    className="bg-white/5 border-l-2 border-[#ff4655]/50 p-4 relative overflow-hidden group hover:bg-white/10 transition-colors"
-                  >
-                    <div className="absolute top-0 right-0 p-1 opacity-5">
-                      <div className="text-4xl font-black">0{index + 1}</div>
-                    </div>
-                    <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">{stat.label}</div>
-                    <div className={`text-2xl font-black italic tracking-tighter ${stat.color || 'text-white'}`}>
-                      {stat.value}
-                    </div>
-                  </m.div>
-                ))}
+              {/* Stats Grid - Match Statistics Style */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1.5 h-1.5" style={{ backgroundColor: theme.primary }} />
+                  <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Match Statistics</span>
+                  <div className="flex-1 h-px bg-white/10" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {stats.map((stat, index) => (
+                    <m.div
+                      key={index}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      className="relative p-4 overflow-hidden group transition-all hover:scale-[1.02]"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))',
+                        borderLeft: `2px solid ${theme.primary}60`
+                      }}
+                    >
+                      {/* Index Badge */}
+                      <div
+                        className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center text-[10px] font-black opacity-20"
+                        style={{ background: `linear-gradient(135deg, ${theme.primary}30, transparent)` }}
+                      >
+                        {String(index + 1).padStart(2, '0')}
+                      </div>
+                      <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.15em] mb-1">{stat.label}</div>
+                      <div className={`text-xl md:text-2xl font-black italic tracking-tighter ${stat.color || 'text-white'}`}>
+                        {stat.value}
+                      </div>
+                      {/* Hover Glow */}
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                        style={{ boxShadow: `inset 0 0 20px ${theme.glow}` }}
+                      />
+                    </m.div>
+                  ))}
+                </div>
               </div>
 
-            {/* Action Buttons with Valorant Style */}
-            <div data-export-hide="true" className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+            {/* Action Buttons - Esports Tournament Style */}
+            <div data-export-hide="true" className="space-y-3 pt-4">
               {isAllRanksLoading && (
-                <div className="col-span-1 sm:col-span-2 py-4 flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-lg mb-2 animate-pulse">
-                  <div className="w-6 h-6 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mb-2" />
-                  <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">Identifying Next Mission...</span>
-                </div>
+                <m.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="py-4 flex flex-col items-center justify-center border"
+                  style={{ borderColor: `${theme.primary}30`, background: `${theme.primary}08` }}
+                >
+                  <m.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="w-6 h-6 border-2 border-t-transparent rounded-full mb-2"
+                    style={{ borderColor: theme.primary, borderTopColor: 'transparent' }}
+                  />
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: theme.primary }}>
+                    Identifying Next Mission...
+                  </span>
+                </m.div>
               )}
 
+              {/* Primary Action: Continue to Next Game */}
               {nextGame && (
-                <Link
-                  href={nextGame.path}
-                  className="col-span-1 sm:col-span-2 group relative overflow-hidden bg-white py-4 transition-all hover:brightness-110 mb-2 border-l-4 border-cyan-400"
-                >
-                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-black uppercase tracking-[0.15em] text-sm">
-                    <span>➡️</span>
-                    Continue to {nextGame.name}
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
+                <Link href={nextGame.path} className="block">
+                  <m.div
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative overflow-hidden py-4 px-6 text-center group"
+                    style={{
+                      background: 'linear-gradient(135deg, #ffffff, #e0e0e0)',
+                      clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))'
+                    }}
+                  >
+                    <div className="relative z-10 flex items-center justify-center gap-3 font-black text-black uppercase tracking-[0.1em] text-sm">
+                      <span className="text-lg">▶</span>
+                      Continue to {nextGame.name}
+                    </div>
+                    <m.div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ background: `linear-gradient(135deg, ${theme.primary}20, transparent)` }}
+                    />
+                  </m.div>
                 </Link>
               )}
-              
+
+              {/* Generate Leaderboard Card (when all games complete) */}
               {!nextGame && gameType !== 'OVERALL' && (
-                <button
+                <m.button
                   onClick={handleGenerateLeaderboardCard}
-                  className="col-span-1 sm:col-span-2 group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 py-4 transition-all hover:brightness-110 mb-2 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full relative overflow-hidden py-4 px-6 group"
+                  style={{
+                    background: 'linear-gradient(135deg, #10b981, #06d6a0)',
+                    clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))',
+                    boxShadow: '0 0 30px rgba(16, 185, 129, 0.3)'
+                  }}
                 >
-                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.15em] text-sm">
-                    <span>🏆</span>
+                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.1em] text-sm">
+                    <span className="text-lg">🏆</span>
                     Generate Leaderboard Card
                   </div>
-                </button>
+                </m.button>
               )}
 
+              {/* Exit Option (when more games available) */}
               {gameType !== 'OVERALL' && nextGame && (
-                <button
+                <m.button
                   onClick={handleExit}
-                  className="col-span-1 sm:col-span-2 group relative overflow-hidden border border-white/20 py-4 transition-all hover:bg-white/5 mb-2"
+                  whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.05)' }}
+                  whileTap={{ scale: 0.99 }}
+                  className="w-full relative overflow-hidden py-3 px-6 border border-white/20 group transition-colors"
                 >
-                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white/60 group-hover:text-white uppercase tracking-[0.15em] text-sm transition-colors">
+                  <div className="relative z-10 flex items-center justify-center gap-2 font-black text-white/50 group-hover:text-white uppercase tracking-[0.1em] text-xs transition-colors">
                     <span>🚪</span>
                     Exit & Generate Leaderboard Card
                   </div>
-                  <div className="absolute inset-0 bg-white/5 -translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                </button>
+                </m.button>
               )}
 
+              {/* Exit to Home (OVERALL card) */}
               {gameType === 'OVERALL' && (
-                <Link
-                  href="/"
-                  className="col-span-1 sm:col-span-2 group relative overflow-hidden border-2 border-[#ff4655] py-4 transition-all hover:bg-[#ff4655]/10 mb-2"
-                >
-                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-[#ff4655] uppercase tracking-[0.15em] text-sm">
-                    <span>❌</span>
-                    Exit to Home
-                  </div>
+                <Link href="/" className="block">
+                  <m.div
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    className="py-3 px-6 border-2 text-center transition-colors hover:bg-opacity-10"
+                    style={{ borderColor: theme.primary, backgroundColor: `${theme.primary}10` }}
+                  >
+                    <div className="flex items-center justify-center gap-2 font-black uppercase tracking-[0.1em] text-sm" style={{ color: theme.primary }}>
+                      <span>✕</span>
+                      Exit to Home
+                    </div>
+                  </m.div>
                 </Link>
               )}
 
-              <button
-                onClick={saveCardToS3}
-                disabled={isUploading || !!uploadedUrl}
-                className={`group relative overflow-hidden bg-[#ff4655] py-4 transition-all hover:brightness-110 disabled:opacity-50`}
-              >
-                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.15em] text-sm">
+              {/* Save & Export Row */}
+              <div className="grid grid-cols-2 gap-3">
+                <m.button
+                  onClick={saveCardToS3}
+                  disabled={isUploading || !!uploadedUrl}
+                  whileHover={{ scale: isUploading || uploadedUrl ? 1 : 1.02 }}
+                  whileTap={{ scale: isUploading || uploadedUrl ? 1 : 0.98 }}
+                  className="relative overflow-hidden py-3 px-4 disabled:opacity-60 group"
+                  style={{
+                    background: uploadedUrl
+                      ? 'linear-gradient(135deg, #10b981, #059669)'
+                      : `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                    clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))'
+                  }}
+                >
+                  <div className="relative z-10 flex items-center justify-center gap-2 font-black text-white uppercase tracking-[0.1em] text-xs">
                     {isUploading ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <m.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                        />
                         Uploading...
                       </>
                     ) : uploadedUrl ? (
                       <>
-                        <span>✅</span>
-                        Card Saved
+                        <span>✓</span>
+                        Saved
                       </>
                     ) : (
                       <>
@@ -1507,92 +1786,138 @@ export default function GameOverCard({
                       </>
                     )}
                   </div>
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                </button>
+                </m.button>
 
-                <button
+                <m.button
                   onClick={downloadCard}
                   disabled={isDownloading || !uploadedUrl}
-                  className="group relative overflow-hidden border border-white/20 py-4 transition-all hover:bg-white/5 disabled:opacity-50"
+                  whileHover={{ scale: isDownloading || !uploadedUrl ? 1 : 1.02 }}
+                  whileTap={{ scale: isDownloading || !uploadedUrl ? 1 : 0.98 }}
+                  className="relative overflow-hidden py-3 px-4 border border-white/20 disabled:opacity-40 group transition-colors hover:bg-white/5"
                 >
-                  <div className="relative z-10 flex items-center justify-center gap-3 font-black text-white uppercase tracking-[0.15em] text-sm">
+                  <div className="relative z-10 flex items-center justify-center gap-2 font-black text-white uppercase tracking-[0.1em] text-xs">
                     {isDownloading ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <m.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                        />
                         Exporting...
                       </>
                     ) : (
                       <>
-                        <span>⬇️</span>
-                        Export Card
+                        <span>⬇</span>
+                        Export
                       </>
                     )}
                   </div>
-                  <div className="absolute bottom-0 left-0 w-full h-[1px] bg-[#ff4655] scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                </button>
+                  {/* Bottom accent line */}
+                  <div
+                    className="absolute bottom-0 left-0 w-full h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"
+                    style={{ backgroundColor: theme.primary }}
+                  />
+                </m.button>
               </div>
+            </div>
 
-              {/* Share & QR Section */}
-              <div className="border-t border-white/5 pt-6">
+              {/* Share & QR Section - Tournament Share Card */}
+              <div className="border-t border-white/10 pt-5 mt-2">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Secure Code</span>
                   <div className="flex items-center gap-2">
-                    <img src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" className="h-4 opacity-50" />
-                    <span className="text-[10px] font-black text-white/20">x</span>
-                    <img src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" className="h-4 opacity-50" />
+                    <div className="w-1.5 h-1.5" style={{ backgroundColor: theme.primary }} />
+                    <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.15em]">Share Victory</span>
+                  </div>
+                  <div className="flex items-center gap-3 opacity-60">
+                    <img src="/assets/images/logos/cloud9-logo.png" alt="Cloud9" className="h-4" />
+                    <div className="w-px h-3 bg-white/20" />
+                    <img src="/assets/images/logos/jetbrains-logo.png" alt="JetBrains" className="h-4" />
                   </div>
                 </div>
 
                 <m.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col sm:flex-row items-center gap-6 bg-black/40 p-6 border border-white/5"
+                  className="flex flex-col sm:flex-row items-center gap-5 p-5"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2))',
+                    borderLeft: `2px solid ${theme.primary}40`
+                  }}
                 >
-                  <div className="p-3 bg-white relative">
-                    {/* Decorative corners for QR */}
-                    <div className="absolute -top-1 -left-1 w-4 h-4 border-l-2 border-t-2 border-[#ff4655]" />
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 border-r-2 border-b-2 border-[#ff4655]" />
-                    <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
+                  {/* QR Code with Frame */}
+                  <div className="relative">
+                    <div
+                      className="absolute -inset-2 opacity-30"
+                      style={{
+                        background: `linear-gradient(135deg, ${theme.primary}40, transparent)`,
+                        clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)'
+                      }}
+                    />
+                    <div className="relative p-2 bg-white">
+                      <img src={qrCodeUrl} alt="QR Code" className="w-28 h-28 sm:w-32 sm:h-32" />
+                    </div>
+                    {/* Corner Accents */}
+                    <div className="absolute -top-1 -left-1 w-3 h-3 border-l-2 border-t-2" style={{ borderColor: theme.primary }} />
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 border-r-2 border-b-2" style={{ borderColor: theme.primary }} />
                   </div>
-                  <div className="text-center sm:text-left">
-                    <h4 className="text-white font-black uppercase tracking-widest text-sm mb-2">Challenge Issued</h4>
-                    <p className="text-slate-500 text-[10px] leading-relaxed mb-4">Scan to share your dominance or copy the secure link below.</p>
-                    <button
+
+                  <div className="text-center sm:text-left flex-1">
+                    <h4 className="text-white font-black uppercase tracking-wider text-sm mb-1">Challenge Issued</h4>
+                    <p className="text-slate-500 text-[10px] leading-relaxed mb-4 max-w-[200px]">
+                      Scan to share your victory or copy the secure link below.
+                    </p>
+                    <m.button
                       onClick={() => {
                         navigator.clipboard.writeText(shareUrl)
-                        // Could add a "Copied!" toast here
                       }}
                       data-export-hide="true"
-                      className="text-[10px] font-black text-white/60 hover:text-white uppercase tracking-widest border border-white/20 px-4 py-2 transition-colors disabled:opacity-30"
                       disabled={!uploadedUrl}
+                      whileHover={{ scale: uploadedUrl ? 1.02 : 1 }}
+                      whileTap={{ scale: uploadedUrl ? 0.98 : 1 }}
+                      className="text-[10px] font-black uppercase tracking-wider px-4 py-2 transition-all disabled:opacity-30"
+                      style={{
+                        color: uploadedUrl ? theme.primary : 'rgba(255,255,255,0.4)',
+                        border: `1px solid ${uploadedUrl ? theme.primary + '50' : 'rgba(255,255,255,0.2)'}`
+                      }}
                     >
-                      {uploadedUrl ? 'Copy Access URL' : 'Save Card to Generate URL'}
-                    </button>
+                      {uploadedUrl ? 'Copy URL' : 'Save Card First'}
+                    </m.button>
                   </div>
                 </m.div>
               </div>
             </div>
 
             {/* Footer Return Link */}
-            <div data-export-hide="true">
-              <Link href="/" className="mt-8">
-                <div className="group flex items-center gap-4 text-white/40 hover:text-[#ff4655] transition-colors">
-                  <div className="h-[1px] flex-1 bg-white/10 group-hover:bg-[#ff4655]/30 transition-colors" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Return to Menu</span>
-                  <div className="h-[1px] flex-1 bg-white/10 group-hover:bg-[#ff4655]/30 transition-colors" />
-                </div>
+            <div data-export-hide="true" className="mt-6">
+              <Link href="/">
+                <m.div
+                  whileHover={{ opacity: 1 }}
+                  className="group flex items-center gap-4 opacity-60 transition-opacity"
+                >
+                  <div className="h-px flex-1 bg-white/10 group-hover:bg-opacity-30 transition-colors" style={{ backgroundColor: `${theme.primary}20` }} />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] transition-colors" style={{ color: `${theme.primary}80` }}>
+                    Return to Menu
+                  </span>
+                  <div className="h-px flex-1 bg-white/10 group-hover:bg-opacity-30 transition-colors" style={{ backgroundColor: `${theme.primary}20` }} />
+                </m.div>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Bottom Banner Branding */}
-        <div className="bg-white/5 px-8 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-2 h-2 bg-[#ff4655] rotate-45" />
-            <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em]">Protocol // Junie Arcade</span>
+        {/* Bottom Banner Branding - Tournament Footer */}
+        <div
+          className="px-6 md:px-8 py-3 flex items-center justify-between"
+          style={{ background: `linear-gradient(90deg, ${theme.primary}10, transparent, ${theme.primary}10)` }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-1.5 rotate-45" style={{ backgroundColor: theme.primary }} />
+            <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Junie Arcade Protocol</span>
           </div>
-          <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em]">System Stable // {new Date().getFullYear()}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Cloud9 x JetBrains</span>
+            <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+          </div>
         </div>
       </div>
     </m.div>
@@ -1605,132 +1930,185 @@ export default function GameOverCard({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-6"
         >
-          <div className="max-w-md w-full text-center">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-5" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px'
+          }} />
+
+          <div className="max-w-md w-full text-center relative">
             {isCalculating ? (
               <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="relative"
               >
-                {/* Modern Backdrop Effects */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-                
+                {/* Radial Glow */}
+                <div
+                  className="absolute inset-0 rounded-full blur-3xl animate-pulse"
+                  style={{ background: `radial-gradient(circle, ${theme.glow}, transparent 70%)` }}
+                />
+
                 <div className="relative space-y-10 py-12">
+                  {/* Hexagonal Loading Indicator */}
                   <div className="relative w-32 h-32 mx-auto">
-                    {/* Outer Rotating Ring */}
                     <m.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-0 border-t-2 border-b-2 border-l-2 border-transparent border-t-emerald-500/50 border-b-cyan-500/50 rounded-full"
+                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0"
+                      style={{
+                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                        border: `2px solid ${theme.primary}40`
+                      }}
                     />
-                    
-                    {/* Inner Faster Rotating Ring */}
                     <m.div
                       animate={{ rotate: -360 }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-4 border-r-2 border-l-2 border-transparent border-r-emerald-400 border-l-cyan-400 rounded-full"
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-4"
+                      style={{
+                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                        border: `2px solid ${theme.primary}60`
+                      }}
                     />
-                    
-                    {/* Pulsing Core */}
                     <m.div
-                      animate={{ 
+                      animate={{
                         scale: [0.9, 1.1, 0.9],
-                        opacity: [0.5, 1, 0.5]
+                        opacity: [0.6, 1, 0.6]
                       }}
                       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute inset-8 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.5)] flex items-center justify-center text-3xl"
+                      className="absolute inset-8 flex items-center justify-center text-3xl"
+                      style={{
+                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                        background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                        boxShadow: `0 0 30px ${theme.glow}`
+                      }}
                     >
                       📊
                     </m.div>
                   </div>
 
                   <div className="space-y-4">
-                    <m.h3 
+                    <m.h3
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.2 }}
-                      className="text-4xl font-black text-white uppercase tracking-tighter italic"
+                      className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter italic"
                     >
-                      Analyzing <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Results</span>
+                      Analyzing{' '}
+                      <span
+                        className="text-transparent bg-clip-text"
+                        style={{ backgroundImage: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` }}
+                      >
+                        Results
+                      </span>
                     </m.h3>
-                    
+
                     <m.div
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.4 }}
-                      className="flex flex-col items-center gap-2"
+                      className="flex flex-col items-center gap-3"
                     >
-                      <p className="text-slate-400 text-sm font-bold uppercase tracking-[0.3em]">
-                        Calculating overall leaderboard position
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">
+                        Calculating leaderboard position
                       </p>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1.5">
                         {[0, 1, 2].map((i) => (
                           <m.div
                             key={i}
-                            animate={{ 
+                            animate={{
                               scale: [1, 1.5, 1],
                               opacity: [0.3, 1, 0.3]
                             }}
-                            transition={{ 
-                              duration: 1, 
-                              repeat: Infinity, 
-                              delay: i * 0.2 
+                            transition={{
+                              duration: 1,
+                              repeat: Infinity,
+                              delay: i * 0.2
                             }}
-                            className="w-1.5 h-1.5 bg-emerald-400 rounded-full"
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: theme.primary }}
                           />
                         ))}
                       </div>
                     </m.div>
                   </div>
-
-                  {/* Cyberpunk Decorative Lines */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-b from-emerald-500/0 to-emerald-500/50" />
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-t from-cyan-500/0 to-cyan-500/50" />
                 </div>
               </m.div>
             ) : (
               <m.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="bg-[#0f1923] border border-white/10 p-10 relative overflow-hidden"
+                className="relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, #0a0e13, #0f1923)',
+                  border: `1px solid ${theme.primary}30`
+                }}
               >
-                {/* Decorative background */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 -rotate-45 translate-x-16 -translate-y-16" />
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 -rotate-45 -translate-x-16 translate-y-16" />
+                {/* Top Accent Bar */}
+                <div className="h-1" style={{ background: `linear-gradient(90deg, ${theme.primary}, ${theme.secondary})` }} />
 
-                <div className="text-sm font-black text-emerald-500 uppercase tracking-[0.3em] mb-6 italic">Tournament Summary</div>
-                
-                <div className="mb-8">
-                  <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Your Final Rank</div>
-                  <div className="text-8xl font-black text-white italic tracking-tighter">
-                    #{playerRank || '??'}
+                {/* Corner Accents */}
+                <div className="absolute top-0 left-0 w-12 h-12 border-l-2 border-t-2 pointer-events-none" style={{ borderColor: `${theme.primary}40` }} />
+                <div className="absolute bottom-0 right-0 w-12 h-12 border-r-2 border-b-2 pointer-events-none" style={{ borderColor: `${theme.primary}40` }} />
+
+                <div className="p-8 md:p-10">
+                  <div
+                    className="text-sm font-black uppercase tracking-[0.2em] mb-6 italic"
+                    style={{ color: theme.primary }}
+                  >
+                    Tournament Summary
                   </div>
+
+                  <div className="mb-8">
+                    <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Your Final Rank</div>
+                    <div
+                      className="text-7xl md:text-8xl font-black text-white italic tracking-tighter"
+                      style={{ textShadow: `0 0 40px ${theme.glow}` }}
+                    >
+                      #{playerRank || '??'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mb-8">
+                    <div
+                      className="flex items-center justify-between py-2 px-3"
+                      style={{ background: `${theme.primary}08`, borderLeft: `2px solid ${theme.primary}40` }}
+                    >
+                      <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Player</span>
+                      <span className="text-sm font-black text-white uppercase italic">{username}</span>
+                    </div>
+                    <div
+                      className="flex items-center justify-between py-2 px-3"
+                      style={{ background: `${theme.primary}08`, borderLeft: `2px solid ${theme.primary}40` }}
+                    >
+                      <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Score</span>
+                      <span className="text-sm font-black uppercase italic" style={{ color: theme.primary }}>
+                        {score.toLocaleString()} PTS
+                      </span>
+                    </div>
+                  </div>
+
+                  <Link href="/leaderboard" className="block">
+                    <m.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full py-4 px-8 text-black font-black text-sm uppercase tracking-widest transition-colors"
+                      style={{
+                        background: 'linear-gradient(135deg, #ffffff, #e0e0e0)',
+                        clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)'
+                      }}
+                    >
+                      View Hall of Fame
+                    </m.div>
+                  </Link>
+
+                  <button
+                    onClick={() => setShowExitModal(false)}
+                    className="mt-5 text-[10px] font-black text-white/30 hover:text-white uppercase tracking-[0.2em] transition-colors"
+                  >
+                    [ Close ]
+                  </button>
                 </div>
-
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                    <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Player</span>
-                    <span className="text-sm font-black text-white uppercase italic">{username}</span>
-                  </div>
-                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                    <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Score</span>
-                    <span className="text-sm font-black text-emerald-400 uppercase italic">{score.toLocaleString()} PTS</span>
-                  </div>
-                </div>
-
-                <Link
-                  href="/leaderboard"
-                  className="block w-full bg-white text-black font-black py-4 px-8 rounded-sm text-sm uppercase tracking-widest hover:bg-emerald-400 transition-colors skew-x-[-10deg]"
-                >
-                  <span className="inline-block skew-x-[10deg]">View Hall of Fame</span>
-                </Link>
-                
-                <button
-                  onClick={() => setShowExitModal(false)}
-                  className="mt-4 text-[10px] font-black text-white/20 hover:text-white uppercase tracking-[0.3em] transition-colors"
-                >
-                  [ Close and Return ]
-                </button>
               </m.div>
             )}
           </div>
