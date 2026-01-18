@@ -102,6 +102,31 @@ export default function GameOverCard({
     })
   }, [])
 
+  // For OVERALL card: Extract ranks from stats as fallback if API fetch fails
+  useEffect(() => {
+    if (gameType === 'OVERALL' && !allRanks && stats.length > 0) {
+      const extractRank = (label: string) => {
+        const stat = stats.find(s => s.label.toLowerCase().includes(label.toLowerCase()))
+        if (stat && typeof stat.value === 'string' && stat.value.startsWith('#')) {
+          return parseInt(stat.value.replace('#', ''), 10)
+        }
+        return null
+      }
+
+      const extractedRanks = {
+        overall: extractRank('overall rank'),
+        reflex: extractRank('reflex rank'),
+        jump: extractRank('jump rank'),
+        memory: extractRank('memory rank')
+      }
+
+      // Only set if we found at least the overall rank
+      if (extractedRanks.overall) {
+        setAllRanks(extractedRanks)
+      }
+    }
+  }, [gameType, stats, allRanks])
+
   const junies = [
     'junie-happy.png', 'junie-jump.png', 'junie-run-1.png', 'junie-run-3.png',
     'junie-idle.png', 'junie-run-2.png', 'junie-sad.png', 'junie-run-4.png',
@@ -143,17 +168,20 @@ export default function GameOverCard({
     const saveAndFetchRankings = async () => {
       if (hasAutoSaved) return
 
-      // First, save the score
-      try {
-        await onSaveScore()
-      } catch (error) {
-        console.error('Failed to save score:', error)
+      // For OVERALL card, skip saving (already saved) and just fetch rankings
+      if (gameType !== 'OVERALL') {
+        // First, save the score
+        try {
+          await onSaveScore()
+        } catch (error) {
+          console.error('Failed to save score:', error)
+        }
       }
 
       setHasAutoSaved(true)
 
-      // Wait a bit for the database to update
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Wait a bit for the database to update (shorter wait for OVERALL since no save)
+      await new Promise(resolve => setTimeout(resolve, gameType === 'OVERALL' ? 100 : 500))
 
       // Then fetch rankings
       const playerId = localStorage.getItem('junie_player_id')
@@ -177,7 +205,7 @@ export default function GameOverCard({
     }
 
     saveAndFetchRankings()
-  }, [hasAutoSaved, onSaveScore])
+  }, [hasAutoSaved, onSaveScore, gameType])
 
   // Auto-start camera with 5-second countdown when game over card appears
   useEffect(() => {
@@ -1546,6 +1574,64 @@ export default function GameOverCard({
               </div>
               <span className="text-sm font-black text-white uppercase italic tracking-tight">{country}</span>
             </div>
+
+            {/* BIG Overall Rank Display - Only for Ultimate Champion card */}
+            {gameType === 'OVERALL' && allRanks && allRanks.overall && (
+              <m.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, type: 'spring' }}
+                className="relative p-6 text-center overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, ${theme.primary}15, ${theme.primary}05)`,
+                  border: `2px solid ${theme.primary}40`
+                }}
+              >
+                {/* Corner Decorations */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2" style={{ borderColor: theme.primary }} />
+                <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2" style={{ borderColor: theme.primary }} />
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2" style={{ borderColor: theme.primary }} />
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2" style={{ borderColor: theme.primary }} />
+
+                {/* Trophy for Top 3 */}
+                {allRanks.overall <= 3 && (
+                  <m.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: 'spring' }}
+                    className="absolute -top-3 left-1/2 -translate-x-1/2 text-4xl"
+                  >
+                    {allRanks.overall === 1 ? '🥇' : allRanks.overall === 2 ? '🥈' : '🥉'}
+                  </m.div>
+                )}
+
+                <div className="text-[10px] font-black uppercase tracking-[0.3em] mb-2 mt-2" style={{ color: theme.primary }}>
+                  Global Tournament Rank
+                </div>
+
+                <m.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.4, type: 'spring' }}
+                  className="text-7xl md:text-8xl font-black text-white italic tracking-tighter leading-none"
+                  style={{ textShadow: `0 0 40px ${theme.glow}, 0 0 80px ${theme.glow}` }}
+                >
+                  #{allRanks.overall}
+                </m.div>
+
+                <div className="text-[9px] font-bold text-white/40 uppercase tracking-wider mt-2">
+                  Out of all participants
+                </div>
+
+                {/* Animated Glow Effect */}
+                <m.div
+                  animate={{ opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ boxShadow: `inset 0 0 40px ${theme.glow}` }}
+                />
+              </m.div>
+            )}
           </div>
 
           {/* Right Column: Stats & Actions */}
@@ -1619,7 +1705,16 @@ export default function GameOverCard({
                   <div className="flex-1 h-px bg-white/10" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  {stats.map((stat, index) => (
+                  {stats
+                    // For OVERALL card, filter out rank stats since they're shown in the ranks section above
+                    .filter(stat => {
+                      if (gameType === 'OVERALL') {
+                        const label = stat.label.toLowerCase()
+                        return !label.includes('rank')
+                      }
+                      return true
+                    })
+                    .map((stat, index) => (
                     <m.div
                       key={index}
                       initial={{ opacity: 0, x: 20 }}
