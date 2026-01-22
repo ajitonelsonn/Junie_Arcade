@@ -26,6 +26,11 @@ export default function MerchandisePage() {
   return (
     <LazyMotion features={domAnimation} strict>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
+      {/* Navigation / Header Branding */}
+      <div className="relative z-50">
+        <Navigation />
+      </div>
+      
       {/* Animated Background - VALORANT/LoL Tactical Style */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 opacity-20 mix-blend-overlay">
@@ -108,9 +113,7 @@ export default function MerchandisePage() {
       </div>
 
       <div className="relative z-10">
-        <Navigation />
-
-        <main className="container mx-auto px-8 py-20">
+        <main className="container mx-auto px-8 py-10">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

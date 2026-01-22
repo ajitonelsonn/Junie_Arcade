@@ -6,6 +6,7 @@ import NewChampionAnnouncement from "../components/NewChampionAnnouncement";
 import Image from "next/image";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import Navigation from "../components/Navigation";
 
 export default function LeaderboardPage() {
   const [newChampion, setNewChampion] = useState<NewChampionData | null>(null);
@@ -31,6 +32,11 @@ export default function LeaderboardPage() {
   return (
     <LazyMotion features={domAnimation} strict>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
+      {/* Navigation / Header Branding */}
+      <div className="relative z-50">
+        <Navigation />
+      </div>
+      
       {/* New Champion Announcement Overlay */}
       <NewChampionAnnouncement
         champion={newChampion}
@@ -118,92 +124,8 @@ export default function LeaderboardPage() {
       </div>
 
       <div className="relative z-10">
-        {/* Navigation - Tactical Style */}
-        <nav className="relative px-4 sm:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
-          {/* Background blur bar */}
-          <div className="absolute inset-0 bg-[#020617]/60 backdrop-blur-md border-b border-white/5" />
-
-          <div className="relative z-10 flex justify-between items-center">
-            <m.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <Link href="/" className="flex items-center gap-4">
-                <div
-                  className="relative p-1.5 sm:p-2"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), transparent)',
-                    clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))'
-                  }}
-                >
-                  <Image
-                    src="/assets/images/logos/cloud9-logo.png"
-                    alt="Cloud9"
-                    width={80}
-                    height={30}
-                    style={{ width: "auto", height: "auto" }}
-                    className="brightness-110"
-                  />
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1 h-1 rotate-45 bg-[#ff4655]" />
-                  <div className="h-5 sm:h-6 w-px bg-white/20" />
-                  <div className="w-1 h-1 rotate-45 bg-[#ff4655]" />
-                </div>
-                <div
-                  className="relative p-1.5 sm:p-2"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), transparent)',
-                    clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
-                  }}
-                >
-                  <Image
-                    src="/assets/images/logos/jetbrains-logo.png"
-                    alt="JetBrains"
-                    width={80}
-                    height={30}
-                    style={{ width: "auto", height: "auto" }}
-                    className="opacity-90 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-              </Link>
-            </m.div>
-
-            <div className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-              <Link href="/" className="hover:text-[#ff4655] transition-colors relative group">
-                Arena
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#ff4655] transition-all group-hover:w-full" />
-              </Link>
-              <Link href="/gallery" className="hover:text-[#ff4655] transition-colors relative group">
-                Gallery
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#ff4655] transition-all group-hover:w-full" />
-              </Link>
-              <span className="text-[#ff4655] relative">
-                Leaderboard
-                <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-[#ff4655]" />
-              </span>
-              <Link href="/merchandise" className="hover:text-[#ff4655] transition-colors relative group">
-                Merchandise
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#ff4655] transition-all group-hover:w-full" />
-              </Link>
-              <a
-                href="https://cloud9.devpost.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-white"
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4655] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff4655]"></span>
-                </span>
-                TOURNAMENT
-              </a>
-            </div>
-          </div>
-        </nav>
-
         {/* Header Section - Compact for better leaderboard visibility */}
-        <header className="px-8 pt-10 pb-4 text-center max-w-5xl mx-auto relative">
+        <header className="px-8 pt-4 pb-4 text-center max-w-5xl mx-auto relative">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

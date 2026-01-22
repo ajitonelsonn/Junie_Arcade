@@ -18,7 +18,7 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="relative px-4 sm:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
+    <nav className="relative z-50 px-4 sm:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
       {/* Background blur bar */}
       <div className="absolute inset-0 bg-[#020617]/60 backdrop-blur-md border-b border-white/5" />
 
