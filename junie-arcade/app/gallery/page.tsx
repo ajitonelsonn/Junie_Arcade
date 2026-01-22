@@ -252,7 +252,7 @@ export default function GalleryPage() {
                           </div>
                         </motion.div>
                       );
-                    }
+                    },
                   )}
                 </div>
               ) : (
@@ -320,7 +320,7 @@ export default function GalleryPage() {
                               </span>
                               <span
                                 className={`text-[10px] font-black uppercase tracking-widest ${getGameColor(
-                                  item.gameType
+                                  item.gameType,
                                 )}`}
                               >
                                 {item.score.toLocaleString()} PTS

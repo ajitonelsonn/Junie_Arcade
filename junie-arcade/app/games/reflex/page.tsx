@@ -396,9 +396,9 @@ export default function ReflexArenaPage() {
   return (
     <LazyMotion features={domAnimation}>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-orange-500/30 overflow-hidden">
-      {/* Animated Background - Matching Home Page Style */}
+      {/* Animated Background - VALORANT/LoL Tactical Style */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 opacity-30 mix-blend-overlay">
+        <div className="absolute inset-0 opacity-20 mix-blend-overlay">
           <Image
             src="/assets/images/backgrounds/lol.webp"
             alt=""
@@ -409,37 +409,66 @@ export default function ReflexArenaPage() {
             className="object-cover"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/30 via-[#020617]/70 to-[#020617]" />
 
-        {/* Animated Orbs */}
+        {/* Hexagonal Grid Pattern */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '60px 60px'
+        }} />
+
+        {/* Diagonal Scan Lines */}
+        <div className="absolute inset-0 opacity-[0.02]" style={{
+          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, white 2px, white 3px)',
+          backgroundSize: '20px 20px'
+        }} />
+
+        {/* Animated Scan Line - Horizontal */}
+        <m.div
+          animate={{ y: ['0%', '100%'] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+          className="absolute left-0 right-0 h-[1px] opacity-10 pointer-events-none"
+          style={{ background: 'linear-gradient(90deg, transparent, #ff4655, #fd4556, transparent)' }}
+        />
+
+        {/* Animated Orbs - VALORANT Colors */}
         <m.div
           animate={{
             scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-            x: [0, 120, 0],
-            y: [0, 60, 0],
+            opacity: [0.15, 0.25, 0.15],
+            x: [0, 80, 0],
+            y: [0, 40, 0],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-orange-600/30 rounded-full blur-[140px]"
-        />
+          style={{ willChange: "transform" }}
+          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[120px]"
+        >
+          <div className="w-full h-full bg-gradient-to-br from-[#ff4655]/40 to-orange-600/20 rounded-full" />
+        </m.div>
         <m.div
           animate={{
-            scale: [1.3, 1, 1.3],
-            opacity: [0.3, 0.5, 0.3],
-            x: [0, -100, 0],
+            scale: [1.2, 1, 1.2],
+            opacity: [0.15, 0.3, 0.15],
+            x: [0, -60, 0],
             y: [0, 80, 0],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 -right-40 w-[600px] h-[600px] bg-yellow-500/30 rounded-full blur-[120px]"
-        />
+          style={{ willChange: "transform" }}
+          className="absolute top-1/3 -right-40 w-[450px] h-[450px] rounded-full blur-[100px]"
+        >
+          <div className="w-full h-full bg-gradient-to-br from-yellow-500/30 to-orange-600/20 rounded-full" />
+        </m.div>
         <m.div
           animate={{
             scale: [1, 1.2, 1],
-            opacity: [0.2, 0.3, 0.2],
+            opacity: [0.1, 0.2, 0.1],
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-0 left-1/2 w-[500px] h-[500px] bg-red-600/20 rounded-full blur-[100px]"
-        />
+          style={{ willChange: "transform" }}
+          className="absolute bottom-0 left-1/2 w-[400px] h-[400px] rounded-full blur-[100px]"
+        >
+          <div className="w-full h-full bg-gradient-to-br from-red-600/30 to-[#ff4655]/20 rounded-full" />
+        </m.div>
 
         {/* Floating Hero Characters - Decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
@@ -560,83 +589,160 @@ export default function ReflexArenaPage() {
             className="object-contain drop-shadow-[0_0_15px_rgba(251,146,60,0.4)]"
           />
         </m.div>
+
+        {/* Corner Decorative Elements - Tactical HUD Style */}
+        <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none opacity-30 hidden lg:block">
+          <div className="absolute top-4 left-4 w-20 h-[1px] bg-gradient-to-r from-[#ff4655] to-transparent" />
+          <div className="absolute top-4 left-4 h-20 w-[1px] bg-gradient-to-b from-[#ff4655] to-transparent" />
+          <div className="absolute top-8 left-8 text-[8px] font-black text-[#ff4655]/50 uppercase tracking-[0.3em]">
+            RFX//
+          </div>
+        </div>
+
+        <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none opacity-30 hidden lg:block">
+          <div className="absolute top-4 right-4 w-20 h-[1px] bg-gradient-to-l from-[#fd4556] to-transparent" />
+          <div className="absolute top-4 right-4 h-20 w-[1px] bg-gradient-to-b from-[#fd4556] to-transparent" />
+          <div className="absolute top-8 right-8 text-[8px] font-black text-[#fd4556]/50 uppercase tracking-[0.3em]">
+            //ARENA
+          </div>
+        </div>
       </div>
 
       <div className="relative z-10">
-        {/* Header */}
-        <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-          <m.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <Link href="/" className="flex items-center gap-3 group">
-              <span className="text-3xl">←</span>
-              <span className="text-sm font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">
-                Back to Arena
-              </span>
-            </Link>
-          </m.div>
-          <m.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-4"
-          >
-            <div className="flex items-center gap-3">
-              <Image
-                src="/assets/images/logos/cloud9-logo.png"
-                alt="Cloud9"
-                width={70}
-                height={24}
-                style={{ width: "auto", height: "auto" }}
-                className="brightness-110"
-              />
-              <div className="h-6 w-px bg-white/20" />
-              <Image
-                src="/assets/images/logos/jetbrains-logo.png"
-                alt="JetBrains"
-                width={70}
-                height={24}
-                style={{ width: "auto", height: "auto" }}
-                className="opacity-90"
-              />
-            </div>
-            <div className="text-right hidden md:block">
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                Sky's the Limit
+        {/* Header - Tactical Style */}
+        <nav className="relative px-4 sm:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
+          {/* Background blur bar */}
+          <div className="absolute inset-0 bg-[#020617]/60 backdrop-blur-md border-b border-white/5" />
+
+          <div className="relative z-10 flex justify-between items-center">
+            <m.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <Link
+                href="/"
+                className="group relative px-4 py-2 flex items-center gap-3"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), transparent)',
+                  clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))'
+                }}
+              >
+                <span className="text-[#ff4655] text-xl font-black">←</span>
+                <span className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 group-hover:text-white transition-colors">
+                  Back to Arena
+                </span>
+              </Link>
+            </m.div>
+            <m.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 sm:gap-4"
+            >
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div
+                  className="relative p-1.5 sm:p-2"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), transparent)',
+                    clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))'
+                  }}
+                >
+                  <Image
+                    src="/assets/images/logos/cloud9-logo.png"
+                    alt="Cloud9"
+                    width={60}
+                    height={20}
+                    sizes="60px"
+                    style={{ width: "auto", height: "auto" }}
+                    className="brightness-110 w-12 sm:w-[60px]"
+                  />
+                </div>
+                {/* Divider */}
+                <div className="flex items-center gap-1">
+                  <div className="w-1 h-1 rotate-45 bg-[#ff4655]" />
+                  <div className="h-5 sm:h-6 w-px bg-white/20" />
+                  <div className="w-1 h-1 rotate-45 bg-[#fd4556]" />
+                </div>
+                <div
+                  className="relative p-1.5 sm:p-2"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(253, 69, 86, 0.1), transparent)',
+                    clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
+                  }}
+                >
+                  <Image
+                    src="/assets/images/logos/jetbrains-logo.png"
+                    alt="JetBrains"
+                    width={60}
+                    height={20}
+                    sizes="60px"
+                    style={{ width: "auto", height: "auto" }}
+                    className="opacity-90 w-12 sm:w-[60px]"
+                  />
+                </div>
               </div>
-              <div className="text-xs font-bold text-white">Hackathon 2026</div>
-            </div>
-          </m.div>
+              <div className="text-right hidden md:block">
+                <div className="text-[9px] font-black text-[#ff4655]/60 uppercase tracking-[0.2em]">
+                  Sky's the Limit
+                </div>
+                <div className="text-[10px] font-bold text-white/80">Hackathon 2026</div>
+              </div>
+            </m.div>
+          </div>
         </nav>
 
         {/* Main Content */}
-        <div className="px-8 pb-4 max-w-7xl mx-auto">
-          {/* Title Section */}
+        <div className="px-4 sm:px-8 pb-4 max-w-7xl mx-auto">
+          {/* Title Section - Tactical Style */}
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-3"
+            className="text-center mb-4"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-2 backdrop-blur-md">
+            {/* Tactical Badge */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 mb-3 backdrop-blur-md relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), rgba(255, 70, 85, 0.05))',
+                border: '1px solid rgba(255, 70, 85, 0.3)',
+                clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+              }}
+            >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4655] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff4655]"></span>
               </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-[#ff4655]">
                 High-Intensity Combat
               </span>
+              {/* Animated scan line */}
+              <m.div
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#ff4655]/20 to-transparent"
+              />
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tighter leading-none">
-              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-3 tracking-tighter leading-none italic">
+              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#ff4655] via-orange-500 to-yellow-500"
+                style={{ textShadow: '0 0 60px rgba(255, 70, 85, 0.5)' }}
+              >
                 REFLEX ARENA
               </span>
             </h1>
 
-            <p className="text-sm text-slate-400 font-medium max-w-2xl mx-auto">
+            {/* Decorative Line */}
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="w-12 sm:w-16 h-[2px] bg-gradient-to-r from-transparent to-[#ff4655]" />
+              <div className="w-1.5 h-1.5 rotate-45 bg-[#ff4655]" />
+              <div className="w-6 sm:w-8 h-[1px] bg-white/30" />
+              <div className="w-1.5 h-1.5 rotate-45 bg-orange-500" />
+              <div className="w-12 sm:w-16 h-[2px] bg-gradient-to-l from-transparent to-orange-500" />
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-400 font-bold max-w-2xl mx-auto uppercase tracking-wide">
               <span className="text-white">Neutralize bugs,</span> avoid traps,
               and sync with the system.
-              <span className="text-orange-400">
+              <span className="text-[#ff4655]">
                 {" "}
                 Every millisecond counts.
               </span>
@@ -650,9 +756,41 @@ export default function ReflexArenaPage() {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-lg mx-auto"
             >
-              <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/10 shadow-2xl">
-                <div className="text-center mb-8">
-                  <div className="inline-block p-6 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl mb-6">
+              <div
+                className="relative bg-[#0a0e13]/90 backdrop-blur-xl p-8 sm:p-12 border border-[#ff4655]/20 shadow-2xl overflow-hidden"
+                style={{
+                  clipPath: 'polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px))'
+                }}
+              >
+                {/* Top accent bar */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff4655] via-orange-500 to-yellow-500" />
+
+                {/* Corner accents */}
+                <div className="absolute top-0 left-0 w-16 h-16 pointer-events-none">
+                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#ff4655] to-transparent" />
+                  <div className="absolute top-0 left-0 h-full w-[2px] bg-gradient-to-b from-[#ff4655] to-transparent" />
+                </div>
+                <div className="absolute bottom-0 right-0 w-16 h-16 pointer-events-none">
+                  <div className="absolute bottom-0 right-0 w-full h-[2px] bg-gradient-to-l from-orange-500 to-transparent" />
+                  <div className="absolute bottom-0 right-0 h-full w-[2px] bg-gradient-to-t from-orange-500 to-transparent" />
+                </div>
+
+                {/* Hexagonal pattern background */}
+                <div className="absolute inset-0 opacity-[0.02]" style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
+                  backgroundSize: '40px 40px'
+                }} />
+
+                <div className="relative z-10 text-center mb-8">
+                  {/* Hexagonal logo frame */}
+                  <div className="inline-block p-6 mb-6 relative">
+                    <div
+                      className="absolute inset-0 opacity-30"
+                      style={{
+                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                        background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.4), rgba(255, 165, 0, 0.2))'
+                      }}
+                    />
                     <div className="w-20 h-20 relative">
                       <Image
                         src="/assets/images/logos/game_logo/reflex_arena.png"
@@ -662,22 +800,29 @@ export default function ReflexArenaPage() {
                         priority
                         fetchPriority="high"
                         quality={70}
-                        className="object-contain filter drop-shadow-[0_0_15px_rgba(251,146,60,0.4)]"
+                        className="object-contain filter drop-shadow-[0_0_20px_rgba(255,70,85,0.5)]"
                       />
                     </div>
                   </div>
-                  <h2 className="text-3xl font-black text-white mb-2">
+                  <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 uppercase tracking-tight italic">
                     Enter Combat Zone
                   </h2>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-slate-400 text-xs sm:text-sm font-bold uppercase tracking-wider">
                     Identify yourself before deployment
                   </p>
                 </div>
 
-                <div className="space-y-4 mb-6">
+                <div className="relative z-10 space-y-4 mb-6">
                   {hasPlayedThisSession && (
-                    <div className="bg-red-500/20 border border-red-500/50 p-4 rounded-xl text-center mb-4">
-                      <p className="text-red-400 font-bold text-sm uppercase tracking-wider">
+                    <div
+                      className="p-4 text-center mb-4"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1))',
+                        border: '1px solid rgba(239, 68, 68, 0.5)',
+                        clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+                      }}
+                    >
+                      <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-wider">
                         ⚠️ This game has already been played in this session.
                       </p>
                     </div>
@@ -691,13 +836,16 @@ export default function ReflexArenaPage() {
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Name"
                       disabled={!!playerId}
-                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-6 py-4 text-lg text-center border-2 border-[#ff4655]/30 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)'
+                      }}
                       maxLength={20}
                       autoComplete="name"
                       autoFocus
                     />
                     {playerId && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-400 text-xs font-black uppercase tracking-widest pointer-events-none">
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#ff4655] text-xs font-black uppercase tracking-widest pointer-events-none">
                         Locked
                       </div>
                     )}
@@ -716,11 +864,14 @@ export default function ReflexArenaPage() {
                       onFocus={() => !playerId && setShowCountryDropdown(true)}
                       placeholder={country || "Search your country"}
                       disabled={!!playerId}
-                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-6 py-4 text-lg text-center border-2 border-[#ff4655]/30 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)'
+                      }}
                       autoComplete="country-name"
                     />
                     {playerId && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-400 text-xs font-black uppercase tracking-widest pointer-events-none">
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#ff4655] text-xs font-black uppercase tracking-widest pointer-events-none">
                         Locked
                       </div>
                     )}
@@ -736,7 +887,12 @@ export default function ReflexArenaPage() {
                       </div>
                     )}
                     {showCountryDropdown && (
-                      <div className="absolute z-50 w-full mt-2 max-h-60 overflow-y-auto bg-slate-900/95 backdrop-blur-xl border-2 border-white/10 rounded-2xl shadow-2xl">
+                      <div
+                        className="absolute z-50 w-full mt-2 max-h-60 overflow-y-auto bg-[#0a0e13]/98 backdrop-blur-xl border border-[#ff4655]/30 shadow-2xl"
+                        style={{
+                          clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+                        }}
+                      >
                         {countries
                           .filter((c) =>
                             c.name
@@ -753,7 +909,7 @@ export default function ReflexArenaPage() {
                                 setCountrySearch("");
                                 setShowCountryDropdown(false);
                               }}
-                              className="w-full px-6 py-3 text-left hover:bg-orange-500/20 transition-colors text-white flex items-center gap-3"
+                              className="w-full px-6 py-3 text-left hover:bg-[#ff4655]/20 transition-colors text-white flex items-center gap-3 border-b border-white/5 last:border-0"
                             >
                               <FlagIcon
                                 code={c.code}
@@ -777,6 +933,7 @@ export default function ReflexArenaPage() {
                   </div>
                 </div>
 
+                {/* Deploy Button - Tactical Style */}
                 <m.button
                   onClick={handleStart}
                   disabled={
@@ -784,7 +941,7 @@ export default function ReflexArenaPage() {
                   }
                   whileHover={
                     username.trim() && country && !hasPlayedThisSession
-                      ? { scale: 1.02 }
+                      ? { scale: 1.02, y: -2 }
                       : {}
                   }
                   whileTap={
@@ -792,9 +949,25 @@ export default function ReflexArenaPage() {
                       ? { scale: 0.98 }
                       : {}
                   }
-                  className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(251,146,60,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                  className="relative z-10 w-full text-white font-black py-4 sm:py-5 px-8 text-lg sm:text-xl uppercase tracking-[0.1em] transition-all disabled:opacity-30 disabled:cursor-not-allowed overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(135deg, #ff4655, #fd4556, #f97316)',
+                    clipPath: 'polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%)',
+                    boxShadow: username.trim() && country && !hasPlayedThisSession
+                      ? '0 0 30px rgba(255, 70, 85, 0.4)'
+                      : 'none'
+                  }}
                 >
-                  {hasPlayedThisSession ? "Combat Complete" : "Deploy to Arena"}
+                  {/* Animated scan line */}
+                  <m.div
+                    animate={{ x: ['-100%', '200%'] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                    className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none"
+                  />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <span>▶</span>
+                    {hasPlayedThisSession ? "Combat Complete" : "Deploy to Arena"}
+                  </span>
                 </m.button>
               </div>
             </m.div>
