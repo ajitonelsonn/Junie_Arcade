@@ -396,42 +396,81 @@ export default function MemoryMatchPage() {
   return (
     <LazyMotion features={domAnimation}>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-fuchsia-500/30 overflow-hidden">
-      {/* Animated Background */}
+      {/* Animated Background - VALORANT/LoL Tactical Style */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/c92.webp')] opacity-30 bg-cover bg-center mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
+        <div className="absolute inset-0 opacity-20 mix-blend-overlay">
+          <Image
+            src="/assets/images/backgrounds/c92.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            loading="lazy"
+            quality={60}
+            className="object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/30 via-[#020617]/70 to-[#020617]" />
 
-        {/* Animated Orbs */}
+        {/* Hexagonal Grid Pattern */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '60px 60px'
+        }} />
+
+        {/* Diagonal Scan Lines */}
+        <div className="absolute inset-0 opacity-[0.02]" style={{
+          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, white 2px, white 3px)',
+          backgroundSize: '20px 20px'
+        }} />
+
+        {/* Animated Scan Line - Horizontal */}
+        <m.div
+          animate={{ y: ['0%', '100%'] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+          className="absolute left-0 right-0 h-[1px] opacity-10 pointer-events-none"
+          style={{ background: 'linear-gradient(90deg, transparent, #c284f9, #c284f9, transparent)' }}
+        />
+
+        {/* Animated Orbs - Purple/Pink Colors */}
         <m.div
           animate={{
             scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-            x: [0, 110, 0],
-            y: [0, 65, 0],
+            opacity: [0.15, 0.25, 0.15],
+            x: [0, 80, 0],
+            y: [0, 40, 0],
           }}
-          transition={{ duration: 21, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-40 -left-40 w-[700px] h-[700px] bg-purple-600/30 rounded-full blur-[140px]"
-        />
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
+          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[120px]"
+        >
+          <div className="w-full h-full bg-gradient-to-br from-[#c284f9]/40 to-fuchsia-600/20 rounded-full" />
+        </m.div>
         <m.div
           animate={{
-            scale: [1.3, 1, 1.3],
-            opacity: [0.3, 0.5, 0.3],
-            x: [0, -95, 0],
-            y: [0, 85, 0],
+            scale: [1.2, 1, 1.2],
+            opacity: [0.15, 0.3, 0.15],
+            x: [0, -60, 0],
+            y: [0, 80, 0],
           }}
-          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 -right-40 w-[600px] h-[600px] bg-fuchsia-500/30 rounded-full blur-[120px]"
-        />
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
+          className="absolute top-1/3 -right-40 w-[450px] h-[450px] rounded-full blur-[100px]"
+        >
+          <div className="w-full h-full bg-gradient-to-br from-purple-500/30 to-pink-600/20 rounded-full" />
+        </m.div>
         <m.div
           animate={{
             scale: [1, 1.2, 1],
-            opacity: [0.2, 0.3, 0.2],
+            opacity: [0.1, 0.2, 0.1],
           }}
-          transition={{ duration: 17, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-0 left-1/2 w-[500px] h-[500px] bg-pink-600/20 rounded-full blur-[100px]"
-        />
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
+          className="absolute bottom-0 left-1/2 w-[400px] h-[400px] rounded-full blur-[100px]"
+        >
+          <div className="w-full h-full bg-gradient-to-br from-fuchsia-600/30 to-[#c284f9]/20 rounded-full" />
+        </m.div>
 
-        {/* Floating Hero Characters */}
+        {/* Floating Hero Characters - Decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
           {heroImages.map((img, i) => (
             <m.div
@@ -440,34 +479,36 @@ export default function MemoryMatchPage() {
               animate={{
                 opacity: [0, 0.6, 0],
                 scale: [0.8, 1, 1.2],
-                x: i % 2 === 0 ? [0, 55, 0] : [0, -55, 0],
-                y: [0, -105, 0],
+                x: i % 2 === 0 ? [0, 50, 0] : [0, -50, 0],
+                y: [0, -100, 0],
               }}
               transition={{
-                duration: 17,
+                duration: 18,
                 repeat: Infinity,
-                delay: i * 2.8,
+                delay: i * 3,
                 ease: "linear",
               }}
               className={`absolute ${
                 i === 0
-                  ? "top-[14%] left-[7%]"
+                  ? "top-[15%] left-[8%]"
                   : i === 1
-                  ? "top-[26%] right-[11%]"
+                  ? "top-[25%] right-[12%]"
                   : i === 2
-                  ? "top-[46%] left-[6%]"
+                  ? "top-[50%] left-[5%]"
                   : i === 3
-                  ? "top-[66%] right-[7%]"
+                  ? "top-[70%] right-[8%]"
                   : i === 4
-                  ? "bottom-[16%] left-[13%]"
-                  : "bottom-[32%] right-[11%]"
+                  ? "bottom-[15%] left-[15%]"
+                  : "bottom-[30%] right-[10%]"
               } w-64 h-[400px]`}
             >
               <Image
                 src={img}
                 alt="Hero"
                 fill
-                sizes="256px"
+                sizes="(max-width: 768px) 200px, 256px"
+                loading="lazy"
+                quality={50}
                 className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               />
             </m.div>
@@ -477,148 +518,230 @@ export default function MemoryMatchPage() {
         {/* Floating Junie Mascots */}
         <m.div
           animate={{
-            y: [0, -32, 0],
-            rotate: [0, 14, -14, 0],
-            x: [0, 22, 0],
+            y: [0, -30, 0],
+            rotate: [0, 15, -15, 0],
+            x: [0, 20, 0],
           }}
           transition={{
-            duration: 7.5,
+            duration: 8,
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute top-[19%] left-[3.5%] w-32 h-32 pointer-events-none opacity-60"
+          className="absolute top-[20%] left-[3%] w-32 h-32 pointer-events-none opacity-60"
         >
           <Image
             src="/assets/images/junie/junie-happy.png"
             alt="Junie Happy"
             fill
             sizes="128px"
-            className="object-contain drop-shadow-[0_0_20px_rgba(192,38,211,0.6)]"
+            loading="lazy"
+            quality={70}
+            className="object-contain drop-shadow-[0_0_20px_rgba(194,132,249,0.6)]"
           />
         </m.div>
 
         <m.div
           animate={{
-            y: [0, -26, 0],
-            rotate: [0, -9, 9, 0],
-            x: [0, -17, 0],
+            y: [0, -25, 0],
+            rotate: [0, -10, 10, 0],
+            x: [0, -15, 0],
           }}
           transition={{
-            duration: 6.8,
+            duration: 7,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: 0.9,
+            delay: 1,
           }}
-          className="absolute bottom-[26%] right-[4.5%] w-28 h-28 pointer-events-none opacity-50"
+          className="absolute bottom-[25%] right-[5%] w-28 h-28 pointer-events-none opacity-50"
         >
           <Image
             src="/assets/images/junie/junie-idle.png"
             alt="Junie Idle"
             fill
             sizes="112px"
+            loading="lazy"
+            quality={70}
             className="object-contain drop-shadow-[0_0_20px_rgba(236,72,153,0.5)]"
           />
         </m.div>
 
         <m.div
           animate={{
-            y: [0, -21, 0],
-            rotate: [0, 9, -9, 0],
-            scale: [1, 1.09, 1],
+            y: [0, -20, 0],
+            rotate: [0, 8, -8, 0],
+            scale: [1, 1.1, 1],
           }}
           transition={{
-            duration: 5.8,
+            duration: 6,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: 1.8,
+            delay: 2,
           }}
-          className="absolute top-[57%] left-[9%] w-24 h-24 pointer-events-none opacity-50"
+          className="absolute top-[60%] left-[10%] w-24 h-24 pointer-events-none opacity-50"
         >
           <Image
             src="/assets/images/junie/junie-jump.png"
             alt="Junie Jump"
             fill
             sizes="96px"
-            className="object-contain drop-shadow-[0_0_15px_rgba(192,38,211,0.4)]"
+            loading="lazy"
+            quality={70}
+            className="object-contain drop-shadow-[0_0_15px_rgba(194,132,249,0.4)]"
           />
         </m.div>
+
+        {/* Corner Decorative Elements - Tactical HUD Style */}
+        <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none opacity-30 hidden lg:block">
+          <div className="absolute top-4 left-4 w-20 h-[1px] bg-gradient-to-r from-[#c284f9] to-transparent" />
+          <div className="absolute top-4 left-4 h-20 w-[1px] bg-gradient-to-b from-[#c284f9] to-transparent" />
+          <div className="absolute top-8 left-8 text-[8px] font-black text-[#c284f9]/50 uppercase tracking-[0.3em]">
+            MEM//
+          </div>
+        </div>
+
+        <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none opacity-30 hidden lg:block">
+          <div className="absolute top-4 right-4 w-20 h-[1px] bg-gradient-to-l from-[#c284f9] to-transparent" />
+          <div className="absolute top-4 right-4 h-20 w-[1px] bg-gradient-to-b from-[#c284f9] to-transparent" />
+          <div className="absolute top-8 right-8 text-[8px] font-black text-[#c284f9]/50 uppercase tracking-[0.3em]">
+            //MATCH
+          </div>
+        </div>
       </div>
 
       <div className="relative z-10">
-        {/* Header */}
-        <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-          <m.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <Link href="/" className="flex items-center gap-3 group">
-              <span className="text-3xl">←</span>
-              <span className="text-sm font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">
-                Back to Arena
-              </span>
-            </Link>
-          </m.div>
-          <m.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-4"
-          >
-            <div className="flex items-center gap-3">
-              <Image
-                src="/assets/images/logos/cloud9-logo.png"
-                alt="Cloud9"
-                width={70}
-                height={24}
-                style={{ width: "auto", height: "auto" }}
-                className="brightness-110"
-              />
-              <div className="h-6 w-px bg-white/20" />
-              <Image
-                src="/assets/images/logos/jetbrains-logo.png"
-                alt="JetBrains"
-                width={70}
-                height={24}
-                style={{ width: "auto", height: "auto" }}
-                className="opacity-90"
-              />
-            </div>
-            <div className="text-right hidden md:block">
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                Sky's the Limit
+        {/* Header - Tactical Style */}
+        <nav className="relative px-4 sm:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
+          {/* Background blur bar */}
+          <div className="absolute inset-0 bg-[#020617]/60 backdrop-blur-md border-b border-white/5" />
+
+          <div className="relative z-10 flex justify-between items-center">
+            <m.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <Link
+                href="/"
+                className="group relative px-4 py-2 flex items-center gap-3"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(194, 132, 249, 0.1), transparent)',
+                  clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))'
+                }}
+              >
+                <span className="text-[#c284f9] text-xl font-black">←</span>
+                <span className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 group-hover:text-white transition-colors">
+                  Back to Arena
+                </span>
+              </Link>
+            </m.div>
+            <m.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 sm:gap-4"
+            >
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div
+                  className="relative p-1.5 sm:p-2"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(194, 132, 249, 0.1), transparent)',
+                    clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))'
+                  }}
+                >
+                  <Image
+                    src="/assets/images/logos/cloud9-logo.png"
+                    alt="Cloud9"
+                    width={60}
+                    height={20}
+                    sizes="60px"
+                    style={{ width: "auto", height: "auto" }}
+                    className="brightness-110 w-12 sm:w-[60px]"
+                  />
+                </div>
+                {/* Divider */}
+                <div className="flex items-center gap-1">
+                  <div className="w-1 h-1 rotate-45 bg-[#c284f9]" />
+                  <div className="h-5 sm:h-6 w-px bg-white/20" />
+                  <div className="w-1 h-1 rotate-45 bg-[#c284f9]" />
+                </div>
+                <div
+                  className="relative p-1.5 sm:p-2"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(194, 132, 249, 0.1), transparent)',
+                    clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
+                  }}
+                >
+                  <Image
+                    src="/assets/images/logos/jetbrains-logo.png"
+                    alt="JetBrains"
+                    width={60}
+                    height={20}
+                    sizes="60px"
+                    style={{ width: "auto", height: "auto" }}
+                    className="opacity-90 w-12 sm:w-[60px]"
+                  />
+                </div>
               </div>
-              <div className="text-xs font-bold text-white">Hackathon 2026</div>
-            </div>
-          </m.div>
+              <div className="text-right hidden md:block">
+                <div className="text-[9px] font-black text-[#c284f9]/60 uppercase tracking-[0.2em]">
+                  Sky's the Limit
+                </div>
+                <div className="text-[10px] font-bold text-white/80">Hackathon 2026</div>
+              </div>
+            </m.div>
+          </div>
         </nav>
 
         {/* Main Content */}
         <div className="px-4 sm:px-8 pb-4 max-w-7xl mx-auto">
-          {/* Title Section */}
+          {/* Title Section - Tactical Style */}
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-2"
+            className="text-center mb-4"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-2 backdrop-blur-md">
+            {/* Tactical Badge */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 mb-3 backdrop-blur-md relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(194, 132, 249, 0.1), rgba(194, 132, 249, 0.05))',
+                border: '1px solid rgba(194, 132, 249, 0.3)',
+                clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+              }}
+            >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-fuchsia-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c284f9] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c284f9]"></span>
               </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-400">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-[#c284f9]">
                 Pattern Recognition
               </span>
+              {/* Animated scan line */}
+              <m.div
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#c284f9]/20 to-transparent"
+              />
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-black mb-1 tracking-tighter leading-none">
-              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-3 tracking-tighter leading-none italic">
+              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600"
+                style={{ textShadow: '0 0 60px rgba(194, 132, 249, 0.5)' }}
+              >
                 MEMORY MATCH
               </span>
             </h1>
 
-            <p className="text-xs text-slate-400 font-medium max-w-2xl mx-auto">
-              <span className="text-white">Link the identities</span> of
-              champions across the multiverse.
-              <span className="text-fuchsia-400">
+            {/* Decorative Line */}
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="w-12 sm:w-16 h-[2px] bg-gradient-to-r from-transparent to-[#c284f9]" />
+              <div className="w-1.5 h-1.5 rotate-45 bg-[#c284f9]" />
+              <div className="w-6 sm:w-8 h-[1px] bg-white/30" />
+              <div className="w-1.5 h-1.5 rotate-45 bg-fuchsia-500" />
+              <div className="w-12 sm:w-16 h-[2px] bg-gradient-to-l from-transparent to-fuchsia-500" />
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-400 font-bold max-w-2xl mx-auto uppercase tracking-wide">
+              <span className="text-white">Link the identities</span> of champions across the multiverse.
+              <span className="text-[#c284f9]">
                 {" "}
                 Pattern recognition at scale.
               </span>
@@ -632,31 +755,70 @@ export default function MemoryMatchPage() {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-lg mx-auto"
             >
-              <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/10 shadow-2xl">
-                <div className="text-center mb-8">
-                  <div className="inline-block p-6 bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 rounded-2xl mb-6">
+              <div
+                className="relative bg-[#0a0e13]/90 backdrop-blur-xl p-8 sm:p-12 border border-[#c284f9]/20 shadow-2xl overflow-hidden"
+                style={{
+                  clipPath: 'polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px))'
+                }}
+              >
+                {/* Top accent bar */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600" />
+
+                {/* Corner accents */}
+                <div className="absolute top-0 left-0 w-16 h-16 pointer-events-none">
+                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#c284f9] to-transparent" />
+                  <div className="absolute top-0 left-0 h-full w-[2px] bg-gradient-to-b from-[#c284f9] to-transparent" />
+                </div>
+                <div className="absolute bottom-0 right-0 w-16 h-16 pointer-events-none">
+                  <div className="absolute bottom-0 right-0 w-full h-[2px] bg-gradient-to-l from-fuchsia-500 to-transparent" />
+                  <div className="absolute bottom-0 right-0 h-full w-[2px] bg-gradient-to-t from-fuchsia-500 to-transparent" />
+                </div>
+
+                {/* Hexagonal pattern background */}
+                <div className="absolute inset-0 opacity-[0.02]" style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
+                  backgroundSize: '40px 40px'
+                }} />
+
+                <div className="relative z-10 text-center mb-8">
+                  {/* Hexagonal logo frame */}
+                  <div className="inline-block p-6 mb-6 relative">
+                    <div
+                      className="absolute inset-0 opacity-30"
+                      style={{
+                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                        background: 'linear-gradient(135deg, rgba(194, 132, 249, 0.4), rgba(217, 70, 239, 0.2))'
+                      }}
+                    />
                     <div className="w-20 h-20 relative">
                       <Image
                         src="/assets/images/logos/game_logo/memory_match.png"
                         alt="Memory Match"
                         fill
                         sizes="80px"
-                        className="object-contain filter drop-shadow-[0_0_15px_rgba(217,70,239,0.4)]"
+                        className="object-contain filter drop-shadow-[0_0_20px_rgba(194,132,249,0.5)]"
                       />
                     </div>
                   </div>
-                  <h2 className="text-3xl font-black text-white mb-2">
+                  <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 uppercase tracking-tight italic">
                     Sync Neural Network
                   </h2>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-slate-400 text-xs sm:text-sm font-bold uppercase tracking-wider">
                     Initialize memory matrix protocol
                   </p>
                 </div>
 
-                <div className="space-y-4 mb-6">
+                <div className="relative z-10 space-y-4 mb-6">
                   {hasPlayedThisSession && (
-                    <div className="bg-red-500/20 border border-red-500/50 p-4 rounded-xl text-center mb-4">
-                      <p className="text-red-400 font-bold text-sm uppercase tracking-wider">
+                    <div
+                      className="p-4 text-center mb-4"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1))',
+                        border: '1px solid rgba(239, 68, 68, 0.5)',
+                        clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+                      }}
+                    >
+                      <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-wider">
                         ⚠️ This game has already been played in this session.
                       </p>
                     </div>
@@ -670,13 +832,16 @@ export default function MemoryMatchPage() {
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Name"
                       disabled={!!playerId}
-                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-6 py-4 text-lg text-center border-2 border-[#c284f9]/30 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#c284f9]/50 focus:border-[#c284f9]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)'
+                      }}
                       maxLength={20}
                       autoComplete="name"
                       autoFocus
                     />
                     {playerId && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-fuchsia-400 text-xs font-black uppercase tracking-widest pointer-events-none">
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#c284f9] text-xs font-black uppercase tracking-widest pointer-events-none">
                         Locked
                       </div>
                     )}
@@ -695,11 +860,14 @@ export default function MemoryMatchPage() {
                       onFocus={() => !playerId && setShowCountryDropdown(true)}
                       placeholder={country || "Search your country"}
                       disabled={!!playerId}
-                      className="w-full px-6 py-4 rounded-2xl text-lg text-center border-2 border-white/10 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-6 py-4 text-lg text-center border-2 border-[#c284f9]/30 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#c284f9]/50 focus:border-[#c284f9]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)'
+                      }}
                       autoComplete="country-name"
                     />
                     {playerId && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-fuchsia-400 text-xs font-black uppercase tracking-widest pointer-events-none">
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#c284f9] text-xs font-black uppercase tracking-widest pointer-events-none">
                         Locked
                       </div>
                     )}
@@ -715,7 +883,12 @@ export default function MemoryMatchPage() {
                       </div>
                     )}
                     {showCountryDropdown && (
-                      <div className="absolute z-50 w-full mt-2 max-h-60 overflow-y-auto bg-slate-900/95 backdrop-blur-xl border-2 border-white/10 rounded-2xl shadow-2xl">
+                      <div
+                        className="absolute z-50 w-full mt-2 max-h-60 overflow-y-auto bg-[#0a0e13]/98 backdrop-blur-xl border border-[#c284f9]/30 shadow-2xl"
+                        style={{
+                          clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+                        }}
+                      >
                         {countries
                           .filter((c) =>
                             c.name
@@ -732,7 +905,7 @@ export default function MemoryMatchPage() {
                                 setCountrySearch("");
                                 setShowCountryDropdown(false);
                               }}
-                              className="w-full px-6 py-3 text-left hover:bg-fuchsia-500/20 transition-colors text-white flex items-center gap-3"
+                              className="w-full px-6 py-3 text-left hover:bg-[#c284f9]/20 transition-colors text-white flex items-center gap-3 border-b border-white/5 last:border-0"
                             >
                               <FlagIcon
                                 code={c.code}
@@ -756,6 +929,7 @@ export default function MemoryMatchPage() {
                   </div>
                 </div>
 
+                {/* Deploy Button - Tactical Style */}
                 <m.button
                   onClick={initializeGame}
                   disabled={
@@ -763,7 +937,7 @@ export default function MemoryMatchPage() {
                   }
                   whileHover={
                     username.trim() && country && !hasPlayedThisSession
-                      ? { scale: 1.02 }
+                      ? { scale: 1.02, y: -2 }
                       : {}
                   }
                   whileTap={
@@ -771,11 +945,25 @@ export default function MemoryMatchPage() {
                       ? { scale: 0.98 }
                       : {}
                   }
-                  className="w-full bg-gradient-to-r from-purple-400 via-fuchsia-500 to-pink-600 text-white font-black py-5 px-8 rounded-2xl text-xl uppercase tracking-wider hover:shadow-[0_0_30px_rgba(217,70,239,0.5)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                  className="relative z-10 w-full text-white font-black py-4 sm:py-5 px-8 text-lg sm:text-xl uppercase tracking-[0.1em] transition-all disabled:opacity-30 disabled:cursor-not-allowed overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(135deg, #a855f7, #d946ef, #ec4899)',
+                    clipPath: 'polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%)',
+                    boxShadow: username.trim() && country && !hasPlayedThisSession
+                      ? '0 0 30px rgba(194, 132, 249, 0.4)'
+                      : 'none'
+                  }}
                 >
-                  {hasPlayedThisSession
-                    ? "Protocol Complete"
-                    : "Initialize Matrix"}
+                  {/* Animated scan line */}
+                  <m.div
+                    animate={{ x: ['-100%', '200%'] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                    className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none"
+                  />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <span>▶</span>
+                    {hasPlayedThisSession ? "Protocol Complete" : "Initialize Matrix"}
+                  </span>
                 </m.button>
               </div>
             </m.div>
@@ -786,16 +974,21 @@ export default function MemoryMatchPage() {
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="h-[calc(100vh-180px)] flex flex-col"
+              className="flex flex-col h-full"
             >
               {/* Player Info Bar */}
               <div className="flex items-center justify-center gap-2 mb-3 max-w-7xl mx-auto">
-                <div className="bg-white/5 backdrop-blur-xl rounded-xl px-4 py-2 border border-white/10 flex items-center gap-3">
-                  <div className="text-xs font-black text-slate-500 uppercase tracking-widest">
+                <div
+                  className="bg-white/5 backdrop-blur-xl px-4 py-2 border border-white/10 flex items-center gap-3"
+                  style={{
+                    clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+                  }}
+                >
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
                     Player
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-white">
+                    <span className="text-lg font-bold text-white uppercase italic">
                       {username}
                     </span>
                     <span className="text-2xl">
@@ -806,40 +999,52 @@ export default function MemoryMatchPage() {
               </div>
 
               {/* Stats Bar */}
-              <div className="flex justify-between items-center gap-3 sm:gap-4 md:gap-6 mb-3 max-w-7xl mx-auto flex-shrink-0 px-4">
-                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10">
-                  <div className="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-widest mb-1">
+              <div className="flex justify-between items-center gap-3 sm:gap-4 md:gap-6 mb-3 max-w-7xl mx-auto flex-shrink-0 px-4 w-full">
+                <div
+                  className="flex-1 bg-white/5 backdrop-blur-xl p-4 sm:p-5 border border-white/10"
+                  style={{ clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)' }}
+                >
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
                     Score
                   </div>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
+                  <div className="text-2xl sm:text-3xl font-black text-white italic">
                     {score.toLocaleString()}
                   </div>
                 </div>
 
-                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10">
-                  <div className="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-widest mb-1">
+                <div
+                  className="flex-1 bg-white/5 backdrop-blur-xl p-4 sm:p-5 border border-white/10"
+                  style={{ clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)' }}
+                >
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
                     Pairs
                   </div>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-500">
+                  <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-500 italic">
                     {matchedPairs}/8
                   </div>
                 </div>
 
-                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10">
-                  <div className="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-widest mb-1">
+                <div
+                  className="flex-1 bg-white/5 backdrop-blur-xl p-4 sm:p-5 border border-white/10"
+                  style={{ clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)' }}
+                >
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
                     Moves
                   </div>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
+                  <div className="text-2xl sm:text-3xl font-black text-white italic">
                     {moves}
                   </div>
                 </div>
 
-                <div className="flex-1 bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10">
-                  <div className="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-widest mb-1">
+                <div
+                  className="flex-1 bg-white/5 backdrop-blur-xl p-4 sm:p-5 border border-white/10"
+                  style={{ clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)' }}
+                >
+                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
                     Time
                   </div>
                   <div
-                    className={`text-2xl sm:text-3xl md:text-4xl font-black transition-colors ${
+                    className={`text-2xl sm:text-3xl font-black transition-colors italic ${
                       timeLeft < 20
                         ? "text-red-400 animate-pulse"
                         : "text-white"
@@ -852,7 +1057,7 @@ export default function MemoryMatchPage() {
 
               {/* Cards Grid */}
               <div className="flex-1 flex items-center justify-center px-4">
-                <div className="grid grid-cols-8 gap-2 sm:gap-3 w-full max-w-7xl">
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 sm:gap-3 w-full max-w-7xl">
                   <AnimatePresence>
                     {cards.map((card, index) => (
                       <m.div
@@ -890,7 +1095,10 @@ export default function MemoryMatchPage() {
                           >
                             {/* Card Back */}
                             <div className="absolute inset-0 backface-hidden">
-                              <div className="relative w-full h-full bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 rounded-2xl border-2 border-white/20 backdrop-blur-sm overflow-hidden">
+                              <div
+                                className="relative w-full h-full bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 border-2 border-white/20 backdrop-blur-sm overflow-hidden"
+                                style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
+                              >
                                 <Image
                                   src="/assets/images/cards/card-back.png"
                                   alt="Card back"
@@ -907,11 +1115,12 @@ export default function MemoryMatchPage() {
                               style={{ transform: "rotateY(180deg)" }}
                             >
                               <div
-                                className={`relative w-full h-full rounded-2xl border-4 overflow-hidden transition-all ${
+                                className={`relative w-full h-full border-4 overflow-hidden transition-all ${
                                   card.matched
                                     ? "border-green-400 shadow-[0_0_30px_rgba(34,197,94,0.6)]"
                                     : "border-white/30"
                                 }`}
+                                style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
                               >
                                 <Image
                                   src={card.imageUrl}
@@ -926,7 +1135,7 @@ export default function MemoryMatchPage() {
                                     animate={{ scale: 1 }}
                                     className="absolute inset-0 bg-green-500/20 backdrop-blur-[1px] flex items-center justify-center"
                                   >
-                                    <span className="text-6xl">✓</span>
+                                    <span className="text-4xl sm:text-6xl text-green-400">✓</span>
                                   </m.div>
                                 )}
                               </div>
