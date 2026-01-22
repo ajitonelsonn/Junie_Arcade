@@ -141,7 +141,14 @@ export default function JumpMasterPage() {
   useEffect(() => {
     if (gameStarted && !gameOver) {
       stopAllMusic();
+      document.body.classList.add('hide-custom-cursor');
+    } else {
+      document.body.classList.remove('hide-custom-cursor');
     }
+
+    return () => {
+      document.body.classList.remove('hide-custom-cursor');
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStarted, gameOver]);
 

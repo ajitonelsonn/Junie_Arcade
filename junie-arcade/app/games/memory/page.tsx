@@ -142,7 +142,14 @@ export default function MemoryMatchPage() {
     if (gameStarted && !gameOver) {
       stopAllMusic();
       playGameMusic();
+      document.body.classList.add('hide-custom-cursor');
+    } else {
+      document.body.classList.remove('hide-custom-cursor');
     }
+
+    return () => {
+      document.body.classList.remove('hide-custom-cursor');
+    };
   }, [gameStarted, gameOver, playGameMusic]);
 
   // Play victory music when game ends

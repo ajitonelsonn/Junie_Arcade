@@ -36,128 +36,188 @@ export default function LeaderboardPage() {
         champion={newChampion}
         onComplete={handleAnnouncementComplete}
       />
-      {/* Dynamic Background - Consistent with Home and Gallery */}
+      {/* Animated Background - VALORANT/LoL Tactical Style */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/assets/images/backgrounds/lol_.webp')] opacity-20 bg-cover bg-center mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
+        <div className="absolute inset-0 opacity-20 mix-blend-overlay">
+          <Image
+            src="/assets/images/backgrounds/lol_.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            loading="lazy"
+            quality={60}
+            className="object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/30 via-[#020617]/70 to-[#020617]" />
 
-        {/* Animated Orbs */}
+        {/* Hexagonal Grid Pattern */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
+          backgroundSize: '60px 60px'
+        }} />
+
+        {/* Diagonal Scan Lines */}
+        <div className="absolute inset-0 opacity-[0.02]" style={{
+          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, white 2px, white 3px)',
+          backgroundSize: '20px 20px'
+        }} />
+
+        {/* Animated Scan Line - Horizontal */}
+        <m.div
+          animate={{ y: ['0%', '100%'] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+          className="absolute left-0 right-0 h-[1px] opacity-10 pointer-events-none"
+          style={{ background: 'linear-gradient(90deg, transparent, #ff4655, #ff4655, transparent)' }}
+        />
+
+        {/* Animated Orbs - VALORANT Red / Leaderboard Colors */}
         <m.div
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-            x: [0, 100, 0],
-            y: [0, 50, 0],
+            scale: [1, 1.3, 1],
+            opacity: [0.15, 0.25, 0.15],
+            x: [0, 80, 0],
+            y: [0, 40, 0],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px]"
-        />
+          style={{ willChange: "transform" }}
+          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[120px]"
+        >
+          <div className="w-full h-full bg-gradient-to-br from-[#ff4655]/40 to-orange-600/20 rounded-full" />
+        </m.div>
         <m.div
           animate={{
             scale: [1.2, 1, 1.2],
-            opacity: [0.3, 0.4, 0.3],
-            x: [0, -80, 0],
-            y: [0, 100, 0],
+            opacity: [0.15, 0.3, 0.15],
+            x: [0, -60, 0],
+            y: [0, 80, 0],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 -right-40 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px]"
-        />
+          style={{ willChange: "transform" }}
+          className="absolute top-1/3 -right-40 w-[450px] h-[450px] rounded-full blur-[100px]"
+        >
+          <div className="w-full h-full bg-gradient-to-br from-orange-500/30 to-red-600/20 rounded-full" />
+        </m.div>
 
-        {/* Floating Hero Characters - Subtle decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 hidden lg:block">
-          {heroImages.slice(0, 4).map((img, i) => (
-            <m.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{
-                opacity: [0, 0.4, 0],
-                scale: [0.8, 1, 1.1],
-                y: [0, -60, 0],
-              }}
-              transition={{
-                duration: 30,
-                repeat: Infinity,
-                delay: i * 6,
-                ease: "linear",
-              }}
-              className={`absolute w-48 h-75 ${
-                ["top-[15%] left-[2%]", "top-[30%] right-[3%]", "bottom-[25%] left-[3%]", "bottom-[15%] right-[5%]"][i]
-              }`}
-            >
-              <Image
-                src={img}
-                alt=""
-                fill
-                sizes="192px"
-                loading="lazy"
-                quality={50}
-                className="object-contain filter grayscale brightness-110 contrast-125"
-              />
-            </m.div>
-          ))}
+        {/* Corner Decorative Elements - Tactical HUD Style */}
+        <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none opacity-30 hidden lg:block">
+          <div className="absolute top-4 left-4 w-20 h-[1px] bg-gradient-to-r from-[#ff4655] to-transparent" />
+          <div className="absolute top-4 left-4 h-20 w-[1px] bg-gradient-to-b from-[#ff4655] to-transparent" />
+          <div className="absolute top-8 left-8 text-[8px] font-black text-[#ff4655]/50 uppercase tracking-[0.3em]">
+            LDR//
+          </div>
+        </div>
+
+        <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none opacity-30 hidden lg:block">
+          <div className="absolute top-4 right-4 w-20 h-[1px] bg-gradient-to-l from-[#ff4655] to-transparent" />
+          <div className="absolute top-4 right-4 h-20 w-[1px] bg-gradient-to-b from-[#ff4655] to-transparent" />
+          <div className="absolute top-8 right-8 text-[8px] font-black text-[#ff4655]/50 uppercase tracking-[0.3em]">
+            //BOARD
+          </div>
         </div>
       </div>
 
       <div className="relative z-10">
-        {/* Navigation */}
-        <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center gap-4">
-            <Image
-              src="/assets/images/logos/cloud9-logo.png"
-              alt="Cloud9"
-              width={100}
-              height={35}
-              style={{ width: "auto", height: "auto" }}
-              className="brightness-110"
-            />
-            <div className="h-6 w-px bg-white/20" />
-            <Image
-              src="/assets/images/logos/jetbrains-logo.png"
-              alt="JetBrains"
-              width={100}
-              height={35}
-              style={{ width: "auto", height: "auto" }}
-              className="opacity-90 hover:opacity-100 transition-opacity"
-            />
-          </Link>
-          <div className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400">
-            <Link href="/" className="hover:text-white transition-colors">
-              Arena
-            </Link>
-            <Link
-              href="/gallery"
-              className="hover:text-white transition-colors"
+        {/* Navigation - Tactical Style */}
+        <nav className="relative px-4 sm:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
+          {/* Background blur bar */}
+          <div className="absolute inset-0 bg-[#020617]/60 backdrop-blur-md border-b border-white/5" />
+
+          <div className="relative z-10 flex justify-between items-center">
+            <m.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
             >
-              Gallery
-            </Link>
-            <Link href="/leaderboard" className="text-white transition-colors">
-              Leaderboard
-            </Link>
-            <Link
-              href="/merchandise"
-              className="hover:text-white transition-colors"
-            >
-              Merchandise
-            </Link>
-            <a
-              href="https://cloud9.devpost.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white cursor-pointer transition-colors"
-            >
-              Tournament
-            </a>
+              <Link href="/" className="flex items-center gap-4">
+                <div
+                  className="relative p-1.5 sm:p-2"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), transparent)',
+                    clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))'
+                  }}
+                >
+                  <Image
+                    src="/assets/images/logos/cloud9-logo.png"
+                    alt="Cloud9"
+                    width={80}
+                    height={30}
+                    style={{ width: "auto", height: "auto" }}
+                    className="brightness-110"
+                  />
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-1 h-1 rotate-45 bg-[#ff4655]" />
+                  <div className="h-5 sm:h-6 w-px bg-white/20" />
+                  <div className="w-1 h-1 rotate-45 bg-[#ff4655]" />
+                </div>
+                <div
+                  className="relative p-1.5 sm:p-2"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), transparent)',
+                    clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
+                  }}
+                >
+                  <Image
+                    src="/assets/images/logos/jetbrains-logo.png"
+                    alt="JetBrains"
+                    width={80}
+                    height={30}
+                    style={{ width: "auto", height: "auto" }}
+                    className="opacity-90 hover:opacity-100 transition-opacity"
+                  />
+                </div>
+              </Link>
+            </m.div>
+
+            <div className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <Link href="/" className="hover:text-[#ff4655] transition-colors relative group">
+                Arena
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#ff4655] transition-all group-hover:w-full" />
+              </Link>
+              <Link href="/gallery" className="hover:text-[#ff4655] transition-colors relative group">
+                Gallery
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#ff4655] transition-all group-hover:w-full" />
+              </Link>
+              <span className="text-[#ff4655] relative">
+                Leaderboard
+                <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-[#ff4655]" />
+              </span>
+              <Link href="/merchandise" className="hover:text-[#ff4655] transition-colors relative group">
+                Merchandise
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#ff4655] transition-all group-hover:w-full" />
+              </Link>
+              <a
+                href="https://cloud9.devpost.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2 text-white"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4655] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff4655]"></span>
+                </span>
+                TOURNAMENT
+              </a>
+            </div>
           </div>
         </nav>
 
         {/* Header Section - Compact for better leaderboard visibility */}
-        <header className="px-8 pt-6 pb-4 text-center max-w-5xl mx-auto relative">
+        <header className="px-8 pt-10 pb-4 text-center max-w-5xl mx-auto relative">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-3 backdrop-blur-md">
+            {/* Tactical Badge */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 mb-6 backdrop-blur-md relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), rgba(255, 70, 85, 0.05))',
+                border: '1px solid rgba(255, 70, 85, 0.3)',
+                clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+              }}
+            >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4655] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff4655]"></span>
@@ -165,20 +225,37 @@ export default function LeaderboardPage() {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff4655]">
                 Live Rankings
               </span>
+              {/* Animated scan line */}
+              <m.div
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#ff4655]/20 to-transparent"
+              />
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-black mb-2 tracking-tighter leading-none italic uppercase">
+            <h1 className="text-5xl md:text-7xl font-black mb-3 tracking-tighter leading-none italic uppercase">
               <span className="inline-block text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500">
-                Global
+                GLOBAL
               </span>{" "}
-              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#ff4655] via-[#ff4655] to-orange-600">
-                Leaderboard
+              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#ff4655] via-red-500 to-orange-600"
+                style={{ textShadow: '0 0 60px rgba(255, 70, 85, 0.4)' }}
+              >
+                LEADERBOARD
               </span>
             </h1>
 
-            <p className="text-sm text-slate-400 font-medium max-w-xl mx-auto uppercase tracking-tight">
-              Top performers of the{" "}
-              <span className="text-[#ff4655]">Junie Arcade Protocol</span>
+            {/* Decorative Line */}
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="w-16 h-[2px] bg-gradient-to-r from-transparent to-[#ff4655]" />
+              <div className="w-1.5 h-1.5 rotate-45 bg-[#ff4655]" />
+              <div className="w-8 h-[1px] bg-white/30" />
+              <div className="w-1.5 h-1.5 rotate-45 bg-orange-500" />
+              <div className="w-16 h-[2px] bg-gradient-to-l from-transparent to-orange-500" />
+            </div>
+
+            <p className="text-slate-400 font-bold max-w-xl mx-auto uppercase tracking-wide text-sm">
+              Top performers of the <span className="text-white">Junie Arcade</span> protocol.
+              <span className="text-[#ff4655]"> High-intensity data stream.</span>
             </p>
           </m.div>
         </header>
@@ -186,15 +263,22 @@ export default function LeaderboardPage() {
         {/* Main Content */}
         <main className="container mx-auto px-4 md:px-8 pb-16">
           <div className="max-w-6xl mx-auto relative">
-            {/* Decorative Corner Accents */}
-            <div className="absolute -top-6 -left-6 w-12 h-12 border-l-2 border-t-2 border-[#ff4655]/30 pointer-events-none hidden md:block" />
-            <div className="absolute -bottom-6 -right-6 w-12 h-12 border-r-2 border-b-2 border-[#ff4655]/30 pointer-events-none hidden md:block" />
-
             <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6 }}
+              className="relative p-1 bg-[#0a0e13]/40 backdrop-blur-xl border border-white/5"
+              style={{
+                clipPath: 'polygon(0 0, calc(100% - 32px) 0, 100% 32px, 100% 100%, 32px 100%, 0 calc(100% - 32px))'
+              }}
             >
+              {/* Tactical Inner Border */}
+              <div 
+                className="absolute inset-0 border-2 border-[#ff4655]/10 pointer-events-none"
+                style={{
+                  clipPath: 'polygon(0 0, calc(100% - 32px) 0, 100% 32px, 100% 100%, 32px 100%, 0 calc(100% - 32px))'
+                }}
+              />
               <Leaderboard onNewChampion={handleNewChampion} />
             </m.div>
           </div>

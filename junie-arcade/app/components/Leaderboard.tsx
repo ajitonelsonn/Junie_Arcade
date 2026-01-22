@@ -150,12 +150,15 @@ export default function Leaderboard({ onNewChampion }: LeaderboardProps = {}) {
       setLoading(true)
       // If we have a playerId in localStorage, use it. 
       // If not, check if we have one in the URL (from a recent finish)
-      const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
       const urlPlayerId = urlParams.get('playerId');
-      const storagePlayerId = localStorage.getItem('junie_player_id');
+      const storagePlayerId = typeof window !== 'undefined' ? localStorage.getItem('junie_player_id') : null;
       const playerId = storagePlayerId || urlPlayerId;
 
       const response = await fetch(`/api/leaderboard?view=${activeTab}${playerId ? `&playerId=${playerId}` : ''}`)
+      if (!response.ok) {
+        throw new Error(`API response error: ${response.status}`)
+      }
       const data = await response.json()
 
       // Check for API errors or missing data

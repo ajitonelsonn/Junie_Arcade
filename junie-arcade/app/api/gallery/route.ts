@@ -13,6 +13,11 @@ export async function GET() {
     return NextResponse.json(images);
   } catch (error: any) {
     console.error('Error fetching gallery images:', error);
-    return NextResponse.json({ error: 'Failed to fetch gallery images' }, { status: 500 });
+    // Return an empty array on error to prevent frontend crashes, but include error info
+    return NextResponse.json({ 
+      error: 'Failed to fetch gallery images',
+      details: error.message,
+      images: [] 
+    }, { status: 500 });
   }
 }
