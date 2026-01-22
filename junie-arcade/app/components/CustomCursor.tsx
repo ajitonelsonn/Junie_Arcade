@@ -50,7 +50,9 @@ export default function CustomCursor() {
       setIsPointer(!!isClickable);
     };
 
-    const handleMouseDown = () => setIsClicking(true);
+    const handleMouseDown = () => {
+      setIsClicking(true);
+    };
     const handleMouseUp = () => setIsClicking(false);
     const handleMouseLeave = () => setIsVisible(false);
     const handleMouseEnter = () => setIsVisible(true);
@@ -75,134 +77,114 @@ export default function CustomCursor() {
       <AnimatePresence>
         {isVisible && (
           <>
-            {/* Outer Ring - Tactical Bracket Style */}
+            {/* Outer Tactical Brackets */}
             <motion.div
               style={{
                 translateX: cursorXSpring,
                 translateY: cursorYSpring,
-                left: -24,
-                top: -24,
-              }}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ 
-                scale: isClicking ? 0.8 : (isPointer ? 1.25 : 1),
-                opacity: 1,
-                rotate: isPointer ? 135 : (isClicking ? -45 : 0)
-              }}
-              exit={{ scale: 0, opacity: 0 }}
-              className="absolute w-12 h-12 flex items-center justify-center"
-            >
-              {/* Corner Brackets with Glow */}
-              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#ff4655] drop-shadow-[0_0_5px_#ff4655]" />
-              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#00eeff] drop-shadow-[0_0_5px_#00eeff]" />
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#c284f9] drop-shadow-[0_0_5px_#c284f9]" />
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white drop-shadow-[0_0_5px_white]" />
-              
-              {/* Hexagonal Inner Frame (Subtle) */}
-              <div 
-                className="absolute inset-2 border border-white/10 opacity-40"
-                style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
-              />
-
-              {/* Scan Line effect in cursor */}
-              <motion.div 
-                animate={{ y: [-15, 15, -15] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                className="w-full h-[1.5px] bg-white/30 blur-[1px] relative z-20"
-              />
-            </motion.div>
-
-            {/* Inner Core - Crosshair Dot */}
-            <motion.div
-              style={{
-                translateX: cursorX,
-                translateY: cursorY,
-                left: -5,
-                top: -5,
-              }}
-              initial={{ scale: 0 }}
-              animate={{ 
-                scale: isClicking ? 1.4 : 1,
-                backgroundColor: isPointer ? '#ff4655' : '#00eeff',
-                boxShadow: isPointer 
-                  ? '0 0 15px #ff4655, 0 0 30px #ff4655' 
-                  : '0 0 15px #00eeff, 0 0 30px #00eeff'
-              }}
-              className="absolute w-2.5 h-2.5 rounded-full z-10 flex items-center justify-center"
-            >
-              {/* Core pulse effect */}
-              <motion.div
-                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="absolute inset-0 rounded-full bg-white"
-              />
-            </motion.div>
-
-            {/* Tactical Crosshair Lines - Extended and Sharper */}
-            <motion.div
-              style={{
-                translateX: cursorX,
-                translateY: cursorY,
                 left: -20,
                 top: -20,
               }}
               animate={{ 
-                rotate: isPointer ? 45 : (isClicking ? 90 : 0),
-                opacity: isPointer ? 1 : 0.4,
-                scale: isPointer ? 1.1 : 1
+                scale: isClicking ? 0.8 : (isPointer ? 1.2 : 1),
+                rotate: isPointer ? 135 : 0,
               }}
-              className="absolute w-10 h-10"
+              className="absolute w-10 h-10 flex items-center justify-center pointer-events-none"
             >
-              <div className="absolute top-1/2 left-0 w-3 h-[2px] bg-white/60 -translate-y-1/2" />
-              <div className="absolute top-1/2 right-0 w-3 h-[2px] bg-white/60 -translate-y-1/2" />
-              <div className="absolute top-0 left-1/2 w-[2px] h-3 bg-white/60 -translate-x-1/2" />
-              <div className="absolute bottom-0 left-1/2 w-[2px] h-3 bg-white/60 -translate-x-1/2" />
+              <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#ff4655] shadow-[0_0_8px_rgba(255,70,85,0.5)]" />
+              <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-[#00eeff] shadow-[0_0_8px_rgba(0,238,255,0.5)]" />
+              <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-[#c284f9] shadow-[0_0_8px_rgba(194,132,249,0.5)]" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white opacity-50" />
+              
+              {/* Hexagonal Inner Frame */}
+              <div 
+                className="absolute inset-2 border border-white/10"
+                style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
+              />
             </motion.div>
 
-            {/* Status Labels - Rotating Data Readout Aesthetic */}
+            {/* Central Crosshair / Dot */}
             <motion.div
               style={{
                 translateX: cursorX,
                 translateY: cursorY,
-                left: 28,
-                top: -10,
+                left: -4,
+                top: -4,
               }}
               animate={{ 
-                opacity: isPointer ? 1 : 0.6,
-                x: isPointer ? 5 : 0
+                scale: isClicking ? 1.5 : 1,
               }}
-              className="absolute pointer-events-none flex flex-col gap-0.5"
+              className="absolute w-2 h-2 flex items-center justify-center"
             >
-              <div className="text-[7px] font-black text-white/40 tracking-[0.2em] uppercase">
-                {isPointer ? 'LINK.ESTABLISHED' : (isClicking ? 'SYSTEM.ACTIVE' : 'SCANNING...')}
-              </div>
-              <div className={`text-[9px] font-black text-white px-1.5 py-0.5 skew-x-[-15deg] tracking-tight ${(isPointer || isClicking) ? 'bg-[#ff4655]' : 'bg-white/10'}`}>
-                {isPointer ? 'TARGET.READY' : (isClicking ? 'COMMAND.EXEC' : 'SYS.STANDBY')}
-              </div>
-              {(isPointer || isClicking) && (
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  className="h-[1px] bg-[#ff4655]" 
-                />
-              )}
+              {/* Center Dot */}
+              <motion.div 
+                animate={{ 
+                  backgroundColor: isPointer ? '#ff4655' : '#00eeff',
+                  scale: [1, 1.2, 1]
+                }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="w-1 h-1 rounded-full shadow-[0_0_10px_currentColor]" 
+              />
+              
+              {/* Crosshair lines */}
+              <div className="absolute w-4 h-[1px] bg-white/30" />
+              <div className="absolute w-[1px] h-4 bg-white/30" />
             </motion.div>
 
-            {/* Animated Diamond Decor */}
+            {/* Diamond Decoration */}
             <motion.div
               style={{
-                translateX: cursorX,
-                translateY: cursorY,
-                left: -32,
-                top: 24,
+                translateX: cursorXSpring,
+                translateY: cursorYSpring,
+                left: 12,
+                top: 12,
               }}
               animate={{ 
-                rotate: 45,
-                scale: isPointer ? 1.2 : 0.8,
-                opacity: isPointer ? 0.8 : 0.3
+                scale: isPointer ? 1 : 0,
+                opacity: isPointer ? 1 : 0,
+                rotate: 45
               }}
-              className="absolute w-2 h-2 border border-white/50"
+              className="absolute w-1.5 h-1.5 border border-[#ff4655] bg-[#ff4655]/20"
             />
+
+            {/* Status Label */}
+            <motion.div
+              style={{
+                translateX: cursorX,
+                translateY: cursorY,
+                left: 24,
+                top: -12,
+              }}
+              animate={{ 
+                opacity: isVisible ? 1 : 0,
+                x: isPointer ? 10 : 0
+              }}
+              className="absolute pointer-events-none"
+            >
+              <div className="flex flex-col gap-0.5 font-black uppercase italic tracking-tighter">
+                <div className="flex items-center gap-1">
+                  <span className="text-[6px] text-white/40">SYS.LVL</span>
+                  <span className="text-[6px] text-white/60">01</span>
+                </div>
+                <div className={`text-[8px] px-1.5 py-0.5 ${isPointer ? 'bg-[#ff4655] text-white' : 'bg-white/10 text-white/70'}`}
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
+                >
+                  {isPointer ? 'TARGET.READY' : (isClicking ? 'COMMAND.EXEC' : 'SCANNING...')}
+                </div>
+                <div className="text-[6px] text-white/30 ml-1">
+                   {isPointer ? 'LINK.ESTABLISHED' : 'SYS.STANDBY'}
+                </div>
+                {isPointer && (
+                  <div className="w-full h-[1px] bg-[#ff4655]/50 mt-0.5">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: '100%' }}
+                      className="h-full bg-[#ff4655]"
+                    />
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </>
         )}
       </AnimatePresence>
