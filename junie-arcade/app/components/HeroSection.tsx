@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import { m } from "framer-motion";
@@ -10,12 +10,16 @@ export default function HeroSection() {
       <div className="absolute top-8 left-4 sm:left-8 w-16 sm:w-24 h-16 sm:h-24 pointer-events-none hidden md:block">
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#ff4655] to-transparent" />
         <div className="absolute top-0 left-0 h-full w-[2px] bg-gradient-to-b from-[#ff4655] to-transparent" />
-        <div className="absolute top-3 left-3 text-[8px] font-black text-[#ff4655]/60 uppercase tracking-[0.2em]">SYS.01</div>
+        <div className="absolute top-3 left-3 text-[8px] font-black text-[#ff4655]/60 uppercase tracking-[0.2em]">
+          SYS.01
+        </div>
       </div>
       <div className="absolute top-8 right-4 sm:right-8 w-16 sm:w-24 h-16 sm:h-24 pointer-events-none hidden md:block">
         <div className="absolute top-0 right-0 w-full h-[2px] bg-gradient-to-l from-[#00eeff] to-transparent" />
         <div className="absolute top-0 right-0 h-full w-[2px] bg-gradient-to-b from-[#00eeff] to-transparent" />
-        <div className="absolute top-3 right-3 text-[8px] font-black text-[#00eeff]/60 uppercase tracking-[0.2em]">SYS.02</div>
+        <div className="absolute top-3 right-3 text-[8px] font-black text-[#00eeff]/60 uppercase tracking-[0.2em]">
+          SYS.02
+        </div>
       </div>
 
       {/* Junie Mascot Animation - Hexagonal Frame */}
@@ -36,9 +40,11 @@ export default function HeroSection() {
           <div
             className="absolute inset-4 sm:inset-6"
             style={{
-              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-              background: 'linear-gradient(135deg, rgba(0, 238, 255, 0.2), rgba(168, 85, 247, 0.2))',
-              filter: 'blur(20px)'
+              clipPath:
+                "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+              background:
+                "linear-gradient(135deg, rgba(0, 238, 255, 0.2), rgba(168, 85, 247, 0.2))",
+              filter: "blur(20px)",
             }}
           />
           <Image
@@ -107,11 +113,13 @@ export default function HeroSection() {
         transition={{ duration: 0.8, delay: 0.2 }}
       >
         {/* Live Badge - VALORANT Style */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 sm:mb-8 backdrop-blur-md relative overflow-hidden"
+        <div
+          className="inline-flex items-center gap-2 px-4 py-2 mb-6 sm:mb-8 backdrop-blur-md relative overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), rgba(255, 70, 85, 0.05))',
-            border: '1px solid rgba(255, 70, 85, 0.3)',
-            clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+            background:
+              "linear-gradient(135deg, rgba(255, 70, 85, 0.1), rgba(255, 70, 85, 0.05))",
+            border: "1px solid rgba(255, 70, 85, 0.3)",
+            clipPath: "polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
           }}
         >
           <span className="relative flex h-2 w-2">
@@ -123,8 +131,8 @@ export default function HeroSection() {
           </span>
           {/* Animated scan line */}
           <m.div
-            animate={{ x: ['-100%', '200%'] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            animate={{ x: ["-100%", "200%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#ff4655]/20 to-transparent"
           />
         </div>
@@ -148,7 +156,7 @@ export default function HeroSection() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
             className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#ff4655] via-[#00eeff] to-[#c284f9] italic"
-            style={{ textShadow: '0 0 60px rgba(0, 238, 255, 0.5)' }}
+            style={{ textShadow: "0 0 60px rgba(0, 238, 255, 0.5)" }}
           >
             ARCADE
           </m.span>
@@ -186,13 +194,13 @@ export default function HeroSection() {
           transition={{ delay: 1 }}
           className="mt-6 sm:mt-8 inline-flex items-center gap-2 px-3 py-1.5"
           style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.1)'
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.1)",
           }}
         >
           <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />
           <span className="text-[8px] sm:text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">
-            Cloud9 x JetBrains // Protocol v2.0
+            Cloud9 x JetBrains // Protocol v1.0
           </span>
         </m.div>
       </m.div>
