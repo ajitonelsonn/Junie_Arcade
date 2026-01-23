@@ -1146,6 +1146,9 @@ export default function GameOverCard({
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
 
   const getNextGame = () => {
+    // We don't want to show a next game link if we're already on the OVERALL card
+    if (gameType === "OVERALL") return null;
+
     // If allRanks is not loaded yet, we can't reliably show the continue button
     // But we want to avoid flicker, so we should probably show it based on local knowledge if possible
     if (!allRanks) return null;
@@ -2172,7 +2175,7 @@ export default function GameOverCard({
                   )}
 
                   {/* Primary Action: Continue to Next Game */}
-                  {nextGame && (
+                  {nextGame && gameType !== "OVERALL" && !isCalculating && (
                     <Link href={nextGame.path} className="block">
                       <m.div
                         whileHover={{ scale: 1.02, y: -2 }}
@@ -2200,7 +2203,7 @@ export default function GameOverCard({
                   )}
 
                   {/* Generate Leaderboard Card (when all games complete) */}
-                  {!nextGame && gameType !== "OVERALL" && (
+                  {!nextGame && gameType !== "OVERALL" && !isCalculating && (
                     <m.button
                       onClick={handleGenerateLeaderboardCard}
                       whileHover={{ scale: 1.02 }}
@@ -2221,7 +2224,7 @@ export default function GameOverCard({
                   )}
 
                   {/* Exit Option (when more games available) */}
-                  {gameType !== "OVERALL" && nextGame && (
+                  {gameType !== "OVERALL" && nextGame && !isCalculating && (
                     <m.button
                       onClick={handleExit}
                       whileHover={{
@@ -2242,7 +2245,7 @@ export default function GameOverCard({
                   )}
 
                   {/* Exit to Home (OVERALL card) */}
-                  {gameType === "OVERALL" && (
+                  {gameType === "OVERALL" && !isCalculating && (
                     <Link href="/" className="block">
                       <m.div
                         whileHover={{ scale: 1.01 }}
@@ -2265,99 +2268,101 @@ export default function GameOverCard({
                   )}
 
                   {/* Save & Export Row */}
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                    <m.button
-                      onClick={saveCardToS3}
-                      disabled={isUploading || !!uploadedUrl}
-                      whileHover={{
-                        scale: isUploading || uploadedUrl ? 1 : 1.02,
-                      }}
-                      whileTap={{
-                        scale: isUploading || uploadedUrl ? 1 : 0.98,
-                      }}
-                      className="relative overflow-hidden py-2.5 sm:py-3 px-3 sm:px-4 disabled:opacity-60 group"
-                      style={{
-                        background: uploadedUrl
-                          ? "linear-gradient(135deg, #10b981, #059669)"
-                          : `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
-                        clipPath:
-                          "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-                      }}
-                    >
-                      <div className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 font-black text-white uppercase tracking-[0.05em] sm:tracking-[0.1em] text-[10px] sm:text-xs">
-                        {isUploading ? (
-                          <>
-                            <m.div
-                              animate={{ rotate: 360 }}
-                              transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                                ease: "linear",
-                              }}
-                              className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full"
-                            />
-                            <span className="hidden xs:inline">
-                              Uploading...
-                            </span>
-                            <span className="xs:hidden">...</span>
-                          </>
-                        ) : uploadedUrl ? (
-                          <>
-                            <span>✓</span>
-                            Saved
-                          </>
-                        ) : (
-                          <>
-                            <span>💾</span>
-                            <span className="hidden xs:inline">Save Card</span>
-                            <span className="xs:hidden">Save</span>
-                          </>
-                        )}
-                      </div>
-                    </m.button>
+                  {!isCalculating && (
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                      <m.button
+                        onClick={saveCardToS3}
+                        disabled={isUploading || !!uploadedUrl}
+                        whileHover={{
+                          scale: isUploading || uploadedUrl ? 1 : 1.02,
+                        }}
+                        whileTap={{
+                          scale: isUploading || uploadedUrl ? 1 : 0.98,
+                        }}
+                        className="relative overflow-hidden py-2.5 sm:py-3 px-3 sm:px-4 disabled:opacity-60 group"
+                        style={{
+                          background: uploadedUrl
+                            ? "linear-gradient(135deg, #10b981, #059669)"
+                            : `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                          clipPath:
+                            "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
+                        }}
+                      >
+                        <div className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 font-black text-white uppercase tracking-[0.05em] sm:tracking-[0.1em] text-[10px] sm:text-xs">
+                          {isUploading ? (
+                            <>
+                              <m.div
+                                animate={{ rotate: 360 }}
+                                transition={{
+                                  duration: 1,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                                className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full"
+                              />
+                              <span className="hidden xs:inline">
+                                Uploading...
+                              </span>
+                              <span className="xs:hidden">...</span>
+                            </>
+                          ) : uploadedUrl ? (
+                            <>
+                              <span>✓</span>
+                              Saved
+                            </>
+                          ) : (
+                            <>
+                              <span>💾</span>
+                              <span className="hidden xs:inline">Save Card</span>
+                              <span className="xs:hidden">Save</span>
+                            </>
+                          )}
+                        </div>
+                      </m.button>
 
-                    <m.button
-                      onClick={downloadCard}
-                      disabled={isDownloading || !uploadedUrl}
-                      whileHover={{
-                        scale: isDownloading || !uploadedUrl ? 1 : 1.02,
-                      }}
-                      whileTap={{
-                        scale: isDownloading || !uploadedUrl ? 1 : 0.98,
-                      }}
-                      className="relative overflow-hidden py-2.5 sm:py-3 px-3 sm:px-4 border border-white/20 disabled:opacity-40 group transition-colors hover:bg-white/5"
-                    >
-                      <div className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 font-black text-white uppercase tracking-[0.05em] sm:tracking-[0.1em] text-[10px] sm:text-xs">
-                        {isDownloading ? (
-                          <>
-                            <m.div
-                              animate={{ rotate: 360 }}
-                              transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                                ease: "linear",
-                              }}
-                              className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full"
-                            />
-                            <span className="hidden xs:inline">
-                              Exporting...
-                            </span>
-                            <span className="xs:hidden">...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>⬇</span>
-                            Export
-                          </>
-                        )}
-                      </div>
-                      {/* Bottom accent line */}
-                      <div
-                        className="absolute bottom-0 left-0 w-full h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"
-                        style={{ backgroundColor: theme.primary }}
-                      />
-                    </m.button>
-                  </div>
+                      <m.button
+                        onClick={downloadCard}
+                        disabled={isDownloading || !uploadedUrl}
+                        whileHover={{
+                          scale: isDownloading || !uploadedUrl ? 1 : 1.02,
+                        }}
+                        whileTap={{
+                          scale: isDownloading || !uploadedUrl ? 1 : 0.98,
+                        }}
+                        className="relative overflow-hidden py-2.5 sm:py-3 px-3 sm:px-4 border border-white/20 disabled:opacity-40 group transition-colors hover:bg-white/5"
+                      >
+                        <div className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 font-black text-white uppercase tracking-[0.05em] sm:tracking-[0.1em] text-[10px] sm:text-xs">
+                          {isDownloading ? (
+                            <>
+                              <m.div
+                                animate={{ rotate: 360 }}
+                                transition={{
+                                  duration: 1,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                                className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full"
+                              />
+                              <span className="hidden xs:inline">
+                                Exporting...
+                              </span>
+                              <span className="xs:hidden">...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>⬇</span>
+                              Export
+                            </>
+                          )}
+                        </div>
+                        {/* Bottom accent line */}
+                        <div
+                          className="absolute bottom-0 left-0 w-full h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"
+                          style={{ backgroundColor: theme.primary }}
+                        />
+                      </m.button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Share & QR Section - Tournament Share Card */}
