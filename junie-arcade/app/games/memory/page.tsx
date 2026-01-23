@@ -815,7 +815,7 @@ export default function MemoryMatchPage() {
                   </p>
                 </div>
 
-                <div className="relative z-10 space-y-4 mb-6">
+                <div className="relative z-30 space-y-4 mb-6">
                   {hasPlayedThisSession && (
                     <div
                       className="p-4 text-center mb-4"
@@ -839,9 +839,9 @@ export default function MemoryMatchPage() {
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Name"
                       disabled={!!playerId}
-                      className="w-full px-6 py-4 text-lg text-center border-2 border-[#c284f9]/30 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#c284f9]/50 focus:border-[#c284f9]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-6 py-4 text-lg text-left border-2 border-[#c284f9]/30 bg-white/5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#c284f9]/50 focus:border-[#c284f9]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{
-                        clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)'
+                        clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
                       }}
                       maxLength={20}
                       autoComplete="name"
@@ -854,7 +854,7 @@ export default function MemoryMatchPage() {
                     )}
                   </div>
 
-                  <div className="relative" ref={countryDropdownRef}>
+                  <div className="relative z-20" ref={countryDropdownRef}>
                     <input
                       id="memory-country"
                       name="country"
@@ -867,9 +867,9 @@ export default function MemoryMatchPage() {
                       onFocus={() => !playerId && setShowCountryDropdown(true)}
                       placeholder={country || "Search your country"}
                       disabled={!!playerId}
-                      className="w-full px-6 py-4 text-lg text-center border-2 border-[#c284f9]/30 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#c284f9]/50 focus:border-[#c284f9]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full pl-14 pr-6 py-4 text-lg text-left border-2 border-[#c284f9]/30 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#c284f9]/50 focus:border-[#c284f9]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{
-                        clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)'
+                        clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
                       }}
                       autoComplete="country-name"
                     />
@@ -891,10 +891,8 @@ export default function MemoryMatchPage() {
                     )}
                     {showCountryDropdown && (
                       <div
-                        className="absolute z-50 w-full mt-2 max-h-60 overflow-y-auto bg-[#0a0e13]/98 backdrop-blur-xl border border-[#c284f9]/30 shadow-2xl"
-                        style={{
-                          clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
-                        }}
+                        className="absolute z-50 w-full mt-2 max-h-64 overflow-y-auto bg-[#0a0e13] backdrop-blur-xl border border-[#c284f9]/30 shadow-2xl rounded-sm"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         {countries
                           .filter((c) =>
@@ -902,12 +900,13 @@ export default function MemoryMatchPage() {
                               .toLowerCase()
                               .includes(countrySearch.toLowerCase())
                           )
-                          .slice(0, 50)
+                          .slice(0, 100)
                           .map((c) => (
                             <button
                               key={c.name}
                               type="button"
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setCountry(c.name);
                                 setCountrySearch("");
                                 setShowCountryDropdown(false);
@@ -952,7 +951,7 @@ export default function MemoryMatchPage() {
                       ? { scale: 0.98 }
                       : {}
                   }
-                  className="relative z-10 w-full text-white font-black py-4 sm:py-5 px-8 text-lg sm:text-xl uppercase tracking-[0.1em] transition-all disabled:opacity-30 disabled:cursor-not-allowed overflow-hidden"
+                  className="relative z-0 w-full text-white font-black py-4 sm:py-5 px-8 text-lg sm:text-xl uppercase tracking-[0.1em] transition-all disabled:opacity-30 disabled:cursor-not-allowed overflow-hidden"
                   style={{
                     background: 'linear-gradient(135deg, #a855f7, #d946ef, #ec4899)',
                     clipPath: 'polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%)',
