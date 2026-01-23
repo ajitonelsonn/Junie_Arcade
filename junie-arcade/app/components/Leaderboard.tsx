@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import FlagIcon from "./FlagIcon";
-import GameOverCard from "./GameOverCard";
 import CelebrationEffect from "./CelebrationEffect";
 
 interface LeaderboardEntry {
@@ -36,11 +35,27 @@ export interface NewChampionData {
   countryCode?: string | null;
 }
 
-interface LeaderboardProps {
-  onNewChampion?: (champion: NewChampionData) => void;
+export interface PlayerStats {
+  username: string;
+  country: string;
+  totalPoints: number;
+  gamesPlayed: number;
+  reflexPoints?: number;
+  jumpPoints?: number;
+  memoryPoints?: number;
+  rank?: number;
+  reflexRank?: number;
+  jumpRank?: number;
+  memoryRank?: number;
 }
 
-export default function Leaderboard({ onNewChampion }: LeaderboardProps = {}) {
+interface LeaderboardProps {
+  onNewChampion?: (champion: NewChampionData) => void;
+  onPlayerStatsReady?: (stats: PlayerStats | null) => void;
+  showOverallCardExternal?: boolean;
+}
+
+export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOverallCardExternal }: LeaderboardProps = {}) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
@@ -49,8 +64,7 @@ export default function Leaderboard({ onNewChampion }: LeaderboardProps = {}) {
   const [countries, setCountries] = useState<
     Array<{ name: string; flag: string; code: string }>
   >([]);
-  const [showOverallCard, setShowOverallCard] = useState(false);
-  const [currentPlayerStats, setCurrentPlayerStats] = useState<any>(null);
+  const [currentPlayerStats, setCurrentPlayerStats] = useState<PlayerStats | null>(null);
 
   // State for tracking new top 3 entries (celebration effect)
   const [previousTop3, setPreviousTop3] = useState<string[]>([]);
@@ -64,9 +78,15 @@ export default function Leaderboard({ onNewChampion }: LeaderboardProps = {}) {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("showOverall") === "true") {
       setActiveTab("overall");
-      setShowOverallCard(true);
     }
   }, []);
+
+  // Notify parent when player stats are ready
+  useEffect(() => {
+    if (onPlayerStatsReady) {
+      onPlayerStatsReady(currentPlayerStats);
+    }
+  }, [currentPlayerStats, onPlayerStatsReady]);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -249,24 +269,6 @@ export default function Leaderboard({ onNewChampion }: LeaderboardProps = {}) {
     return country?.code || null;
   };
 
-  const CountryFlag = ({
-    countryName,
-  }: {
-    countryName: string | null | undefined;
-  }) => {
-    const countryCode = getCountryCode(countryName);
-    if (!countryCode) return null;
-
-    // @ts-ignore - Dynamic flag component access
-    const FlagComponent = flags[countryCode];
-    if (!FlagComponent) return null;
-
-    return (
-      <div className="w-7 h-5 rounded-sm overflow-hidden shadow-lg border border-white/20">
-        <FlagComponent className="w-full h-full object-cover" />
-      </div>
-    );
-  };
 
   const getGameLogo = (gameType: string) => {
     switch (gameType) {
@@ -479,86 +481,6 @@ export default function Leaderboard({ onNewChampion }: LeaderboardProps = {}) {
           ))}
         </div>
       </div>
-
-      <AnimatePresence>
-        {showOverallCard && currentPlayerStats && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 overflow-y-auto">
-            <div className="relative w-full max-w-4xl my-auto">
-              <button
-                onClick={() => setShowOverallCard(false)}
-                className="absolute -top-12 right-0 text-white hover:text-emerald-400 font-black uppercase tracking-widest transition-colors"
-              >
-                Close [X]
-              </button>
-              <GameOverCard
-                username={currentPlayerStats.username}
-                country={currentPlayerStats.country}
-                score={currentPlayerStats.totalPoints}
-                gameType="OVERALL"
-                stats={[
-                  {
-                    label: "Reflex Pts",
-                    value: currentPlayerStats.reflexPoints,
-                    color: "text-yellow-400",
-                  },
-                  {
-                    label: "Jump Pts",
-                    value: currentPlayerStats.jumpPoints,
-                    color: "text-cyan-400",
-                  },
-                  {
-                    label: "Memory Pts",
-                    value: currentPlayerStats.memoryPoints,
-                    color: "text-purple-400",
-                  },
-                  {
-                    label: "Games Played",
-                    value: `${currentPlayerStats.gamesPlayed}/3`,
-                  },
-                  ...(currentPlayerStats.rank
-                    ? [
-                        {
-                          label: "Overall Rank",
-                          value: `#${currentPlayerStats.rank}`,
-                          color: "text-emerald-400",
-                        },
-                      ]
-                    : []),
-                  ...(currentPlayerStats.reflexRank
-                    ? [
-                        {
-                          label: "Reflex Rank",
-                          value: `#${currentPlayerStats.reflexRank}`,
-                          color: "text-yellow-400",
-                        },
-                      ]
-                    : []),
-                  ...(currentPlayerStats.jumpRank
-                    ? [
-                        {
-                          label: "Jump Rank",
-                          value: `#${currentPlayerStats.jumpRank}`,
-                          color: "text-cyan-400",
-                        },
-                      ]
-                    : []),
-                  ...(currentPlayerStats.memoryRank
-                    ? [
-                        {
-                          label: "Memory Rank",
-                          value: `#${currentPlayerStats.memoryRank}`,
-                          color: "text-purple-400",
-                        },
-                      ]
-                    : []),
-                ]}
-                onSaveScore={() => {}} // No auto-save needed for overall
-                isSaving={false}
-              />
-            </div>
-          </div>
-        )}
-      </AnimatePresence>
 
       <div className="relative overflow-hidden rounded-sm border border-white/10 bg-[#0f1923]/50 backdrop-blur-md">
         {/* Decorative background accents */}

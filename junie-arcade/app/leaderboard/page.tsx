@@ -1,15 +1,25 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import Leaderboard, { NewChampionData } from "../components/Leaderboard";
+import { useState, useCallback, useEffect } from "react";
+import Leaderboard, { NewChampionData, PlayerStats } from "../components/Leaderboard";
 import NewChampionAnnouncement from "../components/NewChampionAnnouncement";
+import GameOverCard from "../components/GameOverCard";
 import Image from "next/image";
-import Link from "next/link";
-import { LazyMotion, domAnimation, m } from "framer-motion";
+import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import Navigation from "../components/Navigation";
 
 export default function LeaderboardPage() {
   const [newChampion, setNewChampion] = useState<NewChampionData | null>(null);
+  const [showOverallCard, setShowOverallCard] = useState(false);
+  const [currentPlayerStats, setCurrentPlayerStats] = useState<PlayerStats | null>(null);
+
+  // Check for showOverall query param on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("showOverall") === "true") {
+      setShowOverallCard(true);
+    }
+  }, []);
 
   const handleNewChampion = useCallback((champion: NewChampionData) => {
     setNewChampion(champion);
@@ -18,16 +28,10 @@ export default function LeaderboardPage() {
   const handleAnnouncementComplete = useCallback(() => {
     setNewChampion(null);
   }, []);
-  const heroImages = [
-    "/assets/images/hero/Jinx_Render.webp",
-    "/assets/images/hero/Yasuo_Render.webp",
-    "/assets/images/hero/Lux_Render.webp",
-    "/assets/images/hero/Ezreal_Render.webp",
-    "/assets/images/hero/Jett_Artwork_Full.webp",
-    "/assets/images/hero/Phoenix_Artwork_Full.webp",
-    "/assets/images/hero/Reyna_Artwork_Full.webp",
-    "/assets/images/hero/Sage_Artwork_Full.webp",
-  ];
+
+  const handlePlayerStatsReady = useCallback((stats: PlayerStats | null) => {
+    setCurrentPlayerStats(stats);
+  }, []);
 
   return (
     <LazyMotion features={domAnimation} strict>
@@ -121,6 +125,85 @@ export default function LeaderboardPage() {
             //BOARD
           </div>
         </div>
+
+        {/* Floating Hero Characters - Decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30 hidden lg:block">
+          {/* Left side heroes */}
+          <m.div
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+              y: [0, -20, 0],
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[15%] left-[3%] w-48 h-[300px]"
+          >
+            <Image
+              src="/assets/images/hero/Jinx_Render.webp"
+              alt=""
+              fill
+              sizes="200px"
+              loading="lazy"
+              quality={50}
+              className="object-contain filter brightness-90 contrast-110"
+            />
+          </m.div>
+          <m.div
+            animate={{
+              opacity: [0.2, 0.4, 0.2],
+              y: [0, -15, 0],
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-[55%] left-[2%] w-40 h-[250px]"
+          >
+            <Image
+              src="/assets/images/hero/Lux_Render.webp"
+              alt=""
+              fill
+              sizes="160px"
+              loading="lazy"
+              quality={50}
+              className="object-contain filter brightness-90 contrast-110"
+            />
+          </m.div>
+
+          {/* Right side heroes */}
+          <m.div
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+              y: [0, -25, 0],
+            }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute top-[10%] right-[2%] w-52 h-[350px]"
+          >
+            <Image
+              src="/assets/images/hero/Jett_Artwork_Full.webp"
+              alt=""
+              fill
+              sizes="210px"
+              loading="lazy"
+              quality={50}
+              className="object-contain filter brightness-90 contrast-110"
+            />
+          </m.div>
+          <m.div
+            animate={{
+              opacity: [0.2, 0.35, 0.2],
+              y: [0, -18, 0],
+            }}
+            transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+            className="absolute top-[50%] right-[3%] w-44 h-[280px]"
+          >
+            <Image
+              src="/assets/images/hero/Reyna_Artwork_Full.webp"
+              alt=""
+              fill
+              sizes="180px"
+              loading="lazy"
+              quality={50}
+              className="object-contain filter brightness-90 contrast-110"
+            />
+          </m.div>
+        </div>
       </div>
 
       <div className="relative z-10">
@@ -201,7 +284,7 @@ export default function LeaderboardPage() {
                   clipPath: 'polygon(0 0, calc(100% - 32px) 0, 100% 32px, 100% 100%, 32px 100%, 0 calc(100% - 32px))'
                 }}
               />
-              <Leaderboard onNewChampion={handleNewChampion} />
+              <Leaderboard onNewChampion={handleNewChampion} onPlayerStatsReady={handlePlayerStatsReady} />
             </m.div>
           </div>
         </main>
@@ -230,6 +313,109 @@ export default function LeaderboardPage() {
           </div>
         </footer>
       </div>
+
+      {/* GameOverCard Modal - Overall Stats */}
+      <AnimatePresence>
+        {showOverallCard && currentPlayerStats && (
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#020617]/95 backdrop-blur-xl p-4 overflow-y-auto"
+          >
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-[0.02]" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='white' stroke-width='1'/%3E%3C/svg%3E")`,
+              backgroundSize: '60px 60px'
+            }} />
+
+            <m.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-4xl my-auto"
+            >
+              {/* Close Button - Tactical Style */}
+              <button
+                onClick={() => setShowOverallCard(false)}
+                className="absolute -top-14 right-0 px-4 py-2 text-white hover:text-emerald-400 font-black uppercase tracking-widest transition-colors flex items-center gap-2 group"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent)',
+                  clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+                }}
+              >
+                <span className="text-xs">Close</span>
+                <span className="text-emerald-400 group-hover:text-white">[X]</span>
+              </button>
+              <GameOverCard
+                username={currentPlayerStats.username}
+                country={currentPlayerStats.country}
+                score={currentPlayerStats.totalPoints}
+                gameType="OVERALL"
+                stats={[
+                  {
+                    label: "Reflex Pts",
+                    value: currentPlayerStats.reflexPoints || 0,
+                    color: "text-yellow-400",
+                  },
+                  {
+                    label: "Jump Pts",
+                    value: currentPlayerStats.jumpPoints || 0,
+                    color: "text-cyan-400",
+                  },
+                  {
+                    label: "Memory Pts",
+                    value: currentPlayerStats.memoryPoints || 0,
+                    color: "text-purple-400",
+                  },
+                  {
+                    label: "Games Played",
+                    value: `${currentPlayerStats.gamesPlayed}/3`,
+                  },
+                  ...(currentPlayerStats.rank
+                    ? [
+                        {
+                          label: "Overall Rank",
+                          value: `#${currentPlayerStats.rank}`,
+                          color: "text-emerald-400",
+                        },
+                      ]
+                    : []),
+                  ...(currentPlayerStats.reflexRank
+                    ? [
+                        {
+                          label: "Reflex Rank",
+                          value: `#${currentPlayerStats.reflexRank}`,
+                          color: "text-yellow-400",
+                        },
+                      ]
+                    : []),
+                  ...(currentPlayerStats.jumpRank
+                    ? [
+                        {
+                          label: "Jump Rank",
+                          value: `#${currentPlayerStats.jumpRank}`,
+                          color: "text-cyan-400",
+                        },
+                      ]
+                    : []),
+                  ...(currentPlayerStats.memoryRank
+                    ? [
+                        {
+                          label: "Memory Rank",
+                          value: `#${currentPlayerStats.memoryRank}`,
+                          color: "text-purple-400",
+                        },
+                      ]
+                    : []),
+                ]}
+                onSaveScore={() => {}}
+                isSaving={false}
+              />
+            </m.div>
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
     </LazyMotion>
   );
