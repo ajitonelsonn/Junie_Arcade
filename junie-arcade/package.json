@@ -14,6 +14,8 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.966.0",
     "@prisma/client": "^6.1.1",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "country-flag-icons": "^1.6.4",
     "framer-motion": "^12.25.0",
     "html-to-image": "^1.11.13",
@@ -24,7 +26,8 @@
     "react-dom": "19.2.3",
     "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "three": "^0.182.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -13,6 +13,9 @@ import SessionCleaner from "./components/SessionCleaner";
 const AnimatedBackground = dynamic(() => import("./components/AnimatedBackground"), {
   ssr: false,
 });
+const Floating3DModels = dynamic(() => import("./components/Floating3DModels"), {
+  ssr: false,
+});
 const LeaderboardSection = dynamic(() => import("./components/LeaderboardSection"), {
   ssr: false,
 });
@@ -28,6 +31,9 @@ export default function Home() {
         <SessionCleaner />
         {/* Dynamic Background */}
         <AnimatedBackground />
+
+        {/* Floating 3D Geometric Elements */}
+        <Floating3DModels useGeometric={true} />
 
         <div className="relative z-10">
           {/* Navigation / Header Branding */}
