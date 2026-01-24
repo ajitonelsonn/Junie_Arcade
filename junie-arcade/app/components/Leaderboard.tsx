@@ -404,6 +404,7 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
             alt="Junie Mascot"
             width={128}
             height={128}
+            quality={50}
             className="object-contain drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]"
           />
         </m.div>
@@ -422,6 +423,7 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
             alt="Junie Mascot"
             width={112}
             height={112}
+            quality={50}
             className="object-contain"
           />
         </m.div>
@@ -565,6 +567,7 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
                             alt="Hero Background"
                             fill
                             sizes="128px"
+                            quality={50}
                             className="object-contain object-right"
                           />
                         </div>
@@ -593,6 +596,8 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
                                 src={getGameLogo(entry.gameType)!}
                                 alt={entry.gameType}
                                 fill
+                                sizes="28px"
+                                quality={50}
                                 className="object-contain filter brightness-110"
                               />
                             </div>

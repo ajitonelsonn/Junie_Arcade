@@ -147,6 +147,7 @@ export default function Home() {
                       width={60}
                       height={20}
                       sizes="60px"
+                      quality={50}
                       style={{ width: 'auto', height: 'auto' }}
                       className="w-12 sm:w-[60px]"
                     />
@@ -172,6 +173,7 @@ export default function Home() {
                       width={60}
                       height={20}
                       sizes="60px"
+                      quality={50}
                       style={{ width: 'auto', height: 'auto' }}
                       className="w-12 sm:w-[60px]"
                     />

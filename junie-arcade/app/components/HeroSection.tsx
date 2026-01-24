@@ -51,9 +51,10 @@ export default function HeroSection() {
             src="/assets/images/junie/junie-happy.png"
             alt="Junie Mascot"
             fill
-            sizes="256px"
+            sizes="(max-width: 640px) 192px, 256px"
             priority
             fetchPriority="high"
+            quality={75}
             className="object-contain drop-shadow-[0_0_40px_rgba(0,238,255,0.6)]"
           />
         </m.div>
@@ -77,7 +78,8 @@ export default function HeroSection() {
             src="/assets/images/junie/junie-idle.png"
             alt="Junie Idle"
             fill
-            sizes="96px"
+            sizes="(max-width: 640px) 64px, 96px"
+            quality={60}
             className="object-contain"
           />
         </m.div>
@@ -101,7 +103,8 @@ export default function HeroSection() {
             src="/assets/images/junie/junie-jump.png"
             alt="Junie Jump"
             fill
-            sizes="96px"
+            sizes="(max-width: 640px) 64px, 96px"
+            quality={60}
             className="object-contain"
           />
         </m.div>

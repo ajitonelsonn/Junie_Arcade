@@ -43,6 +43,7 @@ export default function Navigation() {
               width={80}
               height={28}
               sizes="80px"
+              quality={60}
               style={{ width: 'auto', height: 'auto' }}
               className="brightness-110 w-16 sm:w-20 md:w-[80px]"
             />
@@ -69,6 +70,7 @@ export default function Navigation() {
               width={80}
               height={28}
               sizes="80px"
+              quality={60}
               style={{ width: 'auto', height: 'auto' }}
               className="opacity-90 hover:opacity-100 transition-opacity w-16 sm:w-20 md:w-[80px]"
             />

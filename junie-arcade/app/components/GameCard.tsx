@@ -125,9 +125,9 @@ export default function GameCard({ title, description, href, gameLogo }: GameCar
                   src={gameLogo}
                   alt={title}
                   fill
-                  sizes="160px"
+                  sizes="80px"
                   loading="lazy"
-                  quality={70}
+                  quality={55}
                   className="object-contain"
                   style={{ filter: `drop-shadow(0 0 20px ${colors.glow})` }}
                 />

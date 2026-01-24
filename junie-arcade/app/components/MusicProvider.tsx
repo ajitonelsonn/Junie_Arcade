@@ -41,6 +41,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     if (!isInitialized) {
       // Menu music
       const menuMusic = new Audio()
+      menuMusic.preload = 'none'
       menuMusic.loop = true
       menuMusic.volume = 0.3
       menuMusic.src = '/assets/sounds/music/music-menu.mp3'
@@ -48,6 +49,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
       // Game music
       const gameMusic = new Audio()
+      gameMusic.preload = 'none'
       gameMusic.loop = true
       gameMusic.volume = 0.4
       gameMusic.src = '/assets/sounds/music/music-game.mp3'
@@ -55,6 +57,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
       // Victory music
       const victoryMusic = new Audio()
+      victoryMusic.preload = 'none'
       victoryMusic.loop = false
       victoryMusic.volume = 0.4
       victoryMusic.src = '/assets/sounds/music/music-victory.mp3'
