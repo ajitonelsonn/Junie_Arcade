@@ -35,7 +35,7 @@ export default function MerchandisePage() {
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 opacity-20 mix-blend-overlay">
           <Image
-            src="/assets/images/backgrounds/valorant_.webp"
+            src="/assets/images/merchendise/tais_v_lol.webp"
             alt=""
             fill
             sizes="100vw"
