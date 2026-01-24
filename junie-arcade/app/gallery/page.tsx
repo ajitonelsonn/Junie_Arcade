@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
+import Navigation from "../components/Navigation";
 
 interface GalleryItem {
   id: string;
@@ -93,7 +94,13 @@ export default function GalleryPage() {
   };
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
+      {/* Navigation / Header Branding */}
+      <div className="relative z-50">
+        <Navigation />
+      </div>
+
       {/* Animated Background - VALORANT/LoL Tactical Style */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 opacity-20 mix-blend-overlay">
@@ -122,7 +129,7 @@ export default function GalleryPage() {
         }} />
 
         {/* Animated Scan Line - Horizontal */}
-        <motion.div
+        <m.div
           animate={{ y: ['0%', '100%'] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
           className="absolute left-0 right-0 h-[1px] opacity-10 pointer-events-none"
@@ -130,7 +137,7 @@ export default function GalleryPage() {
         />
 
         {/* Animated Orbs - Cloud9/Cyan Colors */}
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.15, 0.25, 0.15],
@@ -142,8 +149,8 @@ export default function GalleryPage() {
           className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[120px]"
         >
           <div className="w-full h-full bg-gradient-to-br from-[#00eeff]/40 to-blue-600/20 rounded-full" />
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.15, 0.3, 0.15],
@@ -155,8 +162,8 @@ export default function GalleryPage() {
           className="absolute top-1/3 -right-40 w-[450px] h-[450px] rounded-full blur-[100px]"
         >
           <div className="w-full h-full bg-gradient-to-br from-cyan-500/30 to-blue-600/20 rounded-full" />
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.1, 0.2, 0.1],
@@ -166,7 +173,134 @@ export default function GalleryPage() {
           className="absolute bottom-0 left-1/2 w-[400px] h-[400px] rounded-full blur-[100px]"
         >
           <div className="w-full h-full bg-gradient-to-br from-blue-600/30 to-[#00eeff]/20 rounded-full" />
-        </motion.div>
+        </m.div>
+
+        {/* Floating Hero Characters - Decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+          {[
+            "/assets/images/hero/Jinx_Render.webp",
+            "/assets/images/hero/Yasuo_Render.webp",
+            "/assets/images/hero/Lux_Render.webp",
+            "/assets/images/hero/Ezreal_Render.webp",
+            "/assets/images/hero/Jett_Artwork_Full.webp",
+            "/assets/images/hero/Phoenix_Artwork_Full.webp",
+          ].map((img, i) => (
+            <m.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{
+                opacity: [0, 0.6, 0],
+                scale: [0.8, 1, 1.2],
+                x: i % 2 === 0 ? [0, 50, 0] : [0, -50, 0],
+                y: [0, -100, 0],
+              }}
+              transition={{
+                duration: 18,
+                repeat: Infinity,
+                delay: i * 3,
+                ease: "linear",
+              }}
+              className={`absolute ${
+                i === 0
+                  ? "top-[15%] left-[8%]"
+                  : i === 1
+                    ? "top-[25%] right-[12%]"
+                    : i === 2
+                      ? "top-[50%] left-[5%]"
+                      : i === 3
+                        ? "top-[70%] right-[8%]"
+                        : i === 4
+                          ? "bottom-[15%] left-[15%]"
+                          : "bottom-[30%] right-[10%]"
+              } w-64 h-[400px]`}
+            >
+              <Image
+                src={img}
+                alt="Hero"
+                fill
+                sizes="(max-width: 768px) 200px, 256px"
+                loading="lazy"
+                quality={50}
+                className="object-contain filter brightness-110 contrast-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+              />
+            </m.div>
+          ))}
+        </div>
+
+        {/* Floating Junie Mascots */}
+        <m.div
+          animate={{
+            y: [0, -30, 0],
+            rotate: [0, 15, -15, 0],
+            x: [0, 20, 0],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute top-[20%] left-[3%] w-32 h-32 pointer-events-none opacity-60"
+        >
+          <Image
+            src="/assets/images/junie/junie-happy.png"
+            alt="Junie Happy"
+            fill
+            sizes="128px"
+            loading="lazy"
+            quality={70}
+            className="object-contain drop-shadow-[0_0_20px_rgba(0,238,255,0.6)]"
+          />
+        </m.div>
+
+        <m.div
+          animate={{
+            y: [0, -25, 0],
+            rotate: [0, -10, 10, 0],
+            x: [0, -15, 0],
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+          className="absolute bottom-[25%] right-[5%] w-28 h-28 pointer-events-none opacity-50"
+        >
+          <Image
+            src="/assets/images/junie/junie-jump.png"
+            alt="Junie Jump"
+            fill
+            sizes="112px"
+            loading="lazy"
+            quality={70}
+            className="object-contain drop-shadow-[0_0_20px_rgba(0,238,255,0.5)]"
+          />
+        </m.div>
+
+        <m.div
+          animate={{
+            y: [0, -20, 0],
+            rotate: [0, 8, -8, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+          className="absolute top-[60%] left-[10%] w-24 h-24 pointer-events-none opacity-50"
+        >
+          <Image
+            src="/assets/images/junie/junie-idle.png"
+            alt="Junie Idle"
+            fill
+            sizes="96px"
+            loading="lazy"
+            quality={70}
+            className="object-contain drop-shadow-[0_0_15px_rgba(0,238,255,0.4)]"
+          />
+        </m.div>
 
         {/* Corner Decorative Elements - Tactical HUD Style */}
         <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none opacity-30 hidden lg:block">
@@ -187,92 +321,9 @@ export default function GalleryPage() {
       </div>
 
       <div className="relative z-10">
-        {/* Navigation - Tactical Style */}
-        <nav className="relative px-4 sm:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
-          {/* Background blur bar */}
-          <div className="absolute inset-0 bg-[#020617]/60 backdrop-blur-md border-b border-white/5" />
-
-          <div className="relative z-10 flex justify-between items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <Link href="/" className="flex items-center gap-4">
-                <div
-                  className="relative p-1.5 sm:p-2"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(0, 238, 255, 0.1), transparent)',
-                    clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))'
-                  }}
-                >
-                  <Image
-                    src="/assets/images/logos/cloud9-logo.png"
-                    alt="Cloud9"
-                    width={80}
-                    height={30}
-                    style={{ width: "auto", height: "auto" }}
-                    className="brightness-110"
-                  />
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1 h-1 rotate-45 bg-[#00eeff]" />
-                  <div className="h-5 sm:h-6 w-px bg-white/20" />
-                  <div className="w-1 h-1 rotate-45 bg-[#00eeff]" />
-                </div>
-                <div
-                  className="relative p-1.5 sm:p-2"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(0, 238, 255, 0.1), transparent)',
-                    clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)'
-                  }}
-                >
-                  <Image
-                    src="/assets/images/logos/jetbrains-logo.png"
-                    alt="JetBrains"
-                    width={80}
-                    height={30}
-                    style={{ width: "auto", height: "auto" }}
-                    className="opacity-90"
-                  />
-                </div>
-              </Link>
-            </motion.div>
-
-            <div className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-              <Link href="/" className="hover:text-[#00eeff] transition-colors relative group">
-                Arena
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#00eeff] transition-all group-hover:w-full" />
-              </Link>
-              <span className="text-[#00eeff] relative">
-                Gallery
-                <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-[#00eeff]" />
-              </span>
-              <Link href="/leaderboard" className="hover:text-[#00eeff] transition-colors relative group">
-                Leaderboard
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#00eeff] transition-all group-hover:w-full" />
-              </Link>
-              <Link href="/merchandise" className="hover:text-[#00eeff] transition-colors relative group">
-                Merchandise
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#00eeff] transition-all group-hover:w-full" />
-              </Link>
-              <a
-                href="https://cloud9.devpost.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-white"
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00eeff] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00eeff]"></span>
-                </span>
-                TOURNAMENT
-              </a>
-            </div>
-          </div>
-        </nav>
 
         <header className="px-8 pt-16 pb-12 text-center max-w-5xl mx-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -293,7 +344,7 @@ export default function GalleryPage() {
                 Historical Archive
               </span>
               {/* Animated scan line */}
-              <motion.div
+              <m.div
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#00eeff]/20 to-transparent"
@@ -351,7 +402,7 @@ export default function GalleryPage() {
                 </svg>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </header>
 
         <main className="container mx-auto px-8 pb-32">
@@ -395,7 +446,7 @@ export default function GalleryPage() {
                     ([groupKey, userImages], index) => {
                       const [username, country] = groupKey.split("|");
                       return (
-                        <motion.div
+                        <m.div
                           key={groupKey}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
@@ -439,7 +490,7 @@ export default function GalleryPage() {
                               <div className="h-px w-4 bg-[#00eeff]/20" />
                             </div>
                           </div>
-                        </motion.div>
+                        </m.div>
                       );
                     },
                   )}
@@ -476,7 +527,7 @@ export default function GalleryPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     <AnimatePresence mode="popLayout">
                       {groups[selectedFolder]?.map((item, index) => (
-                        <motion.div
+                        <m.div
                           key={item.id}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
@@ -522,12 +573,12 @@ export default function GalleryPage() {
                           </div>
 
                           {/* Scan line effect on hover */}
-                          <motion.div
+                          <m.div
                             animate={{ y: ['-100%', '200%'] }}
                             transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
                             className="absolute inset-x-0 h-1/3 bg-gradient-to-b from-transparent via-[#00eeff]/10 to-transparent pointer-events-none opacity-0 group-hover:opacity-100"
                           />
-                        </motion.div>
+                        </m.div>
                       ))}
                     </AnimatePresence>
                   </div>
@@ -541,14 +592,14 @@ export default function GalleryPage() {
       {/* Lightbox - Tactical Redesign */}
       <AnimatePresence>
         {selectedImage && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedImage(null)}
             className="fixed inset-0 z-50 flex items-center justify-center bg-[#020617]/95 p-4 md:p-8 backdrop-blur-2xl"
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -614,10 +665,11 @@ export default function GalleryPage() {
                 <div className="absolute bottom-0 right-0 w-full h-[2px] bg-gradient-to-l from-[#00eeff] to-transparent" />
                 <div className="absolute bottom-0 right-0 h-full w-[2px] bg-gradient-to-t from-[#00eeff] to-transparent" />
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
+    </LazyMotion>
   );
 }
