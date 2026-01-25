@@ -34,6 +34,7 @@ export default class JumpMasterScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image("junie-idle", "/assets/images/junie/junie-idle.png");
     this.load.image("junie-run-1", "/assets/images/junie/junie-run-1.png");
     this.load.image("junie-run-2", "/assets/images/junie/junie-run-2.png");
     this.load.image("junie-run-3", "/assets/images/junie/junie-run-3.png");
@@ -99,17 +100,13 @@ export default class JumpMasterScene extends Phaser.Scene {
       .setOrigin(0);
     this.physics.add.existing(this.ground, true);
 
-    // Player
+    // Player - start with idle texture during countdown
     this.player = this.physics.add.sprite(
       150,
       this.scale.height - 200,
-      "junie-run-1",
+      "junie-idle",
     );
     this.player.setScale(0.35);
-
-    if (!this.isGameOver) {
-      this.player.play("run");
-    }
 
     this.player.setCollideWorldBounds(true);
     this.player.setGravityY(2000);
@@ -295,6 +292,11 @@ export default class JumpMasterScene extends Phaser.Scene {
 
   // NEW: Start all game timers after countdown
   private startGameTimers() {
+    // Start running animation when game begins
+    if (!this.isGameOver) {
+      this.player.play("run");
+    }
+
     // Game Timer
     this.gameTimer = this.time.addEvent({
       delay: 1000,
