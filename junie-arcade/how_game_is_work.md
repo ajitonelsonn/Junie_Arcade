@@ -16,45 +16,52 @@ Junie's Arcade is a **multi-game tournament experience** featuring three fast-pa
 
 ## 🚀 Getting Started
 
-### Step 1: Enter Your Information
+### Step 1: Choose a Game
 
-When you first enter any game from the Main Arena:
-
-1. **Enter your Name** (3-20 characters)
-2. **Select your Country** from 250+ countries
-3. **Start the Game**
-
-#### What Happens Behind the Scenes:
-
-- ✅ **Unique Player ID Generated**: A unique session identifier is created
-- ✅ **Credentials Locked**: Your name and country cannot be changed during this session
-- ✅ **Session Tracking**: The system tracks which games you've played
-- ✅ **Duplicate Prevention**: You can only play each game once per session
-
-### Step 2: Play the Games
-
-You can start with **any game** you want! The three available games are:
+From the Main Arena (landing page), select any game you want to play:
 
 1. **Jump Master** 🚀 - Platformer (50 seconds)
 2. **Reflex Arena** ⚡ - Reaction game (50 seconds)
 3. **Memory Match** 🧠 - Puzzle game (100 seconds)
 
-### Step 3: Complete the Tournament
+You can start with **any game** - there's no required order!
 
-After finishing your first game:
+### Step 2: Enter Your Information
+
+When you enter a game page for the first time:
+
+1. **Enter your Name** (up to 20 characters)
+2. **Select your Country** from 176+ countries
+3. **Click "Deploy/Start"** to begin
+
+#### What Happens Behind the Scenes:
+
+- ✅ **Unique Player ID Generated**: A unique session identifier is created
+- ✅ **Credentials Saved**: Your name and country are saved to localStorage
+- ✅ **Session Tracking**: The system tracks which games you've played
+- ✅ **Duplicate Prevention**: You can only play each game once per session
+
+### Step 3: Play and Get Your Card
+
+After finishing a game:
 
 - 📊 **View your score** on the Game Over screen
-- 🎯 **See your rank** compared to other players
-- ➡️ **Click "Continue"** to play the next game
-- 🏆 **Complete all 3 games** to maximize your Champion Points
+- 🎴 **Achievement Card auto-generated** with your score and rank
+- 📸 **Save your card**: Take a photo, scan QR code, or download
 
-### Step 4: Share Your Achievement
+**What happens next:**
 
-Once you've played all 3 games:
+- ➡️ **If more games available**: "Continue to [Next Game]" button appears - click to play the next unplayed game
+- 🏆 **If all 3 games done**: "Generate Leaderboard Card" button appears - click to see your overall ranking
 
-- 🎴 **Download your Achievement Card** with your final ranking
+### Step 4: Complete All Games
+
+After completing all 3 games and clicking "Generate Leaderboard Card":
+
+- 🏆 **Overall Achievement Card generated** with all 3 scores and total Champion Points
+- 📊 **See your overall rank** on the leaderboard
 - 📤 **Share on social media** to show off your skills
-- 🔄 **Play again** to improve your score (new session with new Player ID)
+- 🔄 **Play again** by starting a new session (creates new Player ID)
 
 ---
 
@@ -326,27 +333,34 @@ Players are sorted by:
 
 ## 🎴 Achievement Cards
 
-After completing your tournament, you can generate a personalized **Achievement Card**:
+After completing each game, you get a personalized **Achievement Card**:
 
 ### Card Features:
 
 - 🎨 Professional design matching League/Valorant aesthetic
-- 📊 Your scores from all 3 games
-- 🏅 Your rankings and Champion Points
+- 📊 Your score and rank for that game
 - 🌍 Country flag and username
 - 🎭 Random hero character background
 - 🐰 Random Junie mascot
 - 🏢 Cloud9 and JetBrains branding
 - 📅 Timestamp of achievement
-- 🔒 QR code for verification
+- 🔒 QR code for download/sharing
 
-### How to Get Your Card:
+### How to Save Your Card:
 
-1. **Complete all 3 games** in a session
-2. **Click "Generate Card"** on Game Over screen
-3. **Customize** (optional): Click hero/Junie to randomize
-4. **Download** as PNG image
-5. **Share** on social media!
+After each game ends, your card is automatically generated. You have 3 options:
+
+1. 📸 **Take a Photo**: Use your phone to capture the screen
+2. 📱 **Scan QR Code**: Scan to download card directly to your phone
+3. 💾 **Click Download**: Save PNG image to your device
+
+### Overall Achievement Card:
+
+After completing **all 3 games**, you can generate an **Overall Card** that shows:
+
+- All 3 game scores and ranks
+- Total Champion Points
+- Overall leaderboard position
 
 ### Card Actions:
 
@@ -360,7 +374,7 @@ After completing your tournament, you can generate a personalized **Achievement 
 
 ### For GDC Event Attendees:
 
-Top 3 players on the leaderboard at Cloud9 & JetBrains event booths can win authentic **Timor-Leste merchandise**:
+Every top 3 players on the leaderboard at Cloud9 & JetBrains event booths can win authentic **Timor-Leste merchandise**:
 
 **Prizes:**
 
@@ -398,18 +412,6 @@ Junie's Arcade was created by a developer from **Timor-Leste** 🇹🇱.
 - Click "Back to Arena" or "Exit to Main Menu"
 - Session ends, credentials are cleared
 - You can start a new session anytime!
-
-### Playing Again for Better Scores:
-
-Want to improve your ranking? Here's how:
-
-1. **Finish your current session** (or exit to main menu)
-2. **Start a new session** with the same name/country
-3. **A new unique Player ID is generated**
-4. **Play all games again** for potentially better scores
-5. **Both attempts appear on leaderboard** as separate entries
-
-**Important**: Each session is tracked independently. Your best overall performance counts!
 
 ---
 
@@ -462,22 +464,12 @@ Each game has unique sound effects:
 - ✅ Optimal graphics and performance
 - ✅ Best for competitive play
 
-### Mobile/Tablet:
+### Tablet:
 
 - ⚠️ **Jump Master**: Touch controls available but challenging
 - ✅ **Reflex Arena**: Touch-friendly, works great
 - ✅ **Memory Match**: Touch-friendly, works great
 - 💡 **Tip**: Desktop recommended for best experience
-
-### Browser Support:
-
-- ✅ Chrome (recommended)
-- ✅ Firefox
-- ✅ Safari
-- ✅ Edge
-- ⚠️ Internet Explorer: Not supported
-
----
 
 ## 🎯 Pro Tips & Strategies
 
@@ -508,74 +500,5 @@ Each game has unique sound effects:
 - First 30s: Memorize positions, don't rush
 - Build consecutive matches for combo
 - Complete fast for speed bonus (60+ sec = 400 pts!)
-
----
-
-## ❓ Frequently Asked Questions
-
-### Can I change my name/country during a session?
-
-No, credentials are locked when you start playing to ensure fair competition and consistent scoring.
-
-### Can I play the same game twice in one session?
-
-No, each game can only be played once per session. To play again, finish your session and start a new one from the Main Arena.
-
-### Do I have to play all 3 games?
-
-No, but playing all 3 games maximizes your Champion Points and overall leaderboard ranking. Players who complete all 3 games always rank higher than those who only play 1 or 2.
-
-### How often does the leaderboard update?
-
-The leaderboard auto-refreshes every 10 seconds with the latest scores from all players globally.
-
-### Can I compete by country?
-
-Yes! You can filter leaderboards by country to see how you rank against players from your nation.
-
-### What if I want to improve my score?
-
-Return to the Main Arena to end your current session, then start a new session. Each attempt gets a unique Player ID, and both scores appear on the leaderboard.
-
-### How do I download my achievement card?
-
-Complete all 3 games, then click "Generate Card" on the Game Over screen. Customize if desired, then click "Download Card" to save the PNG image.
-
-### Is my data saved?
-
-Yes! Scores are automatically saved to the database when you complete each game. Your achievement card can also be uploaded to the cloud for sharing.
-
-### Can I share my achievement card?
-
-Absolutely! Download the card and share it on social media to show off your skills and compete with friends.
-
----
-
-## 🏁 Ready to Play?
-
-You now know everything about how Junie's Arcade works! Here's your checklist:
-
-- ✅ Understand the 3 games (Jump Master, Reflex Arena, Memory Match)
-- ✅ Know how Champion Points work
-- ✅ Understand session management
-- ✅ Ready to compete on the leaderboard
-- ✅ Know how to download and share achievement cards
-
-**Good luck, and may the best player win!** 🏆
-
----
-
-## 📚 Additional Resources
-
-For more detailed information:
-
-- **Scoring Details**: See [LEADERBOARD_SCORING.md](LEADERBOARD_SCORING.md)
-- **Music System**: See [MUSIC_SYSTEM_USAGE.md](MUSIC_SYSTEM_USAGE.md)
-- **Technical Docs**: Check the repository README
-
----
-
-**Junie's Arcade** - Built with ❤️ from Timor-Leste 🇹🇱
-Powered by Cloud9 x JetBrains "Sky's the Limit" Hackathon 2026
 
 ---
