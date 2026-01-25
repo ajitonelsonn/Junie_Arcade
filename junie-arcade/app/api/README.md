@@ -1533,4 +1533,16 @@ npm run dev
 
 ---
 
-**Junie's Arcade API**🇹🇱
+## 🔗 Related Documentation
+
+| Document                                       | Description                      |
+| ---------------------------------------------- | -------------------------------- |
+| [Main README](../../README.md)                 | Project overview & setup         |
+| [Gameplay Guide](../../how_game_is_work.md)    | Complete user guide              |
+| [Scoring System](../../LEADERBOARD_SCORING.md) | Detailed scoring mechanics       |
+| [Database Guide](../../prisma/README.md)       | Prisma & PostgreSQL guide        |
+| [System Diagrams](../../diagram/README.md)     | Architecture & flow diagrams     |
+
+---
+
+**Junie's Arcade API** 🇹🇱

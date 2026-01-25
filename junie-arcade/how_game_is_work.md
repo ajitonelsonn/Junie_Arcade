@@ -2,6 +2,8 @@
 
 **A comprehensive guide to playing, competing, and winning in Junie's Arcade!**
 
+> This is the **complete user guide** for players. For technical documentation, see [README.md](README.md). For detailed scoring formulas, see [LEADERBOARD_SCORING.md](LEADERBOARD_SCORING.md).
+
 ---
 
 ## 🎮 Overview
@@ -500,5 +502,17 @@ Each game has unique sound effects:
 - First 30s: Memorize positions, don't rush
 - Build consecutive matches for combo
 - Complete fast for speed bonus (60+ sec = 400 pts!)
+
+---
+
+## 📚 Related Documentation
+
+| Document                                       | Description                      |
+| ---------------------------------------------- | -------------------------------- |
+| [Main README](README.md)                       | Project overview & setup         |
+| [Scoring System](LEADERBOARD_SCORING.md)       | Detailed scoring formulas        |
+| [System Diagrams](diagram/README.md)           | Architecture & flow diagrams     |
+| [API Documentation](app/api/README.md)         | API endpoints reference          |
+| [Database Guide](prisma/README.md)             | Prisma & PostgreSQL guide        |
 
 ---

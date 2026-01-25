@@ -661,3 +661,14 @@ npx prisma db push
 | `npx tsx prisma/seed-countries.ts` | Seed countries data           |
 | `npx prisma format`                | Format schema file            |
 | `npx prisma validate`              | Validate schema               |
+
+---
+
+## 🔗 Related Documentation
+
+| Document                                       | Description                  |
+| ---------------------------------------------- | ---------------------------- |
+| [Main README](../README.md)                    | Project overview & setup     |
+| [API Documentation](../app/api/README.md)      | API endpoints reference      |
+| [Scoring System](../LEADERBOARD_SCORING.md)    | Game scoring mechanics       |
+| [System Diagrams](../diagram/README.md)        | Architecture diagrams        |

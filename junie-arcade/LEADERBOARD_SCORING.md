@@ -7,8 +7,7 @@ This document explains how Junie's Arcade calculates scores and rankings across 
 - [Game Scoring Systems](#game-scoring-systems)
 - [Champion Points System](#champion-points-system)
 - [Overall Leaderboard Ranking](#overall-leaderboard-ranking)
-- [API Endpoints](#api-endpoints)
-- [Database Schema](#database-schema)
+- [API & Database](#api--database)
 
 ---
 
@@ -599,158 +598,12 @@ sortedLeaderboard = players.sort((a, b) => {
 
 ---
 
-## API Endpoints
+## API & Database
 
-### GET `/api/leaderboard`
+For detailed documentation, see:
 
-Fetch leaderboard data with optional filters.
-
-#### Query Parameters
-
-| Parameter | Type   | Default   | Description                                             |
-| --------- | ------ | --------- | ------------------------------------------------------- |
-| `view`    | string | `overall` | Leaderboard type: `overall`, `reflex`, `jump`, `memory` |
-| `country` | string | -         | Filter by country name (optional)                       |
-
-#### Examples
-
-```bash
-# Overall leaderboard (top 5)
-GET /api/leaderboard?view=overall
-
-# Reflex Arena leaderboard (top 10)
-GET /api/leaderboard?view=reflex
-
-# Jump Master leaderboard for USA
-GET /api/leaderboard?view=jump&country=United%20States
-
-# Memory Match overall
-GET /api/leaderboard?view=memory
-```
-
-#### Response Format
-
-**Overall Leaderboard:**
-
-```json
-{
-  "type": "overall",
-  "leaderboard": [
-    {
-      "playerId": "clx123...",
-      "username": "ProGamer",
-      "country": "United States",
-      "reflexScore": 2450,
-      "jumpScore": 8200,
-      "memoryScore": 1680,
-      "reflexRank": 3,
-      "jumpRank": 1,
-      "memoryRank": 5,
-      "reflexPoints": 80,
-      "jumpPoints": 100,
-      "memoryPoints": 75,
-      "totalPoints": 255,
-      "gamesPlayed": 3,
-      "hasPlayedAll": true
-    }
-  ]
-}
-```
-
-**Individual Game Leaderboard:**
-
-```json
-{
-  "type": "reflex",
-  "gameType": "REFLEX_ARENA",
-  "leaderboard": [
-    {
-      "rank": 1,
-      "username": "SpeedKing",
-      "country": "Japan",
-      "score": 2890,
-      "maxCombo": 15,
-      "accuracy": 95.5,
-      "createdAt": "2026-01-12T10:30:00Z"
-    }
-  ]
-}
-```
-
----
-
-### POST `/api/scores`
-
-Submit a new game score.
-
-#### Request Body
-
-```json
-{
-  "username": "PlayerName",
-  "country": "United States",
-  "gameType": "REFLEX_ARENA",
-  "score": 2450,
-  "accuracy": 92.5,
-  "time": 60,
-  "maxCombo": 12,
-  "distance": null
-}
-```
-
-#### Field Usage by Game
-
-| Field      | Reflex Arena | Jump Master | Memory Match |
-| ---------- | ------------ | ----------- | ------------ |
-| `score`    | ✅ Required  | ✅ Required | ✅ Required  |
-| `accuracy` | ✅ Used      | ❌ Not used | ✅ Used      |
-| `time`     | ✅ Used      | ❌ Not used | ✅ Used      |
-| `maxCombo` | ✅ Used      | ❌ Not used | ❌ Not used  |
-| `distance` | ❌ Not used  | ✅ Used     | ❌ Not used  |
-
----
-
-## Database Schema
-
-### Player Model
-
-```prisma
-model Player {
-  id        String   @id @default(cuid())
-  username  String
-  country   String?
-  createdAt DateTime @default(now())
-  scores    Score[]
-}
-```
-
-### Score Model
-
-```prisma
-model Score {
-  id          String   @id @default(cuid())
-  playerId    String
-  player      Player   @relation(fields: [playerId], references: [id])
-  gameType    GameType
-  score       Int
-  maxCombo    Int?
-  accuracy    Float?
-  time        Int?
-  distance    Float?
-  createdAt   DateTime @default(now())
-}
-```
-
-### GameType Enum
-
-```prisma
-enum GameType {
-  REFLEX_ARENA
-  JUMP_MASTER
-  MEMORY_MATCH
-  OVERALL
-}
-```
+- **API Endpoints:** [app/api/README.md](app/api/README.md) - Complete API reference with examples
+- **Database Schema:** [prisma/README.md](prisma/README.md) - Full schema documentation with Prisma commands
 
 ---
 
@@ -803,11 +656,12 @@ Potential improvements to consider:
 
 ---
 
-## Questions?
+## Related Documentation
 
-For implementation details, see:
-
-- [/app/api/leaderboard/route.ts](app/api/leaderboard/route.ts) - Leaderboard calculation logic
-- [/app/api/scores/route.ts](app/api/scores/route.ts) - Score submission
-- [/app/components/Leaderboard.tsx](app/components/Leaderboard.tsx) - Frontend display
-- [/prisma/schema.prisma](prisma/schema.prisma) - Database schema
+| Document                                   | Description                   |
+| ------------------------------------------ | ----------------------------- |
+| [README.md](README.md)                     | Main project documentation    |
+| [how_game_is_work.md](how_game_is_work.md) | Complete gameplay guide       |
+| [app/api/README.md](app/api/README.md)     | API reference                 |
+| [prisma/README.md](prisma/README.md)       | Database documentation        |
+| [diagram/README.md](diagram/README.md)     | System architecture diagrams  |

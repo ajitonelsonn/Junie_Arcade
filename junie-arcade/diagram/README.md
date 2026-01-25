@@ -1,6 +1,8 @@
 # Junie's Arcade - System Diagrams
 
-This document contains all architectural and flow diagrams for Junie's Arcade, built for the **Cloud9 x JetBrains "Sky's the Limit" Hackathon - Category 4: Event Mini-Game**.
+Visual diagrams for understanding Junie's Arcade architecture and flows. For detailed explanations, see the linked documentation below.
+
+> **Note:** This document focuses on **visual diagrams only**. For detailed explanations of scoring, API endpoints, and gameplay, refer to the specialized documentation linked in [Quick Links](#quick-links).
 
 ---
 
@@ -592,29 +594,15 @@ flowchart TB
 
 ---
 
-## Hackathon Context
-
-This project is submitted for **Category 4: Event Mini-Game** of the Cloud9 x JetBrains "Sky's the Limit" Hackathon.
-
-### Requirements Met
-
-| Requirement               | Implementation            |
-| ------------------------- | ------------------------- |
-| Fast & Engaging (< 3 min) | 50-100 second games       |
-| Intuitive Controls        | Mouse/click + SPACE only  |
-| Thematic                  | VALORANT/LoL aesthetic    |
-| Live Leaderboard          | Real-time Champion Points |
-| High Replayability        | Session-based competition |
-
----
-
 ## Quick Links
 
-- [Main README](../README.md)
-- [API Documentation](../app/api/README.md)
-- [Database Documentation](../prisma/README.md)
-- [Gameplay Guide](../how_game_is_work.md)
-- [Scoring System](../LEADERBOARD_SCORING.md)
+| Document                                       | Description                      |
+| ---------------------------------------------- | -------------------------------- |
+| [Main README](../README.md)                    | Project overview & hackathon info |
+| [Gameplay Guide](../how_game_is_work.md)       | Complete user gameplay guide     |
+| [Scoring System](../LEADERBOARD_SCORING.md)    | Detailed scoring mechanics       |
+| [API Documentation](../app/api/README.md)      | API endpoints reference          |
+| [Database Documentation](../prisma/README.md)  | Prisma & PostgreSQL guide        |
 
 ---
 
