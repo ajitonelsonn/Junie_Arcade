@@ -106,7 +106,8 @@ For detailed architecture diagrams, see [diagram/README.md](diagram/README.md).
 1. **Clone and navigate to the project**
 
    ```bash
-   cd junie-arcade
+   git clone https://github.com/ajitonelsonn/Junie_Arcade.git
+   cd Junie_Arcade/junie-arcade
    ```
 
 2. **Install dependencies**

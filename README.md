@@ -2,9 +2,7 @@
 
 A **3-in-1 mini-game tournament arcade** built for the **Cloud9 x JetBrains "Sky's the Limit" Hackathon 2026**, submitted under **Category 4: Event Mini-Game**.
 
-**Live Demo:** [https://www.juniearcade.fun](https://www.juniearcade.fun)
-
----
+## **Live Demo:** [https://www.juniearcade.fun](https://www.juniearcade.fun)
 
 ## Hackathon Submission
 
@@ -140,7 +138,8 @@ This project includes detailed documentation for every aspect of the system:
 ### Setup
 
 ```bash
-cd junie-arcade
+git clone https://github.com/ajitonelsonn/Junie_Arcade.git
+cd Junie_Arcade/junie-arcade
 npm install
 ```
 
