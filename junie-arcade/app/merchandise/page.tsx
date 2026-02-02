@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import Navigation from "../components/Navigation";
-import AnimatedBackground from "../components/AnimatedBackground";
+
 
 export default function MerchandisePage() {
   const merchandise = [
@@ -277,6 +277,88 @@ export default function MerchandisePage() {
             <div className="absolute bottom-0 right-0 w-16 h-16 pointer-events-none">
               <div className="absolute bottom-0 right-0 w-full h-[2px] bg-gradient-to-l from-[#c284f9] to-transparent" />
               <div className="absolute bottom-0 right-0 h-full w-[2px] bg-gradient-to-t from-[#c284f9] to-transparent" />
+            </div>
+          </m.div>
+
+          {/* Photo at the Booth Section */}
+          <m.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-32 max-w-6xl mx-auto"
+          >
+            <div className="text-center mb-16">
+              <div
+                className="inline-flex items-center gap-2 px-4 py-2 mb-6 backdrop-blur-md relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(194, 132, 249, 0.1), rgba(194, 132, 249, 0.05))',
+                  border: '1px solid rgba(194, 132, 249, 0.3)',
+                  clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)'
+                }}
+              >
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#c284f9]">
+                  📸 Event Booth
+                </span>
+              </div>
+              <h3 className="text-4xl font-black text-white uppercase tracking-tighter italic">
+                CAPTURE YOUR{" "}
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-amber-400 to-[#c284f9]">
+                  MOMENT
+                </span>
+              </h3>
+              <p className="text-slate-400 font-bold uppercase tracking-wide text-sm mt-4 max-w-2xl mx-auto">
+                Capture your moment with the{" "}
+                <span className="text-amber-400">Exclusive Merchandise from Timor-Leste</span>{" "}
+                at the <span className="text-white">Cloud9 x JetBrains Event Booth</span>.
+                Take a selfie, snap a photo, and share your experience with the community!
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              {[
+                {
+                  src: "/assets/images/merchendise/selfie infront booth.webp",
+                  alt: "Selfie in front of the event booth",
+                  label: "SELFIE // BOOTH",
+                },
+                {
+                  src: "/assets/images/merchendise/take a picture infront booth.webp",
+                  alt: "Take a picture in front of the event booth",
+                  label: "PHOTO // BOOTH",
+                },
+              ].map((photo, index) => (
+                <m.div
+                  key={photo.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.15 }}
+                  className="group relative"
+                >
+                  <div
+                    className="relative bg-[#0a0e13]/80 border border-white/10 overflow-hidden backdrop-blur-xl group-hover:border-[#c284f9]/50 transition-all duration-500 shadow-2xl"
+                    style={{
+                      clipPath: 'polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 40px 100%, 0 calc(100% - 40px))'
+                    }}
+                  >
+                    <div className="aspect-2/3 relative overflow-hidden">
+                      <Image
+                        src={photo.src}
+                        alt={photo.alt}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-linear-to-t from-[#020617] via-transparent to-transparent opacity-40" />
+
+                      {/* Corner accent */}
+                      <div className="absolute top-6 left-6 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="h-px w-8 bg-[#c284f9]" />
+                        <div className="text-[8px] font-black text-[#c284f9] tracking-widest uppercase">{photo.label}</div>
+                      </div>
+                    </div>
+                  </div>
+                </m.div>
+              ))}
             </div>
           </m.div>
         </main>
