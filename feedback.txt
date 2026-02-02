@@ -1,0 +1,135 @@
+============================================================
+JetBrains Software & Junie Feedback
+Sky's the Limit - Cloud9 x JetBrains Hackathon 2026
+Submitted by: Ajito Nelson Lucio da Costa (Timor-Leste)
+Project: Junie's Arcade (Category 4: Event Mini-Game)
+============================================================
+
+I built Junie's Arcade entirely using JetBrains WebStorm with Junie as my AI coding agent. Below is my honest, detailed feedback based on real development experience building a production game for this hackathon.
+
+
+============================================================
+1. WHAT I LOVED ABOUT JUNIE
+============================================================
+
+1.1 Planning Before Coding
+Junie's plan-first approach was genuinely impressive. Before writing a single line, it outlined dependencies, file structure, and implementation steps. This mirrors how I think as a developer and made me trust its output more than other AI tools that just generate code blindly.
+
+1.2 Context Awareness Within the IDE
+Unlike browser-based AI tools, Junie understands my entire project structure. When I asked it to add a new game feature, it knew about my existing Phaser scenes, Prisma schema, API routes, and component hierarchy. This deep IDE integration is Junie's biggest competitive advantage.
+
+1.3 Self-Correction with Tests
+When Junie wrote game logic and the tests failed, it automatically tried to fix the code. This iterative loop saved me hours of debugging during the hackathon. For example, when implementing the Champion Points scoring algorithm, it caught edge cases I missed.
+
+1.4 Documentation Generation
+Junie helped me create comprehensive documentation across 6 markdown files (gameplay guide, scoring mechanics, API reference, database docs, system diagrams, and the main README). The quality was high and it understood the project context well enough to write accurate technical docs.
+
+1.5 Flat Pricing Model (Concept)
+The idea of flat pricing instead of token-based pricing is appealing. Developers shouldn't need to worry about counting tokens while coding.
+
+
+============================================================
+2. CHALLENGES AND PAIN POINTS
+============================================================
+
+2.1 Credit System Needs Daily/Weekly Limits Instead of Monthly Bulk
+This is my biggest concern and most important feedback.
+
+THE CURRENT PROBLEM:
+Right now, when you subscribe to Junie (e.g., AI Ultimate), you get ~35 credits per month as one lump sum. The problem is these credits can be consumed in just 1-2 days of active development because Junie's agentic workflows use multiple long requests per task. Once the credits are gone, you have to either buy top-up credits or wait for the monthly reset. During a hackathon like this one, I burned through my credits in about 5 days of heavy use and had to stop using Junie entirely for cloud features.
+
+MY SUGGESTION -- DAILY/WEEKLY CREDIT LIMITS:
+Instead of giving all 35 credits at once per month, distribute them as daily or weekly limits:
+
+Option A - Daily Limit Model:
+- Subscribe and get ~1.2 credits per day (35 / 30 days)
+- Each day you have a guaranteed amount of Junie usage
+- If you hit your daily limit, you can buy additional credits to continue
+- Unused daily credits could roll over (up to a weekly cap)
+- This prevents the "feast then famine" problem where you use everything in 2 days and have nothing for the remaining 28 days
+
+Option B - Weekly Limit Model:
+- Subscribe and get ~8-9 credits per week
+- Weekly reset gives more flexibility than daily but still prevents burning everything at once
+- If you reach the weekly limit, you can purchase more credits on-demand
+
+WHY THIS IS BETTER THAN THE CURRENT MODEL:
+- Developers get consistent access throughout the entire month
+- No more "credit anxiety" where you ration usage to make credits last
+- The buy-more option when hitting the limit means power users are not blocked
+- It's similar to how Claude/Anthropic handles their usage limits -- you get a daily/weekly allowance, and if you need more, you can upgrade or buy more
+- For hackathons and intense coding periods, developers can buy extra credits on top of their daily/weekly allowance without waiting for a monthly reset
+
+ADDITIONAL SUGGESTION:
+- Keep the existing top-up credit purchase system, but make it more accessible (one-click buy from within the IDE when you hit your limit)
+- Show a clear "X credits remaining today" indicator in the IDE status bar so developers can pace themselves
+
+
+2.2 Over-Eagerness / Scope Creep
+When I asked Junie to fix a single bug in my Phaser game scene, it sometimes refactored surrounding code, added comments I didn't ask for, or changed variable names for "consistency." In a hackathon, unexpected changes are risky because they can introduce new bugs.
+
+SUGGESTION:
+- Add a "minimal change" mode that strictly limits modifications to what was requested
+- Show a clear diff preview before applying changes, with the ability to accept/reject individual changes
+- Let users configure Junie's "aggressiveness" level (conservative, balanced, comprehensive)
+
+2.3 Confusing Product Differentiation (Junie vs AI Assistant vs Mellum)
+I was confused about when to use Junie vs the AI Assistant. They seem to overlap significantly. Having both in the same IDE creates friction -- sometimes I'd use the AI Assistant for quick questions and Junie for bigger tasks, but the boundary wasn't clear.
+
+SUGGESTION:
+- Merge the interfaces (I see this is already planned -- please prioritize this)
+- Make it seamless: quick questions go to the lightweight AI Assistant, complex tasks automatically escalate to Junie's agentic mode
+- One unified interface, one credit pool, one experience
+
+2.4 Limited Undo/Rollback for Agent Changes
+When Junie made changes across multiple files that I didn't fully agree with, rolling back was painful. The standard IDE undo didn't always cleanly revert Junie's multi-file changes.
+
+SUGGESTION:
+- Add a "Junie checkpoint" feature that creates a snapshot before each task
+- One-click rollback to the state before Junie's last task
+- Integration with Git to auto-create a stash or commit before major changes
+
+
+============================================================
+3. FEATURE REQUESTS
+============================================================
+
+3.1 Game Development Mode / Framework Awareness
+Since I used Phaser 3 extensively, I wish Junie had deeper awareness of game development frameworks. It sometimes generated React-style patterns where Phaser patterns were needed (e.g., using React state management instead of Phaser's scene lifecycle).
+
+REQUEST: Add framework-specific profiles or modes so Junie understands the conventions of popular frameworks (Phaser, Unity scripts, Godot, etc.) and generates idiomatic code for them.
+
+3.2 Visual Asset Integration
+During game development, I frequently needed to reference image assets, sprite sheets, and audio files. Junie could help more by understanding the public/assets folder structure and suggesting correct asset paths.
+
+REQUEST: Allow Junie to "see" and understand image/audio assets in the project, suggest correct import paths, and even help with sprite sheet configuration.
+
+3.3 Multi-File Task Preview
+When Junie plans changes across multiple files (e.g., adding a new API endpoint that touches the route, schema, and frontend), show a comprehensive preview of all files that will be modified before execution.
+
+REQUEST: A "dry run" mode that shows the full plan with file-by-file diffs before making any changes.
+
+3.4 Collaborative Session History
+When working on a long hackathon, I sometimes lost context of what I'd asked Junie to do earlier. The conversation history could be better organized.
+
+REQUEST:
+- Searchable history of all Junie tasks and their outcomes
+- Ability to bookmark/tag important conversations
+- A timeline view showing what Junie changed and when
+
+3.5 Performance Profiling Assistance
+For game development, performance is critical. Junie could help identify performance bottlenecks.
+
+REQUEST: Add the ability for Junie to analyze runtime performance data (e.g., React profiler output, browser performance traces) and suggest optimizations.
+
+3.6 Offline/Local Model Support for Basic Tasks
+When credits are exhausted, all cloud features stop. But basic tasks like code completion and simple refactoring could still work with local models.
+
+REQUEST: Expand the free tier's local model capabilities so basic coding assistance continues even when cloud credits are exhausted. Keep the premium cloud models for complex agentic tasks.
+
+
+
+Thank you for building Junie and for creating this hackathon.
+It gave me the opportunity to build something I'm proud of.
+
+-- Ajito Nelson Lucio da Costa, Timor-Leste
