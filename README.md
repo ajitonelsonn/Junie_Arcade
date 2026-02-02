@@ -33,7 +33,7 @@ Junie's Arcade features three fast-paced mini-games designed for competitive pla
 
 | Game             | Type           | Duration    | Goal                                              |
 | ---------------- | -------------- | ----------- | ------------------------------------------------- |
-| **Jump Master**  | Endless Runner | 50 seconds  | Jump obstacles, collect Cloud9 logos and coins     |
+| **Jump Master**  | Endless Runner | 50 seconds  | Jump obstacles, collect Cloud9 logos and coins    |
 | **Reflex Arena** | Reaction Game  | 50 seconds  | Click good targets, avoid bad ones, build combos  |
 | **Memory Match** | Card Puzzle    | 100 seconds | Match 8 pairs of champion cards with combo system |
 
@@ -76,7 +76,7 @@ Players who complete all 3 games are ranked higher. Total Champion Points determ
 ## System Architecture
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph Client["Client (Browser)"]
         UI[React UI]
         Phaser[Phaser 3 Games]
@@ -107,9 +107,9 @@ This project was developed using **JetBrains WebStorm** with **Junie** (JetBrain
 
 Development screenshots from WebStorm with Junie:
 
-| Screenshot | Description |
-| ---------- | ----------- |
-| ![Junie in WebStorm](ss/Screenshot_2026-01-12%20at%2015.35.51.png) | Early development with Junie AI assistant in WebStorm |
+| Screenshot                                                          | Description                                                      |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| ![Junie in WebStorm](ss/Screenshot_2026-01-12%20at%2015.35.51.png)  | Early development with Junie AI assistant in WebStorm            |
 | ![Game documentation](ss/Screenshot_2026-01-22%20at%2009.10.19.png) | Writing game documentation and gameplay guide with AI assistance |
 
 ---
@@ -118,14 +118,14 @@ Development screenshots from WebStorm with Junie:
 
 This project includes detailed documentation for every aspect of the system:
 
-| Document | Description |
-| -------- | ----------- |
-| [how_game_is_work.md](junie-arcade/how_game_is_work.md) | Complete gameplay guide with strategies and tips |
+| Document                                                      | Description                                             |
+| ------------------------------------------------------------- | ------------------------------------------------------- |
+| [how_game_is_work.md](junie-arcade/how_game_is_work.md)       | Complete gameplay guide with strategies and tips        |
 | [LEADERBOARD_SCORING.md](junie-arcade/LEADERBOARD_SCORING.md) | Detailed scoring mechanics and Champion Points formulas |
-| [diagram/README.md](junie-arcade/diagram/README.md) | System architecture diagrams (Mermaid) |
-| [prisma/README.md](junie-arcade/prisma/README.md) | Database schema and Prisma ORM documentation |
-| [app/api/README.md](junie-arcade/app/api/README.md) | Complete API reference with examples |
-| [junie-arcade/README.md](junie-arcade/README.md) | Main application README with setup instructions |
+| [diagram/README.md](junie-arcade/diagram/README.md)           | System architecture diagrams (Mermaid)                  |
+| [prisma/README.md](junie-arcade/prisma/README.md)             | Database schema and Prisma ORM documentation            |
+| [app/api/README.md](junie-arcade/app/api/README.md)           | Complete API reference with examples                    |
+| [junie-arcade/README.md](junie-arcade/README.md)              | Main application README with setup instructions         |
 
 ---
 
@@ -190,6 +190,22 @@ Sky_the_Limit/
 ├── ss/                        # Development screenshots
 └── README.md                  # This file
 ```
+
+---
+
+## Art & Design Assets
+
+All visual assets (mascots, logos, game targets, cards, merchandise imagery) were created using a combination of AI generation and manual design/editing:
+
+| Asset                            | Tool    | Link                                                                                   |
+| -------------------------------- | ------- | -------------------------------------------------------------------------------------- |
+| Junie Mascot (AI-generated base) | Grok AI | [View on Grok](https://grok.com/share/c2hhcmQtNQ_77b2d3a8-193b-42e1-8c5e-4fd6ac46d63d) |
+| Mascot & Logo (edited/finalized) | Canva   | [View on Canva](https://www.canva.com/design/DAG-BcJrbYA/i7hmAlQcFnN_OvZmXXgdDg/edit)  |
+| Game Targets                     | Canva   | [View on Canva](https://www.canva.com/design/DAG-Oa5aWOY/BxkxTS3PIeDj-s5y2_Xi1w/edit)  |
+| Merchandise Designs              | Canva   | [View on Canva](https://www.canva.com/design/DAG-k7Ly4ko/LwE1jO80w8nv6DC-7qOnvQ/edit)  |
+| Game Cards                       | Canva   | [View on Canva](https://www.canva.com/design/DAG-BgACgb8/nInEaqw5gNt20fZaV20IuA/edit)  |
+
+The Junie mascot was initially generated using Grok AI, then refined and edited in Canva alongside all other game assets.
 
 ---
 
