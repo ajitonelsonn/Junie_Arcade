@@ -78,6 +78,8 @@ export default function ReflexArenaPage() {
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [hasPlayedThisSession, setHasPlayedThisSession] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null); // NEW: Countdown state (3, 2, 1, 0=GO)
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
 
   // Load player ID from local storage if available
   useEffect(() => {
@@ -313,19 +315,82 @@ export default function ReflexArenaPage() {
     setTargets((prev) => prev.filter((t) => t.id !== target.id));
   };
 
+  // Preload all game resources (images + audio) before starting
+  const preloadResources = async (): Promise<void> => {
+    const imageAssets = [
+      // Target images
+      ...GOOD_TARGETS.map((t) => t.image),
+      ...BAD_TARGETS.map((t) => t.image),
+      // Background
+      "/assets/images/backgrounds/lol.webp",
+    ];
+
+    const audioAssets = [
+      "/assets/sounds/sfx/click.mp3",
+      "/assets/sounds/sfx/pop.mp3",
+      "/assets/sounds/sfx/error.mp3",
+      "/assets/sounds/sfx/gameover.mp3",
+      "/assets/sounds/music/music-game.mp3",
+      "/assets/sounds/music/music-victory.mp3",
+    ];
+
+    const totalAssets = imageAssets.length + audioAssets.length;
+    let loaded = 0;
+
+    const updateProgress = () => {
+      loaded++;
+      setLoadProgress(Math.round((loaded / totalAssets) * 100));
+    };
+
+    // Preload images (blocking — wait for all)
+    const imagePromises = imageAssets.map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new window.Image();
+          img.onload = () => {
+            updateProgress();
+            resolve();
+          };
+          img.onerror = () => {
+            updateProgress();
+            resolve();
+          };
+          img.src = src;
+        }),
+    );
+
+    // Preload audio (non-blocking — fire and forget)
+    audioAssets.forEach((src) => {
+      const audio = new Audio();
+      audio.preload = "auto";
+      audio.src = src;
+      updateProgress();
+    });
+
+    await Promise.all(imagePromises);
+  };
+
+  const startGameAfterLoad = () => {
+    setIsLoading(false);
+    setGameStarted(true);
+    setGameOver(false);
+    setScore(0);
+    setTimeLeft(50);
+    setCombo(0);
+    setMaxCombo(0);
+    setTargets([]);
+    setFloatingScores([]);
+    setCountdown(3);
+  };
+
   const handleStart = async () => {
     if (username.trim() && country) {
-      // If we already have a playerId, just start the game
+      // If we already have a playerId, just load resources and start
       if (playerId) {
-        setGameStarted(true);
-        setGameOver(false);
-        setScore(0);
-        setTimeLeft(50);
-        setCombo(0);
-        setMaxCombo(0);
-        setTargets([]);
-        setFloatingScores([]);
-        setCountdown(3); // NEW: Start countdown from 3
+        setIsLoading(true);
+        setLoadProgress(0);
+        await preloadResources();
+        startGameAfterLoad();
         return;
       }
 
@@ -339,15 +404,10 @@ export default function ReflexArenaPage() {
           localStorage.setItem("junie_username", username);
           localStorage.setItem("junie_country", country);
 
-          setGameStarted(true);
-          setGameOver(false);
-          setScore(0);
-          setTimeLeft(50);
-          setCombo(0);
-          setMaxCombo(0);
-          setTargets([]);
-          setFloatingScores([]);
-          setCountdown(3); // NEW: Start countdown from 3
+          setIsLoading(true);
+          setLoadProgress(0);
+          await preloadResources();
+          startGameAfterLoad();
         }
       } catch (error) {
         console.error("Failed to create player session:", error);
@@ -781,7 +841,7 @@ export default function ReflexArenaPage() {
             </m.div>
 
             {/* Username Input Screen */}
-            {!gameStarted && !gameOver && (
+            {!gameStarted && !gameOver && !isLoading && (
               <m.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -1020,6 +1080,71 @@ export default function ReflexArenaPage() {
                         : "Deploy to Arena"}
                     </span>
                   </m.button>
+                </div>
+              </m.div>
+            )}
+
+            {/* Loading Screen — Preloading Resources */}
+            {isLoading && !gameStarted && (
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="max-w-lg mx-auto text-center py-20"
+              >
+                <div
+                  className="relative bg-[#0a0e13]/90 backdrop-blur-xl p-10 sm:p-14 border border-[#ff4655]/20 shadow-2xl overflow-hidden"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px))",
+                  }}
+                >
+                  {/* Top accent bar */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff4655] via-orange-500 to-yellow-500" />
+
+                  {/* Animated scan line */}
+                  <m.div
+                    animate={{ y: ["0%", "100%", "0%"] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    className="absolute left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#ff4655] to-transparent opacity-40 pointer-events-none"
+                  />
+
+                  {/* Status badge */}
+                  <div
+                    className="inline-flex items-center gap-2 px-4 py-2 mb-6 backdrop-blur-md"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(255, 70, 85, 0.1), rgba(255, 70, 85, 0.05))",
+                      border: "1px solid rgba(255, 70, 85, 0.3)",
+                      clipPath:
+                        "polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
+                    }}
+                  >
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4655] opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff4655]" />
+                    </span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#ff4655]">
+                      Preparing Arena
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-white/40 font-bold uppercase tracking-widest mb-6">
+                    Loading Game Resources...
+                  </p>
+
+                  {/* Progress bar */}
+                  <div className="h-2 bg-white/5 rounded-full overflow-hidden mb-3">
+                    <m.div
+                      className="h-full bg-gradient-to-r from-[#ff4655] to-orange-500 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${loadProgress}%` }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
+                  <p className="text-xs text-white/30 font-bold uppercase tracking-wider">
+                    {loadProgress}% — Images & Audio
+                  </p>
                 </div>
               </m.div>
             )}
