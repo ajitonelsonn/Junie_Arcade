@@ -122,10 +122,20 @@ export async function GET(request: NextRequest) {
         return b.totalPoints - a.totalPoints
       })
 
+      // Find the current player and include their server-calculated rank
+      const currentPlayerId = targetedPlayer ? targetedPlayer.id : playerId
+      let currentPlayer = null
+      if (currentPlayerId) {
+        const playerIndex = sortedLeaderboard.findIndex((p: any) => p.playerId === currentPlayerId)
+        if (playerIndex !== -1) {
+          currentPlayer = { ...sortedLeaderboard[playerIndex], rank: playerIndex + 1 }
+        }
+      }
+
       const response = NextResponse.json({
         type: 'overall',
         leaderboard: sortedLeaderboard.slice(0, 100),
-        currentPlayer: targetedPlayer ? sortedLeaderboard.find((p: any) => p.playerId === targetedPlayer.id) : (playerId ? sortedLeaderboard.find((p: any) => p.playerId === playerId) : null)
+        currentPlayer
       })
 
       // Add cache headers

@@ -130,7 +130,7 @@ Total: 810 points
 
 **Controls:**
 
-- **Desktop/Mobile**: Click or tap on targets
+- **Desktop**: Click or tap on targets
 
 **Good Targets** (click these!):
 

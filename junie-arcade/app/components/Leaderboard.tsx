@@ -109,14 +109,6 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
     return () => clearInterval(interval);
   }, [activeTab]);
 
-  // Added effect to handle URL parameters for rank
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const rank = urlParams.get("rank");
-    if (rank && currentPlayerStats && !currentPlayerStats.rank) {
-      setCurrentPlayerStats((prev: any) => ({ ...prev, rank: parseInt(rank) }));
-    }
-  }, [currentPlayerStats]);
 
   // Detect new top 3 entries and trigger celebration
   useEffect(() => {
@@ -181,8 +173,9 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
   const fetchLeaderboard = async () => {
     try {
       setLoading(true);
-      // If we have a playerId in localStorage, use it.
-      // If not, check if we have one in the URL (from a recent finish)
+      // Use localStorage playerId as the trusted source of identity.
+      // Fall back to URL playerId only for viewing the leaderboard (public data),
+      // but the champion card (showOverall) will only render when localStorage matches.
       const urlParams = new URLSearchParams(
         typeof window !== "undefined" ? window.location.search : "",
       );
@@ -191,6 +184,7 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
         typeof window !== "undefined"
           ? localStorage.getItem("junie_player_id")
           : null;
+      // Prefer localStorage; only use URL playerId if localStorage matches or is absent
       const playerId = storagePlayerId || urlPlayerId;
 
       const response = await fetch(

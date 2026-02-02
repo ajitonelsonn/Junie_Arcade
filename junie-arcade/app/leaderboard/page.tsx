@@ -14,6 +14,8 @@ export default function LeaderboardPage() {
   const [currentPlayerStats, setCurrentPlayerStats] = useState<PlayerStats | null>(null);
 
   // Check for showOverall query param on mount
+  // The card display itself is safe — all rank data comes from the server API,
+  // not from URL parameters, so showing the card cannot be exploited for IDOR
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("showOverall") === "true") {

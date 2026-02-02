@@ -1245,7 +1245,7 @@ export default function GameOverCard({
         localStorage.removeItem("junie_country");
 
         // Redirect to leaderboard with showOverall flag to generate the card
-        window.location.href = `/leaderboard?showOverall=true&playerId=${playerId}&rank=${position !== -1 ? position + 1 : ""}`;
+        window.location.href = `/leaderboard?showOverall=true&playerId=${playerId}`;
       } else {
         // Fallback if no player stats found
         window.location.href = "/";
@@ -1290,7 +1290,7 @@ export default function GameOverCard({
         localStorage.removeItem("junie_country");
 
         // Redirect to leaderboard
-        window.location.href = `/leaderboard?showOverall=true&playerId=${playerId}&rank=${position !== -1 ? position + 1 : ""}`;
+        window.location.href = `/leaderboard?showOverall=true&playerId=${playerId}`;
       } else {
         // Fallback
         window.location.href = "/";
