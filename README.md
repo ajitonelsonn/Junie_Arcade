@@ -109,6 +109,9 @@ Development screenshots from WebStorm with Junie:
 | ------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | ![Junie in WebStorm](ss/Screenshot_2026-01-12%20at%2015.35.51.png)  | Early development with Junie AI assistant in WebStorm            |
 | ![Game documentation](ss/Screenshot_2026-01-22%20at%2009.10.19.png) | Writing game documentation and gameplay guide with AI assistance |
+| ![AI Ultimate Credits](ss/Screenshot%202026-02-03%20at%2023.13.19.png) | My credit remain when Use AI Ultimate                            |
+| ![AI Pro Credits](ss/ss.png)                                        | My credit remain when Use AI Pro                                 |
+| ![JetBrains AI Ultimate](ss/Screenshot%202026-02-03%20at%2023.14.42.png) | JetBrains AI Ultimate                                            |
 
 ---
 
