@@ -296,11 +296,11 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
 
   const getHeroForRank = (rank: number) => {
     const heroes = [
-      "Jinx_Render.webp",
-      "Yasuo_Render.webp",
-      "Lux_Render.webp",
-      "Ezreal_Render.webp",
-      "Jett_Artwork_Full.webp",
+      "APA.png",
+      "Blaber.png",
+      "Thanatos.png",
+      "Xeppaa.png",
+      "Zellsis.png",
     ];
     return `/assets/images/hero/${heroes[(rank - 1) % heroes.length]}`;
   };

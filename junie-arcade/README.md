@@ -373,6 +373,23 @@ npm run optimize:audio   # Compress audio files
 
 ---
 
+## Art & Design Assets
+
+Visual assets were created using AI generation and design tools:
+
+| Asset Type                | Tool/Source | Link                                                                                   |
+| ------------------------- | ----------- | -------------------------------------------------------------------------------------- |
+| Junie Mascot (generated)  | Grok AI     | [View on Grok](https://grok.com/share/c2hhcmQtNQ_77b2d3a8-193b-42e1-8c5e-4fd6ac46d63d) |
+| Mascot & Logo (finalized) | Canva       | [View on Canva](https://www.canva.com/design/DAG-BcJrbYA/i7hmAlQcFnN_OvZmXXgdDg/edit)  |
+| Game Targets              | Canva       | [View on Canva](https://www.canva.com/design/DAG-Oa5aWOY/BxkxTS3PIeDj-s5y2_Xi1w/edit)  |
+| Game Cards                | Canva       | [View on Canva](https://www.canva.com/design/DAHAKs_x5Hk/yWZ40Ty38aj58DKZ-5ZTww/edit)  |
+| Hero Images               | Canva       | [View on Canva](https://www.canva.com/design/DAHCXY6Vjw8/Kxf4zbF8ldy7gtleMzmGhA/edit)  |
+| Hero Images (generated)   | Grok AI     | [View on Grok](https://grok.com/share/c2hhcmQtNQ_93a211aa-ae51-4bab-bb2d-95c77405d080) |
+| Background Images         | Gemini AI   | [View on Gemini](https://gemini.google.com/share/859a3b8a5e5f)                         |
+| Hero Character Images     | Cloud9      | [Cloud9 Official Site](https://cloud9.gg/)                                             |
+
+---
+
 ## Credits
 
 - **Developer:** Created with love from Timor-Leste

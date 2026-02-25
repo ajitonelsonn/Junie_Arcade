@@ -5,14 +5,14 @@ import { m } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const heroImages = [
-  "/assets/images/hero/Jinx_Render.webp",
-  "/assets/images/hero/Yasuo_Render.webp",
-  "/assets/images/hero/Lux_Render.webp",
-  "/assets/images/hero/Ezreal_Render.webp",
-  "/assets/images/hero/Jett_Artwork_Full.webp",
-  "/assets/images/hero/Phoenix_Artwork_Full.webp",
-  "/assets/images/hero/Reyna_Artwork_Full.webp",
-  "/assets/images/hero/Sage_Artwork_Full.webp",
+  "/assets/images/hero/APA.png",
+  "/assets/images/hero/Blaber.png",
+  "/assets/images/hero/Thanatos.png",
+  "/assets/images/hero/Xeppaa.png",
+  "/assets/images/hero/Zellsis.png",
+  "/assets/images/hero/Zven.png",
+  "/assets/images/hero/penny.png",
+  "/assets/images/hero/v1c.png",
 ];
 
 export default function AnimatedBackground() {
@@ -30,7 +30,7 @@ export default function AnimatedBackground() {
       {/* Base Background Image */}
       <div className="absolute inset-0 opacity-15 mix-blend-overlay">
         <Image
-          src="/assets/images/backgrounds/lol_.webp"
+          src="/assets/images/backgrounds/Gemini_Generated_Image_vx01sgvx01sgvx01.webp"
           alt=""
           fill
           sizes="100vw"
@@ -147,19 +147,18 @@ export default function AnimatedBackground() {
                 ease: "linear",
               }}
               style={{ willChange: "transform" }}
-              className={`absolute ${
-                i === 0
+              className={`absolute ${i === 0
                   ? "top-[8%] left-[3%]"
                   : i === 1
-                  ? "top-[15%] right-[5%]"
-                  : i === 2
-                  ? "top-[35%] left-[8%]"
-                  : i === 3
-                  ? "top-[50%] right-[3%]"
-                  : i === 4
-                  ? "bottom-[20%] left-[5%]"
-                  : "bottom-[30%] right-[10%]"
-              } w-56 h-[380px]`}
+                    ? "top-[15%] right-[5%]"
+                    : i === 2
+                      ? "top-[35%] left-[8%]"
+                      : i === 3
+                        ? "top-[50%] right-[3%]"
+                        : i === 4
+                          ? "bottom-[20%] left-[5%]"
+                          : "bottom-[30%] right-[10%]"
+                } w-56 h-[380px]`}
             >
               <Image
                 src={img}

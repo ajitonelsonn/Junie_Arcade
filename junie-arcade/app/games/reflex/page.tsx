@@ -322,7 +322,7 @@ export default function ReflexArenaPage() {
       ...GOOD_TARGETS.map((t) => t.image),
       ...BAD_TARGETS.map((t) => t.image),
       // Background
-      "/assets/images/backgrounds/lol.webp",
+      "/assets/images/backgrounds/Gemini_Generated_Image_mokejcmokejcmoke.webp",
     ];
 
     const audioAssets = [
@@ -455,12 +455,12 @@ export default function ReflexArenaPage() {
   };
 
   const heroImages = [
-    "/assets/images/hero/Jinx_Render.webp",
-    "/assets/images/hero/Yasuo_Render.webp",
-    "/assets/images/hero/Lux_Render.webp",
-    "/assets/images/hero/Ezreal_Render.webp",
-    "/assets/images/hero/Jett_Artwork_Full.webp",
-    "/assets/images/hero/Phoenix_Artwork_Full.webp",
+    "/assets/images/hero/APA.png",
+    "/assets/images/hero/Blaber.png",
+    "/assets/images/hero/Thanatos.png",
+    "/assets/images/hero/Xeppaa.png",
+    "/assets/images/hero/Zellsis.png",
+    "/assets/images/hero/Zven.png",
   ];
 
   return (
@@ -470,7 +470,7 @@ export default function ReflexArenaPage() {
         <div className="fixed inset-0 z-0">
           <div className="absolute inset-0 opacity-20 mix-blend-overlay">
             <Image
-              src="/assets/images/backgrounds/lol.webp"
+              src="/assets/images/backgrounds/Gemini_Generated_Image_mokejcmokejcmoke.webp"
               alt=""
               fill
               sizes="100vw"
@@ -568,19 +568,18 @@ export default function ReflexArenaPage() {
                   delay: i * 3,
                   ease: "linear",
                 }}
-                className={`absolute ${
-                  i === 0
-                    ? "top-[15%] left-[8%]"
-                    : i === 1
-                      ? "top-[25%] right-[12%]"
-                      : i === 2
-                        ? "top-[50%] left-[5%]"
-                        : i === 3
-                          ? "top-[70%] right-[8%]"
-                          : i === 4
-                            ? "bottom-[15%] left-[15%]"
-                            : "bottom-[30%] right-[10%]"
-                } w-64 h-[400px]`}
+                className={`absolute ${i === 0
+                  ? "top-[15%] left-[8%]"
+                  : i === 1
+                    ? "top-[25%] right-[12%]"
+                    : i === 2
+                      ? "top-[50%] left-[5%]"
+                      : i === 3
+                        ? "top-[70%] right-[8%]"
+                        : i === 4
+                          ? "bottom-[15%] left-[15%]"
+                          : "bottom-[30%] right-[10%]"
+                  } w-64 h-[400px]`}
               >
                 <Image
                   src={img}
@@ -990,7 +989,7 @@ export default function ReflexArenaPage() {
                         </div>
                       )}
                       {showCountryDropdown && (
-                        <div 
+                        <div
                           className="absolute z-50 w-full mt-2 max-h-64 overflow-y-auto bg-[#0a0e13] backdrop-blur-xl border border-[#ff4655]/30 shadow-2xl rounded-sm"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -1026,10 +1025,10 @@ export default function ReflexArenaPage() {
                               .toLowerCase()
                               .includes(countrySearch.toLowerCase()),
                           ).length === 0 && (
-                            <div className="px-6 py-4 text-center text-slate-400">
-                              No countries found
-                            </div>
-                          )}
+                              <div className="px-6 py-4 text-center text-slate-400">
+                                No countries found
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>
@@ -1234,11 +1233,10 @@ export default function ReflexArenaPage() {
                       Time
                     </div>
                     <div
-                      className={`text-2xl sm:text-3xl font-black transition-colors italic ${
-                        timeLeft < 10
-                          ? "text-red-400 animate-pulse"
-                          : "text-white"
-                      }`}
+                      className={`text-2xl sm:text-3xl font-black transition-colors italic ${timeLeft < 10
+                        ? "text-red-400 animate-pulse"
+                        : "text-white"
+                        }`}
                     >
                       {timeLeft}s
                     </div>
@@ -1291,11 +1289,10 @@ export default function ReflexArenaPage() {
                         <m.div
                           whileHover={{ scale: 1.2, rotate: 10 }}
                           whileTap={{ scale: 0.9 }}
-                          className={`relative ${
-                            target.type === "good"
-                              ? "drop-shadow-[0_0_15px_rgba(34,197,94,0.8)]"
-                              : "drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"
-                          }`}
+                          className={`relative ${target.type === "good"
+                            ? "drop-shadow-[0_0_15px_rgba(34,197,94,0.8)]"
+                            : "drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"
+                            }`}
                         >
                           <Image
                             src={target.image}
@@ -1377,11 +1374,10 @@ export default function ReflexArenaPage() {
                             stiffness: 300,
                             damping: 15,
                           }}
-                          className={`text-[150px] font-black leading-none ${
-                            countdown === 0
-                              ? "text-green-400"
-                              : "text-yellow-400"
-                          }`}
+                          className={`text-[150px] font-black leading-none ${countdown === 0
+                            ? "text-green-400"
+                            : "text-yellow-400"
+                            }`}
                           style={{
                             textShadow:
                               countdown === 0
@@ -1418,12 +1414,12 @@ export default function ReflexArenaPage() {
                   },
                   ...(score > 5000
                     ? [
-                        {
-                          label: "Achievement",
-                          value: "🌟 Elite",
-                          color: "text-yellow-400",
-                        },
-                      ]
+                      {
+                        label: "Achievement",
+                        value: "🌟 Elite",
+                        color: "text-yellow-400",
+                      },
+                    ]
                     : []),
                 ]}
                 onSaveScore={handleSaveScore}

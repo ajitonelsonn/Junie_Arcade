@@ -199,15 +199,18 @@ Sky_the_Limit/
 
 All visual assets (mascots, logos, game targets, cards, merchandise imagery) were created using a combination of AI generation and manual design/editing:
 
-| Asset                            | Tool    | Link                                                                                   |
-| -------------------------------- | ------- | -------------------------------------------------------------------------------------- |
-| Junie Mascot (AI-generated base) | Grok AI | [View on Grok](https://grok.com/share/c2hhcmQtNQ_77b2d3a8-193b-42e1-8c5e-4fd6ac46d63d) |
-| Mascot & Logo (edited/finalized) | Canva   | [View on Canva](https://www.canva.com/design/DAG-BcJrbYA/i7hmAlQcFnN_OvZmXXgdDg/edit)  |
-| Game Targets                     | Canva   | [View on Canva](https://www.canva.com/design/DAG-Oa5aWOY/BxkxTS3PIeDj-s5y2_Xi1w/edit)  |
-| Merchandise Designs              | Canva   | [View on Canva](https://www.canva.com/design/DAG-k7Ly4ko/LwE1jO80w8nv6DC-7qOnvQ/edit)  |
-| Game Cards                       | Canva   | [View on Canva](https://www.canva.com/design/DAG-BgACgb8/nInEaqw5gNt20fZaV20IuA/edit)  |
+| Asset                            | Tool       | Link                                                                                   |
+| -------------------------------- | ---------- | -------------------------------------------------------------------------------------- |
+| Junie Mascot (AI-generated base) | Grok AI    | [View on Grok](https://grok.com/share/c2hhcmQtNQ_77b2d3a8-193b-42e1-8c5e-4fd6ac46d63d) |
+| Mascot & Logo (edited/finalized) | Canva      | [View on Canva](https://www.canva.com/design/DAG-BcJrbYA/i7hmAlQcFnN_OvZmXXgdDg/edit)  |
+| Game Targets                     | Canva      | [View on Canva](https://www.canva.com/design/DAG-Oa5aWOY/BxkxTS3PIeDj-s5y2_Xi1w/edit)  |
+| Merchandise Designs              | Canva      | [View on Canva](https://www.canva.com/design/DAG-k7Ly4ko/LwE1jO80w8nv6DC-7qOnvQ/edit)  |
+| Game Cards                       | Canva      | [View on Canva](https://www.canva.com/design/DAHAKs_x5Hk/yWZ40Ty38aj58DKZ-5ZTww/edit)  |
+| Hero Images                      | Canva      | [View on Canva](https://www.canva.com/design/DAHCXY6Vjw8/Kxf4zbF8ldy7gtleMzmGhA/edit)  |
+| New Hero Images (AI-generated)   | Grok AI    | [View on Grok](https://grok.com/share/c2hhcmQtNQ_93a211aa-ae51-4bab-bb2d-95c77405d080) |
+| Background Images (AI-generated) | Gemini AI  | [View on Gemini](https://gemini.google.com/share/859a3b8a5e5f)                         |
 
-The Junie mascot was initially generated using Grok AI, then refined and edited in Canva alongside all other game assets.
+The Junie mascot was initially generated using Grok AI, then refined and edited in Canva alongside all other game assets. Hero images and backgrounds were generated using AI tools and integrated into the game design. Hero character images were sourced from [Cloud9's official website](https://cloud9.gg/).
 
 ---
 
