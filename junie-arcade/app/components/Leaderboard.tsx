@@ -301,6 +301,9 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
       "Thanatos.png",
       "Xeppaa.png",
       "Zellsis.png",
+      "Zven.png",
+      "penny.png",
+      "v1c.png",
     ];
     return `/assets/images/hero/${heroes[(rank - 1) % heroes.length]}`;
   };
@@ -430,19 +433,17 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`group relative px-8 py-4 transition-all duration-300 overflow-hidden ${
-                activeTab === tab.id
+              className={`group relative px-8 py-4 transition-all duration-300 overflow-hidden ${activeTab === tab.id
                   ? "text-slate-900"
                   : "text-white/60 hover:text-white"
-              }`}
+                }`}
             >
               {/* Background Skew */}
               <div
-                className={`absolute inset-0 skew-x-[-12deg] transition-all duration-300 ${
-                  activeTab === tab.id
+                className={`absolute inset-0 skew-x-[-12deg] transition-all duration-300 ${activeTab === tab.id
                     ? "bg-white opacity-100"
                     : "bg-white/5 group-hover:bg-white/10"
-                } border border-white/10`}
+                  } border border-white/10`}
               />
 
               <div className="relative flex items-center gap-3 font-black uppercase tracking-[0.2em] text-xs">

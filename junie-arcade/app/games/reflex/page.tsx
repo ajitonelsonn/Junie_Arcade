@@ -461,6 +461,8 @@ export default function ReflexArenaPage() {
     "/assets/images/hero/Xeppaa.png",
     "/assets/images/hero/Zellsis.png",
     "/assets/images/hero/Zven.png",
+    "/assets/images/hero/penny.png",
+    "/assets/images/hero/v1c.png",
   ];
 
   return (

@@ -184,6 +184,8 @@ export default function GalleryPage() {
               "/assets/images/hero/Xeppaa.png",
               "/assets/images/hero/Zellsis.png",
               "/assets/images/hero/Zven.png",
+              "/assets/images/hero/penny.png",
+              "/assets/images/hero/v1c.png",
             ].map((img, i) => (
               <m.div
                 key={i}
@@ -201,16 +203,16 @@ export default function GalleryPage() {
                   ease: "linear",
                 }}
                 className={`absolute ${i === 0
-                    ? "top-[15%] left-[8%]"
-                    : i === 1
-                      ? "top-[25%] right-[12%]"
-                      : i === 2
-                        ? "top-[50%] left-[5%]"
-                        : i === 3
-                          ? "top-[70%] right-[8%]"
-                          : i === 4
-                            ? "bottom-[15%] left-[15%]"
-                            : "bottom-[30%] right-[10%]"
+                  ? "top-[15%] left-[8%]"
+                  : i === 1
+                    ? "top-[25%] right-[12%]"
+                    : i === 2
+                      ? "top-[50%] left-[5%]"
+                      : i === 3
+                        ? "top-[70%] right-[8%]"
+                        : i === 4
+                          ? "bottom-[15%] left-[15%]"
+                          : "bottom-[30%] right-[10%]"
                   } w-64 h-[400px]`}
               >
                 <Image

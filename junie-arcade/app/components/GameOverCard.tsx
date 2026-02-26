@@ -148,14 +148,14 @@ export default function GameOverCard({
   ];
 
   const heroes = [
-    "Ezreal_Render.webp",
-    "Jett_Artwork_Full.webp",
-    "Jinx_Render.webp",
-    "Lux_Render.webp",
-    "Phoenix_Artwork_Full.webp",
-    "Reyna_Artwork_Full.webp",
-    "Sage_Artwork_Full.webp",
-    "Yasuo_Render.webp",
+    "APA.png",
+    "Blaber.png",
+    "Thanatos.png",
+    "Xeppaa.png",
+    "Zellsis.png",
+    "Zven.png",
+    "penny.png",
+    "v1c.png",
   ];
 
   useEffect(() => {

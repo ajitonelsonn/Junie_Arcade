@@ -398,6 +398,8 @@ export default function MemoryMatchPage() {
     "/assets/images/hero/Xeppaa.png",
     "/assets/images/hero/Zellsis.png",
     "/assets/images/hero/Zven.png",
+    "/assets/images/hero/penny.png",
+    "/assets/images/hero/v1c.png",
   ];
 
   return (
@@ -496,16 +498,16 @@ export default function MemoryMatchPage() {
                   ease: "linear",
                 }}
                 className={`absolute ${i === 0
-                    ? "top-[15%] left-[8%]"
-                    : i === 1
-                      ? "top-[25%] right-[12%]"
-                      : i === 2
-                        ? "top-[50%] left-[5%]"
-                        : i === 3
-                          ? "top-[70%] right-[8%]"
-                          : i === 4
-                            ? "bottom-[15%] left-[15%]"
-                            : "bottom-[30%] right-[10%]"
+                  ? "top-[15%] left-[8%]"
+                  : i === 1
+                    ? "top-[25%] right-[12%]"
+                    : i === 2
+                      ? "top-[50%] left-[5%]"
+                      : i === 3
+                        ? "top-[70%] right-[8%]"
+                        : i === 4
+                          ? "bottom-[15%] left-[15%]"
+                          : "bottom-[30%] right-[10%]"
                   } w-64 h-[400px]`}
               >
                 <Image
@@ -1050,8 +1052,8 @@ export default function MemoryMatchPage() {
                     </div>
                     <div
                       className={`text-2xl sm:text-3xl font-black transition-colors italic ${timeLeft < 20
-                          ? "text-red-400 animate-pulse"
-                          : "text-white"
+                        ? "text-red-400 animate-pulse"
+                        : "text-white"
                         }`}
                     >
                       {timeLeft}s
@@ -1120,8 +1122,8 @@ export default function MemoryMatchPage() {
                               >
                                 <div
                                   className={`relative w-full h-full border-4 overflow-hidden transition-all ${card.matched
-                                      ? "border-green-400 shadow-[0_0_30px_rgba(34,197,94,0.6)]"
-                                      : "border-white/30"
+                                    ? "border-green-400 shadow-[0_0_30px_rgba(34,197,94,0.6)]"
+                                    : "border-white/30"
                                     }`}
                                   style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
                                 >
