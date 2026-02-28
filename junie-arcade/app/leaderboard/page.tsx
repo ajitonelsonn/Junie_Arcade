@@ -24,7 +24,12 @@ export default function LeaderboardPage() {
   }, []);
 
   const handleNewChampion = useCallback((champion: NewChampionData) => {
-    setNewChampion(champion);
+    // If there's already an announcement, clear it first to allow the new one to trigger
+    setNewChampion(null);
+    // Use a small timeout to ensure the state change is registered and the component unmounts/remounts
+    setTimeout(() => {
+      setNewChampion(champion);
+    }, 100);
   }, []);
 
   const handleAnnouncementComplete = useCallback(() => {

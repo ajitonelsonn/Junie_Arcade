@@ -13,6 +13,8 @@ interface MusicContextType {
   stopMenuMusic: () => void
   pauseMenuMusic: () => void
   resumeMenuMusic: () => void
+  toggleMute: () => void
+  isMuted: boolean
   currentTrack: MusicTrack
 }
 
@@ -24,6 +26,8 @@ const MusicContext = createContext<MusicContextType>({
   stopMenuMusic: () => {},
   pauseMenuMusic: () => {},
   resumeMenuMusic: () => {},
+  toggleMute: () => {},
+  isMuted: false,
   currentTrack: null
 })
 
@@ -32,9 +36,30 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const gameMusicRef = useRef<HTMLAudioElement | null>(null)
   const victoryMusicRef = useRef<HTMLAudioElement | null>(null)
   const [currentTrack, setCurrentTrack] = useState<MusicTrack>(null)
+  const [isMuted, setIsMuted] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const interactionHandledRef = useRef(false)
   const pathname = usePathname()
+
+  // Load mute state from localStorage on mount
+  useEffect(() => {
+    const savedMute = localStorage.getItem('junie_music_muted')
+    if (savedMute === 'true') {
+      setIsMuted(true)
+    }
+  }, [])
+
+  // Update volume when mute state changes
+  useEffect(() => {
+    const refs = [menuMusicRef, gameMusicRef, victoryMusicRef]
+    const volumes = [0.3, 0.4, 0.4] // Original volumes
+
+    refs.forEach((ref, index) => {
+      if (ref.current) {
+        ref.current.volume = isMuted ? 0 : volumes[index]
+      }
+    })
+  }, [isMuted])
 
   // Initialize all audio elements
   const initializeAudio = () => {
@@ -43,7 +68,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       const menuMusic = new Audio()
       menuMusic.preload = 'none'
       menuMusic.loop = true
-      menuMusic.volume = 0.3
+      menuMusic.volume = isMuted ? 0 : 0.3
       menuMusic.src = '/assets/sounds/music/music-menu.mp3'
       menuMusicRef.current = menuMusic
 
@@ -51,7 +76,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       const gameMusic = new Audio()
       gameMusic.preload = 'none'
       gameMusic.loop = true
-      gameMusic.volume = 0.4
+      gameMusic.volume = isMuted ? 0 : 0.4
       gameMusic.src = '/assets/sounds/music/music-game.mp3'
       gameMusicRef.current = gameMusic
 
@@ -59,12 +84,19 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       const victoryMusic = new Audio()
       victoryMusic.preload = 'none'
       victoryMusic.loop = false
-      victoryMusic.volume = 0.4
+      victoryMusic.volume = isMuted ? 0 : 0.4
       victoryMusic.src = '/assets/sounds/music/music-victory.mp3'
       victoryMusicRef.current = victoryMusic
 
       setIsInitialized(true)
     }
+  }
+
+  // Toggle mute
+  const toggleMute = () => {
+    const newMuted = !isMuted
+    setIsMuted(newMuted)
+    localStorage.setItem('junie_music_muted', String(newMuted))
   }
 
   // Stop all music tracks
@@ -244,6 +276,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       stopMenuMusic,
       pauseMenuMusic,
       resumeMenuMusic,
+      toggleMute,
+      isMuted,
       currentTrack
     }}>
       {children}

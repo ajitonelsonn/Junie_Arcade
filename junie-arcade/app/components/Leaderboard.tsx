@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import FlagIcon from "./FlagIcon";
@@ -67,11 +67,15 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
   const [currentPlayerStats, setCurrentPlayerStats] = useState<PlayerStats | null>(null);
 
   // State for tracking new top 3 entries (celebration effect)
-  const [previousTop3, setPreviousTop3] = useState<string[]>([]);
+  const previousTop3Ref = useRef<Record<string, string[]>>({});
   const [celebratingUsernames, setCelebratingUsernames] = useState<string[]>(
     [],
   );
-  const isFirstLoad = useRef(true);
+
+  useEffect(() => {
+    // Reset Top 3 tracking when tab changes to avoid false positives from other categories
+    // but keep it as a record to allow immediate comparison when returning to the tab
+  }, [activeTab]);
 
   useEffect(() => {
     // Check for showOverall query param
@@ -103,74 +107,17 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
     fetchCountries();
   }, []);
 
-  useEffect(() => {
-    fetchLeaderboard();
-    const interval = setInterval(fetchLeaderboard, 10000);
-    return () => clearInterval(interval);
-  }, [activeTab]);
+  const getCountryCode = useCallback((countryName: string | null | undefined) => {
+    if (!countryName) return null;
+    // If it's already a 2-character code, return it
+    if (countryName.length === 2) return countryName.toUpperCase();
+    // Defensive check to ensure countries is an array before calling find
+    if (!Array.isArray(countries)) return null;
+    const country = countries.find((c) => c.name === countryName);
+    return country?.code || null;
+  }, [countries]);
 
-
-  // Detect new top 3 entries and trigger celebration
-  useEffect(() => {
-    // Only check for celebrations on the overall tab
-    // Add defensive check to ensure entries is a valid array
-    if (
-      activeTab !== "overall" ||
-      !Array.isArray(entries) ||
-      entries.length === 0
-    )
-      return;
-
-    const currentTop3Entries = entries.filter((e) => e.rank <= 3);
-    const currentTop3 = currentTop3Entries.map((e) => e.username);
-
-    // Skip celebration on first load (no previous data to compare)
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      setPreviousTop3(currentTop3);
-      return;
-    }
-
-    // Find users who are newly in top 3 (weren't in previous top 3)
-    const newEntrants = currentTop3.filter(
-      (username) => !previousTop3.includes(username),
-    );
-
-    // Always update previous top 3 for next comparison
-    setPreviousTop3(currentTop3);
-
-    if (newEntrants.length > 0) {
-      setCelebratingUsernames(newEntrants);
-
-      // Notify parent about the highest-ranked new champion
-      if (onNewChampion) {
-        // Find the entry with the best (lowest) rank among new entrants
-        const bestNewChampion = currentTop3Entries
-          .filter((e) => newEntrants.includes(e.username))
-          .sort((a, b) => a.rank - b.rank)[0];
-
-        if (bestNewChampion) {
-          onNewChampion({
-            username: bestNewChampion.username,
-            rank: bestNewChampion.rank,
-            score: bestNewChampion.score,
-            country: bestNewChampion.country,
-            countryCode: getCountryCode(bestNewChampion.country),
-          });
-        }
-      }
-
-      // Clear celebration after 3.5 seconds
-      const timer = setTimeout(() => {
-        setCelebratingUsernames([]);
-      }, 3500);
-
-      // Cleanup timeout on unmount or new celebration
-      return () => clearTimeout(timer);
-    }
-  }, [entries, activeTab]);
-
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = useCallback(async () => {
     try {
       setLoading(true);
       // Use localStorage playerId as the trusted source of identity.
@@ -219,6 +166,7 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
             score: player.totalPoints,
             gameType: "OVERALL",
             country: player.country,
+            countryCode: getCountryCode(player.country),
             totalPoints: player.totalPoints,
             gamesPlayed: player.gamesPlayed,
             reflexRank: player.reflexRank,
@@ -230,6 +178,37 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
           }),
         );
         setEntries(transformedEntries);
+
+        // Detect new top 3 entries for celebration
+        const currentTop3 = transformedEntries
+          .filter((e: LeaderboardEntry) => e.rank <= 3)
+          .map((e: LeaderboardEntry) => e.username);
+
+        const previousTop3 = previousTop3Ref.current[activeTab] || [];
+
+        if (previousTop3.length > 0) {
+          const newEntrants = currentTop3.filter(
+            (username: string) => !previousTop3.includes(username)
+          );
+
+          if (newEntrants.length > 0) {
+            setCelebratingUsernames(newEntrants);
+            // Trigger New Champion Pop-up for the new Rank 1 player
+            const newRank1 = transformedEntries.find((e: LeaderboardEntry) => e.rank === 1);
+            if (newRank1 && newEntrants.includes(newRank1.username) && onNewChampion) {
+              onNewChampion({
+                username: newRank1.username,
+                rank: newRank1.rank,
+                score: newRank1.score,
+                country: newRank1.country,
+                countryCode: newRank1.countryCode
+              });
+            }
+            // Auto-clear celebration after 5 seconds
+            setTimeout(() => setCelebratingUsernames([]), 5000);
+          }
+        }
+        previousTop3Ref.current[activeTab] = currentTop3;
       } else {
         // Individual game leaderboard
         const transformedEntries = data.leaderboard.map((entry: any) => ({
@@ -238,12 +217,44 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
           score: entry.score,
           gameType: data.gameType || activeTab.toUpperCase(),
           country: entry.country,
+          countryCode: getCountryCode(entry.country),
           maxCombo: entry.maxCombo,
           accuracy: entry.accuracy,
           time: entry.time,
           distance: entry.distance,
         }));
         setEntries(transformedEntries);
+
+        // Detect new top 3 entries for celebration
+        const currentTop3 = transformedEntries
+          .filter((e: LeaderboardEntry) => e.rank <= 3)
+          .map((e: LeaderboardEntry) => e.username);
+
+        const previousTop3 = previousTop3Ref.current[activeTab] || [];
+
+        if (previousTop3.length > 0) {
+          const newEntrants = currentTop3.filter(
+            (username: string) => !previousTop3.includes(username)
+          );
+
+          if (newEntrants.length > 0) {
+            setCelebratingUsernames(newEntrants);
+            // Trigger New Champion Pop-up for the new Rank 1 player in the current tab
+            const newRank1 = transformedEntries.find((e: LeaderboardEntry) => e.rank === 1);
+            if (newRank1 && newEntrants.includes(newRank1.username) && onNewChampion) {
+              onNewChampion({
+                username: newRank1.username,
+                rank: newRank1.rank,
+                score: newRank1.score,
+                country: newRank1.country,
+                countryCode: newRank1.countryCode
+              });
+            }
+            // Auto-clear celebration after 5 seconds
+            setTimeout(() => setCelebratingUsernames([]), 5000);
+          }
+        }
+        previousTop3Ref.current[activeTab] = currentTop3;
       }
       setLoading(false);
     } catch (error) {
@@ -251,17 +262,13 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
       setEntries([]);
       setLoading(false);
     }
-  };
+  }, [activeTab, getCountryCode]);
 
-  const getCountryCode = (countryName: string | null | undefined) => {
-    if (!countryName) return null;
-    // If it's already a 2-character code, return it
-    if (countryName.length === 2) return countryName.toUpperCase();
-    // Defensive check to ensure countries is an array before calling find
-    if (!Array.isArray(countries)) return null;
-    const country = countries.find((c) => c.name === countryName);
-    return country?.code || null;
-  };
+  useEffect(() => {
+    fetchLeaderboard();
+    const interval = setInterval(fetchLeaderboard, 10000);
+    return () => clearInterval(interval);
+  }, [activeTab, fetchLeaderboard]);
 
 
   const getGameLogo = (gameType: string) => {
@@ -544,30 +551,13 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
                       key={`${entry.username}-${entry.gameType}-${entry.rank}`}
                       className={`grid grid-cols-12 gap-4 items-center px-8 py-6 group transition-all duration-300 relative overflow-hidden ${entry.rank <= 3 ? style.bg : "hover:bg-white/[0.03]"}`}
                     >
-                      {/* Celebration Effect for new top 3 entries */}
+                      {/* Celebration Effect for this entry */}
                       {entry.rank <= 3 && (
                         <CelebrationEffect
                           rank={entry.rank}
-                          isActive={celebratingUsernames.includes(
-                            entry.username,
-                          )}
+                          isActive={celebratingUsernames.includes(entry.username)}
                         />
                       )}
-
-                      {/* Hero Silhouette for Top 3 */}
-                      {entry.rank <= 3 && (
-                        <div className="absolute right-0 top-0 bottom-0 w-32 opacity-[0.08] pointer-events-none group-hover:opacity-20 transition-opacity">
-                          <Image
-                            src={getHeroForRank(entry.rank)}
-                            alt="Hero Background"
-                            fill
-                            sizes="128px"
-                            quality={50}
-                            className="object-contain object-right"
-                          />
-                        </div>
-                      )}
-
                       {/* Hover/Active Accent Line */}
                       <div
                         className={`absolute left-0 top-0 bottom-0 w-1 transition-transform duration-300 ${entry.rank <= 3 ? style.accent : "bg-white/20 scale-y-0 group-hover:scale-y-100"}`}
@@ -605,12 +595,17 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
 
                         <div className="flex flex-col">
                           <div className="flex items-center gap-3 mb-1">
-                            {getCountryCode(entry.country) && (
+                            {entry.countryCode ? (
+                              <FlagIcon
+                                code={entry.countryCode}
+                                className="w-5 h-3.5"
+                              />
+                            ) : getCountryCode(entry.country) ? (
                               <FlagIcon
                                 code={getCountryCode(entry.country)!}
                                 className="w-5 h-3.5"
                               />
-                            )}
+                            ) : null}
                             <div className="text-white font-black text-xl tracking-tight uppercase group-hover:text-[#ff4655] transition-colors duration-300 italic">
                               {entry.username}
                             </div>

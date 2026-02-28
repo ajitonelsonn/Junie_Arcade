@@ -5,10 +5,12 @@ import Link from "next/link";
 import { m } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useMusic } from "./MusicProvider";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isMuted, toggleMute } = useMusic();
 
   const navLinks = [
     { href: "/", label: "Arena" },
@@ -137,33 +139,93 @@ export default function Navigation() {
               Tournament
             </span>
           </a>
+
+          {/* Speaker Button - Mute/Unmute */}
+          <button
+            onClick={toggleMute}
+            className="relative ml-4 p-2 text-slate-400 hover:text-white transition-colors group"
+            title={isMuted ? "Unmute Music" : "Mute Music"}
+          >
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                clipPath: 'polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)'
+              }}
+            />
+            <span className="relative z-10">
+              {isMuted ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                  <line x1="23" y1="9" x2="17" y2="15"></line>
+                  <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+              )}
+            </span>
+          </button>
         </m.div>
 
         {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden relative p-2"
-          style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            clipPath: 'polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)'
-          }}
-        >
-          <div className="w-5 h-4 flex flex-col justify-between">
-            <m.div
-              animate={isMobileMenuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
-              className="w-full h-0.5 bg-[#ff4655]"
-            />
-            <m.div
-              animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
-              className="w-full h-0.5 bg-white/60"
-            />
-            <m.div
-              animate={isMobileMenuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
-              className="w-full h-0.5 bg-[#00eeff]"
-            />
-          </div>
-        </button>
+        <div className="md:hidden flex items-center gap-2">
+          {/* Mobile Speaker Button */}
+          <button
+            onClick={toggleMute}
+            className="relative p-2 text-slate-400 hover:text-white transition-colors"
+            title={isMuted ? "Unmute Music" : "Mute Music"}
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              clipPath: 'polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)'
+            }}
+          >
+            <span className="relative z-10">
+              {isMuted ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                  <line x1="23" y1="9" x2="17" y2="15"></line>
+                  <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+              )}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="relative p-2"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              clipPath: 'polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)'
+            }}
+          >
+            <div className="w-5 h-4 flex flex-col justify-between">
+              <m.div
+                animate={isMobileMenuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
+                className="w-full h-0.5 bg-[#ff4655]"
+              />
+              <m.div
+                animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
+                className="w-full h-0.5 bg-white/60"
+              />
+              <m.div
+                animate={isMobileMenuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
+                className="w-full h-0.5 bg-[#00eeff]"
+              />
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}

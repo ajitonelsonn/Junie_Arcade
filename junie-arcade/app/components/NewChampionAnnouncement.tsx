@@ -146,10 +146,13 @@ export default function NewChampionAnnouncement({ champion, onComplete }: NewCha
       // Auto-hide after 5 seconds
       const timer = setTimeout(() => {
         setIsVisible(false)
+        // Reset champion data after animation completes
         setTimeout(() => onComplete?.(), 500)
       }, 5000)
 
       return () => clearTimeout(timer)
+    } else {
+      setIsVisible(false)
     }
   }, [champion, onComplete])
 
