@@ -18,7 +18,7 @@ interface Card {
   matched: boolean;
 }
 
-const cardImages = [
+const allCardImages = [
   "/assets/images/cards/card-APA.png",
   "/assets/images/cards/card-Blaber.png",
   "/assets/images/cards/card-penny.png",
@@ -27,7 +27,15 @@ const cardImages = [
   "/assets/images/cards/card-Xeppaa.png",
   "/assets/images/cards/card-Zellsis.png",
   "/assets/images/cards/card-Zven.png",
+  "/assets/images/cards/card-oxy.png",
+  "/assets/images/cards/card-vulcan.png",
 ];
+
+// Randomly pick 8 cards from the pool for each game
+function pickRandomCards(count = 8): string[] {
+  const shuffled = [...allCardImages].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
 
 export default function MemoryMatchPage() {
   const router = useRouter();
@@ -53,6 +61,27 @@ export default function MemoryMatchPage() {
   const [hasPlayedThisSession, setHasPlayedThisSession] = useState(false);
   const [consecutiveMatches, setConsecutiveMatches] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
+  const [scoreBreakdown, setScoreBreakdown] = useState<{
+    matchPoints: number;
+    timeBonus: number;
+    accuracyBonus: number;
+    comboBonus: number;
+    completionBonus: number;
+    perfectBonus: number;
+    speedBonus: number;
+  } | null>(null);
+
+  // Refs to track latest values for final score calculation (avoids stale closure)
+  const scoreRef = useRef(0);
+  const bestComboRef = useRef(0);
+  const movesRef = useRef(0);
+  const timeLeftRef = useRef(100);
+
+  // Keep refs in sync with state
+  useEffect(() => { scoreRef.current = score; }, [score]);
+  useEffect(() => { bestComboRef.current = bestCombo; }, [bestCombo]);
+  useEffect(() => { movesRef.current = moves; }, [moves]);
+  useEffect(() => { timeLeftRef.current = timeLeft; }, [timeLeft]);
 
   // Load player ID from local storage if available
   useEffect(() => {
@@ -176,8 +205,8 @@ export default function MemoryMatchPage() {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            // Game ends - calculate final score
-            calculateFinalScore();
+            // Game ends - calculate final score with explicit time=0
+            calculateFinalScore(false, 0);
             setGameOver(true);
             playSound("/assets/sounds/sfx/gameover.mp3", 0.6);
             return 0;
@@ -202,42 +231,34 @@ export default function MemoryMatchPage() {
     }
   }, [matchedPairs, gameOver]);
 
-  const calculateFinalScore = (completed = false) => {
-    // Base score from matches (already accumulated)
-    let finalScore = score;
+  const calculateFinalScore = (completed = false, currentTimeLeft?: number) => {
+    // Use refs to get the latest values (avoids stale closure issues)
+    const currentScore = scoreRef.current;
+    const currentBestCombo = bestComboRef.current;
+    const currentMoves = movesRef.current;
+    const time = currentTimeLeft ?? timeLeftRef.current;
 
-    // Time bonus (always awarded based on remaining time)
-    const timeBonus = timeLeft * 15; // Increased multiplier
-    finalScore += timeBonus;
+    // Calculate all bonus components
+    const timeBonus = time * 15;
+    const accuracyBonus = Math.floor((16 / Math.max(currentMoves, 1)) * 150);
+    const comboBonus = currentBestCombo * 25;
+    const completionBonus = completed ? 500 : 0;
+    const perfectBonus = completed && currentMoves === 16 ? 300 : 0;
+    const speedBonus = completed ? (time >= 60 ? 400 : time >= 40 ? 200 : 0) : 0;
 
-    // Accuracy bonus (always awarded based on moves)
-    const accuracyBonus = Math.floor((16 / Math.max(moves, 1)) * 150);
-    finalScore += accuracyBonus;
+    const finalScore = currentScore + timeBonus + accuracyBonus + comboBonus +
+      completionBonus + perfectBonus + speedBonus;
 
-    // Combo bonus (reward consecutive matches)
-    const comboBonus = bestCombo * 25;
-    finalScore += comboBonus;
-
-    // Completion bonus (only if all pairs matched)
-    if (completed) {
-      const completionBonus = 500;
-      finalScore += completionBonus;
-
-      // Perfect game bonus (16 moves = perfect memory)
-      if (moves === 16) {
-        const perfectBonus = 300;
-        finalScore += perfectBonus;
-      }
-
-      // Speed bonus (completed with lots of time remaining)
-      if (timeLeft >= 60) {
-        const speedBonus = 400;
-        finalScore += speedBonus;
-      } else if (timeLeft >= 40) {
-        const speedBonus = 200;
-        finalScore += speedBonus;
-      }
-    }
+    // Save breakdown for display
+    setScoreBreakdown({
+      matchPoints: currentScore,
+      timeBonus,
+      accuracyBonus,
+      comboBonus,
+      completionBonus,
+      perfectBonus,
+      speedBonus,
+    });
 
     setScore(finalScore);
   };
@@ -247,7 +268,8 @@ export default function MemoryMatchPage() {
 
     // If we already have a playerId, just start the game
     if (playerId) {
-      const shuffled = [...cardImages, ...cardImages]
+      const selected = pickRandomCards(8);
+      const shuffled = [...selected, ...selected]
         .sort(() => Math.random() - 0.5)
         .map((img, index) => ({
           id: index,
@@ -264,6 +286,11 @@ export default function MemoryMatchPage() {
       setGameStarted(true);
       setConsecutiveMatches(0);
       setBestCombo(0);
+      scoreRef.current = 0;
+      bestComboRef.current = 0;
+      movesRef.current = 0;
+      timeLeftRef.current = 100;
+      setScoreBreakdown(null);
       return;
     }
 
@@ -277,7 +304,8 @@ export default function MemoryMatchPage() {
         localStorage.setItem("junie_username", username);
         localStorage.setItem("junie_country", country);
 
-        const shuffled = [...cardImages, ...cardImages]
+        const selected = pickRandomCards(8);
+        const shuffled = [...selected, ...selected]
           .sort(() => Math.random() - 0.5)
           .map((img, index) => ({
             id: index,
@@ -294,6 +322,11 @@ export default function MemoryMatchPage() {
         setGameStarted(true);
         setConsecutiveMatches(0);
         setBestCombo(0);
+        scoreRef.current = 0;
+        bestComboRef.current = 0;
+        movesRef.current = 0;
+        timeLeftRef.current = 100;
+        setScoreBreakdown(null);
       }
     } catch (error) {
       console.error("Failed to create player session:", error);
@@ -317,7 +350,10 @@ export default function MemoryMatchPage() {
     playSound("/assets/sounds/sfx/click.mp3", 0.4);
 
     if (newFlipped.length === 2) {
-      setMoves((prev) => prev + 1);
+      setMoves((prev) => {
+        movesRef.current = prev + 1;
+        return prev + 1;
+      });
       const [first, second] = newFlipped;
 
       if (cards[first].imageUrl === cards[second].imageUrl) {
@@ -335,14 +371,18 @@ export default function MemoryMatchPage() {
           setConsecutiveMatches(newConsecutive);
           if (newConsecutive > bestCombo) {
             setBestCombo(newConsecutive);
+            bestComboRef.current = newConsecutive;
           }
 
           // Scoring: base points + combo multiplier
-          const basePoints = 75; // Increased from 50
+          const basePoints = 75;
           const comboMultiplier = Math.min(newConsecutive, 5); // Max 5x combo
           const points = basePoints * comboMultiplier;
 
-          setScore((prev) => prev + points);
+          // Update score and sync ref immediately so calculateFinalScore sees latest value
+          const newScore = scoreRef.current + points;
+          scoreRef.current = newScore;
+          setScore(newScore);
           setFlippedIndices([]);
         }, 500);
       } else {
@@ -400,6 +440,8 @@ export default function MemoryMatchPage() {
     "/assets/images/hero/Zven.png",
     "/assets/images/hero/penny.png",
     "/assets/images/hero/v1c.png",
+    "/assets/images/hero/oxy.png",
+    "/assets/images/hero/vulcan.png",
   ];
 
   return (
@@ -1174,6 +1216,56 @@ export default function MemoryMatchPage() {
                     color: "text-fuchsia-400",
                   },
                   { label: "Moves", value: moves, color: "text-white" },
+                  {
+                    label: "Best Combo",
+                    value: `${bestCombo}x`,
+                    color: "text-orange-400",
+                  },
+                  ...(scoreBreakdown
+                    ? [
+                      {
+                        label: "Match Pts",
+                        value: scoreBreakdown.matchPoints.toLocaleString(),
+                        color: "text-white",
+                      },
+                      {
+                        label: "Time Bonus",
+                        value: `+${scoreBreakdown.timeBonus.toLocaleString()}`,
+                        color: "text-cyan-400",
+                      },
+                      {
+                        label: "Accuracy Bonus",
+                        value: `+${scoreBreakdown.accuracyBonus}`,
+                        color: "text-green-400",
+                      },
+                      {
+                        label: "Combo Bonus",
+                        value: `+${scoreBreakdown.comboBonus}`,
+                        color: "text-orange-400",
+                      },
+                      ...(scoreBreakdown.completionBonus > 0
+                        ? [{
+                          label: "Completion",
+                          value: `+${scoreBreakdown.completionBonus}`,
+                          color: "text-emerald-400",
+                        }]
+                        : []),
+                      ...(scoreBreakdown.perfectBonus > 0
+                        ? [{
+                          label: "Perfect Bonus",
+                          value: `+${scoreBreakdown.perfectBonus}`,
+                          color: "text-yellow-400",
+                        }]
+                        : []),
+                      ...(scoreBreakdown.speedBonus > 0
+                        ? [{
+                          label: "Speed Bonus",
+                          value: `+${scoreBreakdown.speedBonus}`,
+                          color: "text-pink-400",
+                        }]
+                        : []),
+                    ]
+                    : []),
                   ...(matchedPairs === 8 && moves <= 20
                     ? [
                       {

@@ -156,6 +156,8 @@ export default function GameOverCard({
     "Zven.png",
     "penny.png",
     "v1c.png",
+    "oxy.png",
+    "vulcan.png",
   ];
 
   useEffect(() => {
@@ -1201,6 +1203,14 @@ export default function GameOverCard({
 
   const nextGame = getNextGame();
 
+  // Filter stats for display (OVERALL card hides rank stats shown elsewhere)
+  const filteredStats = stats.filter((stat) => {
+    if (gameType === "OVERALL") {
+      return !stat.label.toLowerCase().includes("rank");
+    }
+    return true;
+  });
+
   // For visual feedback while loading
   const isAllRanksLoading = !allRanks && gameType !== "OVERALL";
 
@@ -1360,7 +1370,7 @@ export default function GameOverCard({
                   transition={{ duration: 1.5 }}
                   src={`/assets/images/hero/${selectedHero}`}
                   alt="Hero background"
-                  className="absolute -right-16 top-1/2 -translate-y-1/2 h-[95%] object-contain"
+                  className="absolute -right-16 top-1/2 -translate-y-1/2 h-[60%] object-contain"
                   style={{ filter: "saturate(0.8) brightness(0.9)" }}
                 />
               )}
@@ -2085,23 +2095,15 @@ export default function GameOverCard({
                     </span>
                     <div className="flex-1 h-px bg-white/10" />
                   </div>
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                    {stats
-                      // For OVERALL card, filter out rank stats since they're shown in the ranks section above
-                      .filter((stat) => {
-                        if (gameType === "OVERALL") {
-                          const label = stat.label.toLowerCase();
-                          return !label.includes("rank");
-                        }
-                        return true;
-                      })
+                  <div className={`grid gap-2 sm:gap-3 ${filteredStats.length > 6 ? "grid-cols-3" : "grid-cols-2"}`}>
+                    {filteredStats
                       .map((stat, index) => (
                         <m.div
                           key={index}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.1 * index }}
-                          className="relative p-2.5 sm:p-4 overflow-hidden group transition-all hover:scale-[1.02]"
+                          className={`relative overflow-hidden group transition-all hover:scale-[1.02] ${filteredStats.length > 6 ? "p-1.5 sm:p-2.5" : "p-2.5 sm:p-4"}`}
                           style={{
                             background:
                               "linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
@@ -2110,18 +2112,18 @@ export default function GameOverCard({
                         >
                           {/* Index Badge */}
                           <div
-                            className="absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-[8px] sm:text-[10px] font-black opacity-20"
+                            className={`absolute top-0 right-0 flex items-center justify-center font-black opacity-20 ${filteredStats.length > 6 ? "w-5 h-5 text-[7px]" : "w-6 h-6 sm:w-8 sm:h-8 text-[8px] sm:text-[10px]"}`}
                             style={{
                               background: `linear-gradient(135deg, ${theme.primary}30, transparent)`,
                             }}
                           >
                             {String(index + 1).padStart(2, "0")}
                           </div>
-                          <div className="text-[8px] sm:text-[10px] font-black text-white/40 uppercase tracking-[0.1em] sm:tracking-[0.15em] mb-0.5 sm:mb-1">
+                          <div className={`font-black text-white/40 uppercase mb-0.5 ${filteredStats.length > 6 ? "text-[7px] sm:text-[8px] tracking-[0.08em]" : "text-[8px] sm:text-[10px] tracking-[0.1em] sm:tracking-[0.15em] sm:mb-1"}`}>
                             {stat.label}
                           </div>
                           <div
-                            className={`text-base sm:text-xl md:text-2xl font-black italic tracking-tighter ${stat.color || "text-white"}`}
+                            className={`font-black italic tracking-tighter ${stat.color || "text-white"} ${filteredStats.length > 6 ? "text-sm sm:text-base" : "text-base sm:text-xl md:text-2xl"}`}
                           >
                             {stat.value}
                           </div>

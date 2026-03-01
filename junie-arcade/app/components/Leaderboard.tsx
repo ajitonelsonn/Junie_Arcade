@@ -311,6 +311,8 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
       "Zven.png",
       "penny.png",
       "v1c.png",
+      "oxy.png",
+      "vulcan.png",
     ];
     return `/assets/images/hero/${heroes[(rank - 1) % heroes.length]}`;
   };

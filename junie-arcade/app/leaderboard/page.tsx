@@ -210,6 +210,44 @@ export default function LeaderboardPage() {
                 className="object-contain filter brightness-90 contrast-110"
               />
             </m.div>
+
+            {/* Bottom heroes */}
+            <m.div
+              animate={{
+                opacity: [0.2, 0.4, 0.2],
+                y: [0, -12, 0],
+              }}
+              transition={{ duration: 13, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+              className="absolute top-[80%] left-[5%] w-36 h-[220px]"
+            >
+              <Image
+                src="/assets/images/hero/oxy.png"
+                alt=""
+                fill
+                sizes="144px"
+                loading="lazy"
+                quality={50}
+                className="object-contain filter brightness-90 contrast-110"
+              />
+            </m.div>
+            <m.div
+              animate={{
+                opacity: [0.2, 0.35, 0.2],
+                y: [0, -16, 0],
+              }}
+              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+              className="absolute top-[82%] right-[4%] w-40 h-[240px]"
+            >
+              <Image
+                src="/assets/images/hero/vulcan.png"
+                alt=""
+                fill
+                sizes="160px"
+                loading="lazy"
+                quality={50}
+                className="object-contain filter brightness-90 contrast-110"
+              />
+            </m.div>
           </div>
         </div>
 

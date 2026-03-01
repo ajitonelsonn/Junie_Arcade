@@ -48,9 +48,9 @@ const GOOD_TARGETS = [
 ];
 
 const BAD_TARGETS = [
-  { image: "/assets/images/targets/target-bug.png", value: -20 },
-  { image: "/assets/images/targets/target-virus.png", value: -20 },
-  { image: "/assets/images/targets/target-bomb.png", value: -20 },
+  { image: "/assets/images/targets/target-bug.png", value: -25 },
+  { image: "/assets/images/targets/target-virus.png", value: -25 },
+  { image: "/assets/images/targets/target-bomb.png", value: -25 },
 ];
 
 export default function ReflexArenaPage() {
@@ -80,6 +80,13 @@ export default function ReflexArenaPage() {
   const [countdown, setCountdown] = useState<number | null>(null); // NEW: Countdown state (3, 2, 1, 0=GO)
   const [isLoading, setIsLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
+  const [scoreBreakdown, setScoreBreakdown] = useState({
+    goodHits: 0,
+    badHits: 0,
+    fastClicks: 0,
+    goodPoints: 0,
+    penalties: 0,
+  });
 
   // Load player ID from local storage if available
   useEffect(() => {
@@ -257,7 +264,7 @@ export default function ReflexArenaPage() {
         type: isGood ? "good" : "bad",
         image: selected.image,
         value: selected.value,
-        spawnTime: Date.now(),
+        spawnTime: Date.now() + 400, // Offset for React render + spring animation delay (~400ms)
       };
 
       setNextId((prev) => prev + 1);
@@ -277,16 +284,29 @@ export default function ReflexArenaPage() {
 
     if (target.type === "good") {
       playSound("/assets/sounds/sfx/pop.mp3", 0.4);
-      if (reactionTime < 300) points *= 2;
+      const isFast = reactionTime < 250;
+      if (isFast) points *= 2;
 
       const newCombo = combo + 1;
       setCombo(newCombo);
       setMaxCombo((prev) => Math.max(prev, newCombo));
       const comboMultiplier = Math.min(newCombo, 5);
       points *= comboMultiplier;
+
+      setScoreBreakdown((prev) => ({
+        ...prev,
+        goodHits: prev.goodHits + 1,
+        fastClicks: prev.fastClicks + (isFast ? 1 : 0),
+        goodPoints: prev.goodPoints + points,
+      }));
     } else {
       playSound("/assets/sounds/sfx/error.mp3", 0.5);
       setCombo(0);
+      setScoreBreakdown((prev) => ({
+        ...prev,
+        badHits: prev.badHits + 1,
+        penalties: prev.penalties + Math.abs(points),
+      }));
     }
 
     // Create floating score
@@ -380,6 +400,7 @@ export default function ReflexArenaPage() {
     setMaxCombo(0);
     setTargets([]);
     setFloatingScores([]);
+    setScoreBreakdown({ goodHits: 0, badHits: 0, fastClicks: 0, goodPoints: 0, penalties: 0 });
     setCountdown(3);
   };
 
@@ -463,6 +484,8 @@ export default function ReflexArenaPage() {
     "/assets/images/hero/Zven.png",
     "/assets/images/hero/penny.png",
     "/assets/images/hero/v1c.png",
+    "/assets/images/hero/oxy.png",
+    "/assets/images/hero/vulcan.png",
   ];
 
   return (
@@ -1414,15 +1437,26 @@ export default function ReflexArenaPage() {
                     value: `${maxCombo}x`,
                     color: "text-orange-400",
                   },
-                  ...(score > 5000
-                    ? [
-                      {
-                        label: "Achievement",
-                        value: "🌟 Elite",
-                        color: "text-yellow-400",
-                      },
-                    ]
-                    : []),
+                  {
+                    label: "Good Hits",
+                    value: scoreBreakdown.goodHits.toString(),
+                    color: "text-green-400",
+                  },
+                  {
+                    label: "Bad Hits",
+                    value: scoreBreakdown.badHits.toString(),
+                    color: "text-red-400",
+                  },
+                  {
+                    label: "Good Points",
+                    value: `+${scoreBreakdown.goodPoints.toLocaleString()}`,
+                    color: "text-emerald-400",
+                  },
+                  {
+                    label: "Penalties",
+                    value: `-${scoreBreakdown.penalties.toLocaleString()}`,
+                    color: "text-red-400",
+                  },
                 ]}
                 onSaveScore={handleSaveScore}
                 isSaving={isSaving}

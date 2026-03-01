@@ -13,6 +13,8 @@ const heroImages = [
   "/assets/images/hero/Zven.png",
   "/assets/images/hero/penny.png",
   "/assets/images/hero/v1c.png",
+  "/assets/images/hero/oxy.png",
+  "/assets/images/hero/vulcan.png",
 ];
 
 export default function AnimatedBackground() {
@@ -130,7 +132,7 @@ export default function AnimatedBackground() {
       {/* Floating Hero Characters - Desktop only */}
       {!isMobile && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {heroImages.slice(0, 6).map((img, i) => (
+          {heroImages.slice(0, 8).map((img, i) => (
             <m.div
               key={i}
               initial={{ opacity: 0, scale: 0.8 }}
@@ -143,21 +145,21 @@ export default function AnimatedBackground() {
               transition={{
                 duration: 25,
                 repeat: Infinity,
-                delay: i * 4,
+                delay: i * 3,
                 ease: "linear",
               }}
               style={{ willChange: "transform" }}
-              className={`absolute ${i === 0
-                  ? "top-[8%] left-[3%]"
-                  : i === 1
-                    ? "top-[15%] right-[5%]"
-                    : i === 2
-                      ? "top-[35%] left-[8%]"
-                      : i === 3
-                        ? "top-[50%] right-[3%]"
-                        : i === 4
-                          ? "bottom-[20%] left-[5%]"
-                          : "bottom-[30%] right-[10%]"
+              className={`absolute ${
+                [
+                  "top-[8%] left-[3%]",
+                  "top-[15%] right-[5%]",
+                  "top-[35%] left-[8%]",
+                  "top-[50%] right-[3%]",
+                  "bottom-[20%] left-[5%]",
+                  "bottom-[30%] right-[10%]",
+                  "bottom-[10%] left-[12%]",
+                  "top-[70%] right-[8%]",
+                ][i]
                 } w-56 h-[380px]`}
             >
               <Image

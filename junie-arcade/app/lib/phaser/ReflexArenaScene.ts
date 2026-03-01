@@ -19,9 +19,9 @@ export default class ReflexArenaScene extends Phaser.Scene {
   private gameTimer!: Phaser.Time.TimerEvent;
   private spawnTimer!: Phaser.Time.TimerEvent;
   private onGameEnd?: (score: number) => void;
-  private spawnDelay = 600;
-  private targetLifetime = 2000;
-  private badTargetChance = 0.3;
+  private spawnDelay = 500;
+  private targetLifetime = 1500;
+  private badTargetChance = 0.25;
   private gameStarted = false; // NEW: Track if game has started after countdown
 
   constructor() {
@@ -55,10 +55,10 @@ export default class ReflexArenaScene extends Phaser.Scene {
   }
 
   create() {
-    // Reset difficulty variables
-    this.spawnDelay = 600;
-    this.targetLifetime = 2000;
-    this.badTargetChance = 0.3;
+    // Reset difficulty variables (fixed values per README)
+    this.spawnDelay = 500;
+    this.targetLifetime = 1500;
+    this.badTargetChance = 0.25;
     this.score = 0;
     this.timeLeft = 50;
     this.combo = 0;
@@ -212,59 +212,9 @@ export default class ReflexArenaScene extends Phaser.Scene {
     this.timeLeft--;
     this.timerText.setText(`Time: ${this.timeLeft}`);
 
-    // Progressive difficulty every 10 seconds
-    if (this.timeLeft % 10 === 0 && this.timeLeft > 0) {
-      // Increase spawn rate (decrease delay)
-      if (this.spawnDelay > 300) {
-        this.spawnDelay -= 80;
-        this.spawnTimer.reset({
-          delay: this.spawnDelay,
-          callback: this.spawnTarget,
-          callbackScope: this,
-          loop: true,
-        });
-      }
-
-      // Decrease target lifetime
-      if (this.targetLifetime > 1000) {
-        this.targetLifetime -= 150;
-      }
-
-      // Increase bad target chance
-      if (this.badTargetChance < 0.45) {
-        this.badTargetChance += 0.03;
-      }
-
-      // Visual feedback for difficulty increase
-      this.cameras.main.shake(200, 0.003);
-      this.showDifficultyWarning();
-    }
-
     if (this.timeLeft <= 0) {
       this.endGame();
     }
-  }
-
-  private showDifficultyWarning() {
-    const warning = this.add
-      .text(this.scale.width / 2, this.scale.height / 2, "SPEED UP!", {
-        fontSize: "48px",
-        color: "#ff0000",
-        fontStyle: "bold",
-        stroke: "#000000",
-        strokeThickness: 6,
-      })
-      .setOrigin(0.5)
-      .setAlpha(0);
-
-    this.tweens.add({
-      targets: warning,
-      alpha: 1,
-      scale: { from: 0.5, to: 1.2 },
-      duration: 300,
-      yoyo: true,
-      onComplete: () => warning.destroy(),
-    });
   }
 
   private spawnTarget() {
@@ -338,7 +288,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
       sprite,
       isGood,
       value,
-      spawnTime: this.time.now,
+      spawnTime: this.time.now + 150, // Offset for spawn animation delay
       lifetime: this.targetLifetime + Phaser.Math.Between(-200, 200),
     };
 
@@ -352,7 +302,7 @@ export default class ReflexArenaScene extends Phaser.Scene {
     let points = target.value;
 
     if (target.isGood) {
-      // Time bonus - stricter timing
+      // Time bonus - react within 250ms for double points
       if (reactionTime < 250) {
         points *= 2;
         this.showFeedback(target.sprite.x, target.sprite.y, "FAST!", true);

@@ -134,7 +134,7 @@ export default function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProp
                     <div className="space-y-3 text-slate-300">
                       <p><strong className="text-white">Controls:</strong> Click or tap targets</p>
                       <p><strong className="text-white">Good Targets:</strong> Star (10), Coin (20), Gem (30), Trophy (50)</p>
-                      <p><strong className="text-white">Bad Targets:</strong> Bug/Virus/Bomb (-20 points + combo reset)</p>
+                      <p><strong className="text-white">Bad Targets:</strong> Bug/Virus/Bomb (-25 points + combo reset)</p>
                       <p><strong className="text-white">Scoring:</strong> Points = Base × Reaction Bonus (2× if fast) × Combo (up to 5×)</p>
                       <div className="bg-black/30 border border-white/10 rounded-lg p-4 mt-3">
                         <p className="text-sm text-orange-400 font-mono">Max combo example: Trophy + Fast + 5× = 500 points!</p>

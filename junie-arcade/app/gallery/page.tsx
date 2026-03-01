@@ -186,6 +186,8 @@ export default function GalleryPage() {
               "/assets/images/hero/Zven.png",
               "/assets/images/hero/penny.png",
               "/assets/images/hero/v1c.png",
+              "/assets/images/hero/oxy.png",
+              "/assets/images/hero/vulcan.png",
             ].map((img, i) => (
               <m.div
                 key={i}
