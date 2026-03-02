@@ -193,16 +193,20 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
 
           if (newEntrants.length > 0) {
             setCelebratingUsernames(newEntrants);
-            // Trigger New Champion Pop-up for the new Rank 1 player
-            const newRank1 = transformedEntries.find((e: LeaderboardEntry) => e.rank === 1);
-            if (newRank1 && newEntrants.includes(newRank1.username) && onNewChampion) {
-              onNewChampion({
-                username: newRank1.username,
-                rank: newRank1.rank,
-                score: newRank1.score,
-                country: newRank1.country,
-                countryCode: newRank1.countryCode
-              });
+            // Trigger New Champion Pop-up for the highest-ranked new top 3 entrant
+            if (onNewChampion) {
+              const newTop3Entry = transformedEntries
+                .filter((e: LeaderboardEntry) => e.rank <= 3 && newEntrants.includes(e.username))
+                .sort((a: LeaderboardEntry, b: LeaderboardEntry) => a.rank - b.rank)[0];
+              if (newTop3Entry) {
+                onNewChampion({
+                  username: newTop3Entry.username,
+                  rank: newTop3Entry.rank,
+                  score: newTop3Entry.score,
+                  country: newTop3Entry.country,
+                  countryCode: newTop3Entry.countryCode
+                });
+              }
             }
             // Auto-clear celebration after 5 seconds
             setTimeout(() => setCelebratingUsernames([]), 5000);
@@ -239,16 +243,20 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
 
           if (newEntrants.length > 0) {
             setCelebratingUsernames(newEntrants);
-            // Trigger New Champion Pop-up for the new Rank 1 player in the current tab
-            const newRank1 = transformedEntries.find((e: LeaderboardEntry) => e.rank === 1);
-            if (newRank1 && newEntrants.includes(newRank1.username) && onNewChampion) {
-              onNewChampion({
-                username: newRank1.username,
-                rank: newRank1.rank,
-                score: newRank1.score,
-                country: newRank1.country,
-                countryCode: newRank1.countryCode
-              });
+            // Trigger New Champion Pop-up for the highest-ranked new top 3 entrant
+            if (onNewChampion) {
+              const newTop3Entry = transformedEntries
+                .filter((e: LeaderboardEntry) => e.rank <= 3 && newEntrants.includes(e.username))
+                .sort((a: LeaderboardEntry, b: LeaderboardEntry) => a.rank - b.rank)[0];
+              if (newTop3Entry) {
+                onNewChampion({
+                  username: newTop3Entry.username,
+                  rank: newTop3Entry.rank,
+                  score: newTop3Entry.score,
+                  country: newTop3Entry.country,
+                  countryCode: newTop3Entry.countryCode
+                });
+              }
             }
             // Auto-clear celebration after 5 seconds
             setTimeout(() => setCelebratingUsernames([]), 5000);
