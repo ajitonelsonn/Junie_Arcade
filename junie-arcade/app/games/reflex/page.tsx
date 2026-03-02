@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -57,6 +57,22 @@ export default function ReflexArenaPage() {
   const router = useRouter();
   const { playGameMusic, playVictoryMusic, stopAllMusic } = useMusic();
   const countryDropdownRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handleChange);
+    return () => document.removeEventListener("fullscreenchange", handleChange);
+  }, []);
+
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [username, setUsername] = useState("");
@@ -790,6 +806,43 @@ export default function ReflexArenaPage() {
                     />
                   </div>
                 </div>
+                <button
+                  onClick={toggleFullscreen}
+                  className="relative p-2 sm:p-2.5 group transition-all hover:scale-105"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.15), rgba(255, 70, 85, 0.05))',
+                    border: '1px solid rgba(255, 70, 85, 0.3)',
+                    clipPath: 'polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)'
+                  }}
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4 sm:w-5 sm:h-5 text-[#ff4655] group-hover:text-white transition-colors"
+                  >
+                    {isFullscreen ? (
+                      <>
+                        <polyline points="4 14 4 20 10 20" />
+                        <polyline points="20 10 20 4 14 4" />
+                        <line x1="14" y1="10" x2="20" y2="4" />
+                        <line x1="4" y1="20" x2="10" y2="14" />
+                      </>
+                    ) : (
+                      <>
+                        <polyline points="15 3 21 3 21 9" />
+                        <polyline points="9 21 3 21 3 15" />
+                        <line x1="21" y1="3" x2="14" y2="10" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                      </>
+                    )}
+                  </svg>
+                </button>
                 <div className="text-right hidden md:block">
                   <div className="text-[9px] font-black text-[#ff4655]/60 uppercase tracking-[0.2em]">
                     Sky's the Limit

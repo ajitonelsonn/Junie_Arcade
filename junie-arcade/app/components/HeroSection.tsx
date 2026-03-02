@@ -5,7 +5,7 @@ import { m } from "framer-motion";
 
 export default function HeroSection() {
   return (
-    <header className="px-4 sm:px-8 pt-16 sm:pt-24 pb-12 sm:pb-20 text-center max-w-5xl mx-auto relative contain-[layout]">
+    <header className="px-4 sm:px-8 pt-36 sm:pt-48 pb-12 sm:pb-20 text-center max-w-5xl mx-auto relative overflow-visible">
       {/* Tactical Corner Accents */}
       <div className="absolute top-8 left-4 sm:left-8 w-16 sm:w-24 h-16 sm:h-24 pointer-events-none hidden md:block">
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#ff4655] to-transparent" />
@@ -23,7 +23,7 @@ export default function HeroSection() {
       </div>
 
       {/* Junie Mascot Animation - Hexagonal Frame */}
-      <div className="absolute -top-16 sm:-top-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-48 h-48 sm:w-64 sm:h-64">
+      <div className="absolute top-4 sm:top-2 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-48 h-48 sm:w-64 sm:h-64">
         <m.div
           animate={{
             y: [0, -15, 0],

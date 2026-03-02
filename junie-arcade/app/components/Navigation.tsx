@@ -4,13 +4,36 @@ import Image from "next/image";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useMusic } from "./MusicProvider";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isMuted, toggleMute } = useMusic();
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handleChange);
+    return () => document.removeEventListener("fullscreenchange", handleChange);
+  }, []);
 
   const navLinks = [
     { href: "/", label: "Arena" },
@@ -20,20 +43,21 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="relative px-4 sm:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
+    <>
+    <nav className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 transition-all duration-300 ${isScrolled ? 'py-2 sm:py-3' : 'py-4 sm:py-6'}`}>
       {/* Background blur bar */}
-      <div className="absolute inset-0 bg-[#020617]/60 backdrop-blur-md border-b border-white/5" />
+      <div className={`absolute inset-0 backdrop-blur-md border-b border-white/5 transition-all duration-300 ${isScrolled ? 'bg-[#020617]/85' : 'bg-[#020617]/60'}`} />
 
-      <div className="relative z-10 flex justify-between items-center">
+      <div className="relative z-10 flex justify-between items-center max-w-7xl mx-auto">
         {/* Logo Section */}
         <m.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-3 sm:gap-4"
+          className={`flex items-center transition-all duration-300 ${isScrolled ? 'gap-2 sm:gap-3' : 'gap-3 sm:gap-4'}`}
         >
           {/* Logo Container with angular frame */}
           <div
-            className="relative p-1.5 sm:p-2"
+            className={`relative transition-all duration-300 ${isScrolled ? 'p-1 sm:p-1.5' : 'p-1.5 sm:p-2'}`}
             style={{
               background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.1), transparent)',
               clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))'
@@ -47,12 +71,12 @@ export default function Navigation() {
               sizes="80px"
               quality={60}
               style={{ width: 'auto', height: 'auto' }}
-              className="brightness-110 w-16 sm:w-20 md:w-[80px]"
+              className={`brightness-110 transition-all duration-300 ${isScrolled ? 'w-12 sm:w-14 md:w-15' : 'w-16 sm:w-20 md:w-20'}`}
             />
           </div>
 
           {/* Divider */}
-          <div className="flex items-center gap-1.5">
+          <div className={`flex items-center gap-1.5 transition-all duration-300 ${isScrolled ? 'scale-75' : 'scale-100'}`}>
             <div className="w-1 h-1 rotate-45 bg-[#ff4655]" />
             <div className="h-5 sm:h-6 w-px bg-white/20" />
             <div className="w-1 h-1 rotate-45 bg-[#00eeff]" />
@@ -60,7 +84,7 @@ export default function Navigation() {
 
           {/* JetBrains Logo */}
           <div
-            className="relative p-1.5 sm:p-2"
+            className={`relative transition-all duration-300 ${isScrolled ? 'p-1 sm:p-1.5' : 'p-1.5 sm:p-2'}`}
             style={{
               background: 'linear-gradient(135deg, rgba(0, 238, 255, 0.1), transparent)',
               clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)'
@@ -74,7 +98,7 @@ export default function Navigation() {
               sizes="80px"
               quality={60}
               style={{ width: 'auto', height: 'auto' }}
-              className="opacity-90 hover:opacity-100 transition-opacity w-16 sm:w-20 md:w-[80px]"
+              className={`opacity-90 hover:opacity-100 transition-all duration-300 ${isScrolled ? 'w-12 sm:w-14 md:w-15' : 'w-16 sm:w-20 md:w-20'}`}
             />
           </div>
         </m.div>
@@ -140,10 +164,44 @@ export default function Navigation() {
             </span>
           </a>
 
+          {/* Fullscreen Button */}
+          <button
+            onClick={toggleFullscreen}
+            className="relative ml-2 p-2 text-slate-400 hover:text-white transition-colors group"
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          >
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                clipPath: 'polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)'
+              }}
+            />
+            <span className="relative z-10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {isFullscreen ? (
+                  <>
+                    <polyline points="4 14 4 20 10 20" />
+                    <polyline points="20 10 20 4 14 4" />
+                    <line x1="14" y1="10" x2="20" y2="4" />
+                    <line x1="4" y1="20" x2="10" y2="14" />
+                  </>
+                ) : (
+                  <>
+                    <polyline points="15 3 21 3 21 9" />
+                    <polyline points="9 21 3 21 3 15" />
+                    <line x1="21" y1="3" x2="14" y2="10" />
+                    <line x1="3" y1="21" x2="10" y2="14" />
+                  </>
+                )}
+              </svg>
+            </span>
+          </button>
+
           {/* Speaker Button - Mute/Unmute */}
           <button
             onClick={toggleMute}
-            className="relative ml-4 p-2 text-slate-400 hover:text-white transition-colors group"
+            className="relative ml-2 p-2 text-slate-400 hover:text-white transition-colors group"
             title={isMuted ? "Unmute Music" : "Mute Music"}
           >
             <div
@@ -173,6 +231,38 @@ export default function Navigation() {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center gap-2">
+          {/* Mobile Fullscreen Button */}
+          <button
+            onClick={toggleFullscreen}
+            className="relative p-2 text-slate-400 hover:text-white transition-colors"
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              clipPath: 'polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%)'
+            }}
+          >
+            <span className="relative z-10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {isFullscreen ? (
+                  <>
+                    <polyline points="4 14 4 20 10 20" />
+                    <polyline points="20 10 20 4 14 4" />
+                    <line x1="14" y1="10" x2="20" y2="4" />
+                    <line x1="4" y1="20" x2="10" y2="14" />
+                  </>
+                ) : (
+                  <>
+                    <polyline points="15 3 21 3 21 9" />
+                    <polyline points="9 21 3 21 3 15" />
+                    <line x1="21" y1="3" x2="14" y2="10" />
+                    <line x1="3" y1="21" x2="10" y2="14" />
+                  </>
+                )}
+              </svg>
+            </span>
+          </button>
+
           {/* Mobile Speaker Button */}
           <button
             onClick={toggleMute}
@@ -281,5 +371,8 @@ export default function Navigation() {
         </div>
       </m.div>
     </nav>
+    {/* Spacer to push content below fixed nav */}
+    <div className="h-16 sm:h-20" />
+    </>
   );
 }
