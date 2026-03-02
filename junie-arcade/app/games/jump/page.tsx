@@ -642,6 +642,7 @@ export default function JumpMasterPage() {
                 </div>
                 <button
                   onClick={toggleFullscreen}
+                  tabIndex={-1}
                   className="relative p-2 sm:p-2.5 group transition-all hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, rgba(0, 238, 255, 0.15), rgba(0, 238, 255, 0.05))',

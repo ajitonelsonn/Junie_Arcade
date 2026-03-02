@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import FlagIcon from "./FlagIcon";
 import { api } from "@/app/lib/api";
@@ -70,6 +71,7 @@ export default function GameOverCard({
   onSaveScore,
   isSaving,
 }: GameOverCardProps) {
+  const router = useRouter();
   const [showCamera, setShowCamera] = useState(false);
   const [selfieData, setSelfieData] = useState<string | null>(null);
   const [tempSelfie, setTempSelfie] = useState<string | null>(null);
@@ -1230,7 +1232,7 @@ export default function GameOverCard({
 
       // If no scores saved yet, just go home
       if (!playerId) {
-        window.location.href = "/";
+        router.push("/");
         return;
       }
 
@@ -1255,14 +1257,14 @@ export default function GameOverCard({
         localStorage.removeItem("junie_country");
 
         // Redirect to leaderboard with showOverall flag to generate the card
-        window.location.href = `/leaderboard?showOverall=true&playerId=${playerId}`;
+        router.push(`/leaderboard?showOverall=true&playerId=${playerId}`);
       } else {
         // Fallback if no player stats found
-        window.location.href = "/";
+        router.push("/");
       }
     } catch (error) {
       console.error("Failed to calculate rank:", error);
-      window.location.href = "/";
+      router.push("/");
     }
   };
 
@@ -1275,7 +1277,7 @@ export default function GameOverCard({
 
       // If no scores saved yet, just go home
       if (!playerId) {
-        window.location.href = "/";
+        router.push("/");
         return;
       }
 
@@ -1299,15 +1301,20 @@ export default function GameOverCard({
         localStorage.removeItem("junie_username");
         localStorage.removeItem("junie_country");
 
+        // Preserve fullscreen state across navigation
+        if (document.fullscreenElement) {
+          sessionStorage.setItem("junie_fullscreen", "true");
+        }
+
         // Redirect to leaderboard
-        window.location.href = `/leaderboard?showOverall=true&playerId=${playerId}`;
+        router.push(`/leaderboard?showOverall=true&playerId=${playerId}`);
       } else {
         // Fallback
-        window.location.href = "/";
+        router.push("/");
       }
     } catch (error) {
       console.error("Failed to generate leaderboard card:", error);
-      window.location.href = "/";
+      router.push("/");
     }
   };
 

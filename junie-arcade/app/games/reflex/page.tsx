@@ -808,6 +808,7 @@ export default function ReflexArenaPage() {
                 </div>
                 <button
                   onClick={toggleFullscreen}
+                  tabIndex={-1}
                   className="relative p-2 sm:p-2.5 group transition-all hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, rgba(255, 70, 85, 0.15), rgba(255, 70, 85, 0.05))',

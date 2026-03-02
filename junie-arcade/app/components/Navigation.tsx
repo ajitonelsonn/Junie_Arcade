@@ -167,6 +167,7 @@ export default function Navigation() {
           {/* Fullscreen Button */}
           <button
             onClick={toggleFullscreen}
+            tabIndex={-1}
             className="relative ml-2 p-2 text-slate-400 hover:text-white transition-colors group"
             title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
           >
@@ -234,6 +235,7 @@ export default function Navigation() {
           {/* Mobile Fullscreen Button */}
           <button
             onClick={toggleFullscreen}
+            tabIndex={-1}
             className="relative p-2 text-slate-400 hover:text-white transition-colors"
             title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
             style={{

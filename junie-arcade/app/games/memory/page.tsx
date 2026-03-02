@@ -748,6 +748,7 @@ export default function MemoryMatchPage() {
                 </div>
                 <button
                   onClick={toggleFullscreen}
+                  tabIndex={-1}
                   className="relative p-2 sm:p-2.5 group transition-all hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, rgba(194, 132, 249, 0.15), rgba(194, 132, 249, 0.05))',
