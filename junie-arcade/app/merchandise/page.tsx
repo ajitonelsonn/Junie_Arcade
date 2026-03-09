@@ -1,11 +1,17 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { LazyMotion, domAnimation, m } from "framer-motion";
+import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import Navigation from "../components/Navigation";
 
-
 export default function MerchandisePage() {
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    setShowPopup(true);
+  }, []);
+
   const merchandise = [
     {
       name: "Kelu Tais Timor-Leste",
@@ -113,6 +119,89 @@ export default function MerchandisePage() {
       </div>
 
       <div className="relative z-10">
+        <AnimatePresence>
+          {showPopup && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+            >
+              {/* Backdrop */}
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowPopup(false)}
+                className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              />
+
+              {/* Modal Content */}
+              <m.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-xl bg-[#0a0e13]/90 border border-[#c284f9]/30 p-8 shadow-[0_0_50px_rgba(194,132,249,0.15)] overflow-hidden"
+                style={{
+                  clipPath: 'polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px))'
+                }}
+              >
+                {/* Decorative Accents */}
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <span className="text-6xl font-black italic text-white select-none">NOTICE</span>
+                </div>
+                
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors p-2 z-10"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-1.5 h-10 bg-[#c284f9]" />
+                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">
+                      MESSAGE FROM <span className="text-[#c284f9]">AJITO</span>
+                    </h2>
+                  </div>
+
+                  <div className="space-y-6 text-slate-300 font-bold uppercase tracking-tight text-sm md:text-base leading-relaxed">
+                    <p>
+                      I am really sorry that I can&apos;t participate in the GDC event, so I won&apos;t be able to share these handcrafted treasures from Timor-Leste in person.
+                    </p>
+                    <p className="text-white">
+                      Deepest apologies and many thanks to the <span className="text-amber-400">Cloud9</span> and <span className="text-[#c284f9]">JetBrains</span> teams for their incredible support.
+                    </p>
+                  </div>
+
+                  <div className="mt-8 pt-6 border-t border-white/10 flex justify-between items-end">
+                    <div className="text-[10px] font-black text-[#c284f9]/50 tracking-[0.3em]">
+                      // STATUS: ABSENT //
+                    </div>
+                    <button
+                      onClick={() => setShowPopup(false)}
+                      className="px-8 py-2 bg-white/5 border border-white/20 hover:border-[#c284f9]/50 transition-colors text-[10px] font-black uppercase tracking-[0.2em] text-white"
+                      style={{ clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)' }}
+                    >
+                      ACKNOWLEDGE
+                    </button>
+                  </div>
+                </div>
+
+                {/* Scan line effect */}
+                <m.div
+                  animate={{ y: ['-100%', '300%'] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                  className="absolute inset-x-0 h-[2px] bg-[#c284f9]/20 pointer-events-none"
+                />
+              </m.div>
+            </m.div>
+          )}
+        </AnimatePresence>
+
         <main className="container mx-auto px-8 py-10">
           <m.div
             initial={{ opacity: 0, y: 20 }}
