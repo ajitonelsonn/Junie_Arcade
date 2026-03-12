@@ -8,6 +8,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator adminClient {
+  provider = "prisma-client-js"
+  output   = "../../admin_junie/node_modules/.prisma/client"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import Navigation from "./components/Navigation";
 import HeroSection from "./components/HeroSection";
+import StatsSection from "./components/StatsSection";
 import GamesGrid from "./components/GamesGrid";
 import SessionCleaner from "./components/SessionCleaner";
 
@@ -43,6 +44,9 @@ export default function Home() {
           <HeroSection />
 
           <main className="container mx-auto px-4 sm:px-8 pb-24 sm:pb-32">
+            {/* Statistics Section */}
+            <StatsSection />
+
             {/* Games Grid */}
             <GamesGrid />
 
