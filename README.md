@@ -219,7 +219,7 @@ The Junie mascot was initially generated using Grok AI, then refined and edited 
 - **Developer:** Ajito Nelson Lucio da Costa, from Timor-Leste
 - **Hackathon:** Cloud9 x JetBrains "Sky's the Limit" 2026
 - **IDE:** JetBrains WebStorm with Junie AI
-- **Mascot:** Junie (JetBrains Junie AI Agent)
+- **Mascot:** Junie (JetBrains Junie  AI Agent)
 
 ---
 
