@@ -59,8 +59,10 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "overall" | "reflex" | "jump" | "memory"
+    "overall" | "reflex" | "jump" | "memory" | "daily"
   >("overall");
+  const [dailyLeaderboards, setDailyLeaderboards] = useState<Record<string, any[]>>({});
+  const [dailyDate, setDailyDate] = useState<string>(() => new Date().toISOString().split("T")[0]);
   const [countries, setCountries] = useState<
     Array<{ name: string; flag: string; code: string }>
   >([]);
@@ -121,6 +123,17 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
   const fetchLeaderboard = useCallback(async () => {
     try {
       setLoading(true);
+
+      // Daily leaderboard has a different fetch path
+      if (activeTab === "daily") {
+        const response = await fetch(`/api/leaderboard?view=daily&date=${dailyDate}`);
+        if (!response.ok) throw new Error(`API response error: ${response.status}`);
+        const data = await response.json();
+        setDailyLeaderboards(data.leaderboards || {});
+        setLoading(false);
+        return;
+      }
+
       // Use localStorage playerId as the trusted source of identity.
       // Fall back to URL playerId only for viewing the leaderboard (public data),
       // but the champion card (showOverall) will only render when localStorage matches.
@@ -276,7 +289,7 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
       setEntries([]);
       setLoading(false);
     }
-  }, [activeTab, getCountryCode]);
+  }, [activeTab, getCountryCode, dailyDate]);
 
   // Pause polling while user is scrolling to prevent disruptive refreshes
   const isScrollingRef = useRef(false);
@@ -428,6 +441,14 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
       color: "text-purple-400",
       glow: "shadow-purple-500/20",
     },
+    {
+      id: "daily" as const,
+      label: "Daily Scores",
+      icon: "📅",
+      logo: null,
+      color: "text-orange-400",
+      glow: "shadow-orange-500/20",
+    },
   ];
 
   return (
@@ -530,22 +551,81 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.02] -rotate-45 translate-x-32 -translate-y-32 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/[0.02] -rotate-45 -translate-x-32 translate-y-32 pointer-events-none" />
 
-        <div className="grid grid-cols-12 gap-4 px-8 py-6 border-b border-white/10 bg-white/[0.02]">
-          <div className="col-span-1 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
-            Rank
+        {activeTab === "daily" ? (
+          /* Daily Leaderboard Header — Esports Event Style */
+          <div className="relative px-8 py-6 border-b border-orange-500/20 overflow-hidden">
+            {/* Background accent */}
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-transparent to-amber-500/5" />
+            <div className="absolute top-0 left-0 w-1 h-full bg-orange-500" />
+
+            <div className="relative flex items-center justify-between mb-3">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 flex items-center justify-center bg-orange-500/20 skew-x-[-8deg]">
+                    <span className="text-lg skew-x-[8deg]">📅</span>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-black uppercase tracking-[0.15em] text-sm">
+                      Event Day Scores
+                    </h3>
+                    <p className="text-orange-400/60 text-[9px] font-bold uppercase tracking-[0.2em]">
+                      Locked daily leaderboard
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    const d = new Date(dailyDate);
+                    d.setDate(d.getDate() - 1);
+                    setDailyDate(d.toISOString().split("T")[0]);
+                  }}
+                  className="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-orange-400 hover:border-orange-400/30 transition-all font-bold text-sm"
+                >
+                  ‹
+                </button>
+                <input
+                  type="date"
+                  value={dailyDate}
+                  onChange={(e) => setDailyDate(e.target.value)}
+                  className="bg-white/5 border border-white/20 text-white text-xs px-4 py-2 font-black uppercase tracking-wider focus:outline-none focus:border-orange-400/50 transition-colors cursor-pointer hover:border-orange-400/30"
+                  style={{ clipPath: "polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)" }}
+                />
+                <button
+                  onClick={() => {
+                    const d = new Date(dailyDate);
+                    d.setDate(d.getDate() + 1);
+                    setDailyDate(d.toISOString().split("T")[0]);
+                  }}
+                  className="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-orange-400 hover:border-orange-400/30 transition-all font-bold text-sm"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+            <p className="relative text-white/20 text-[10px] uppercase tracking-[0.2em]">
+              Top scores per day during events — all-time records remain in other tabs
+            </p>
           </div>
-          <div className="col-span-7 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
-            Competitor
-            {totalPlayers > 0 && (
-              <span className="ml-2 text-white/20 tracking-[0.15em] normal-case">
-                ({totalPlayers.toLocaleString()} total players)
-              </span>
-            )}
+        ) : (
+          <div className="grid grid-cols-12 gap-4 px-8 py-6 border-b border-white/10 bg-white/[0.02]">
+            <div className="col-span-1 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
+              Rank
+            </div>
+            <div className="col-span-7 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
+              Competitor
+              {totalPlayers > 0 && (
+                <span className="ml-2 text-white/20 tracking-[0.15em] normal-case">
+                  ({totalPlayers.toLocaleString()} total players)
+                </span>
+              )}
+            </div>
+            <div className="col-span-4 text-right text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
+              Rating
+            </div>
           </div>
-          <div className="col-span-4 text-right text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
-            Rating
-          </div>
-        </div>
+        )}
 
         <div className="min-h-[500px]">
           {loading ? (
@@ -565,6 +645,171 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
               <div className="text-white/40 font-black text-xs uppercase tracking-[0.5em] animate-pulse">
                 Establishing Secure Uplink...
               </div>
+            </div>
+          ) : activeTab === "daily" ? (
+            /* Daily Leaderboard Content — Full Esports Treatment */
+            <div>
+              {Object.keys(dailyLeaderboards).length === 0 ? (
+                <div className="py-32 text-center relative">
+                  <div className="absolute inset-0 bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none" />
+                  <m.div
+                    animate={{ y: [0, -8, 0], rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="text-7xl mb-6 opacity-30"
+                  >
+                    📅
+                  </m.div>
+                  <div className="text-white/30 font-black uppercase tracking-[0.4em] text-sm mb-2">
+                    No Scores Recorded
+                  </div>
+                  <p className="text-white/15 text-[10px] font-bold uppercase tracking-[0.3em]">
+                    Scores will lock here as competitors play throughout the day
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-white/5">
+                  {(["REFLEX_ARENA", "JUMP_MASTER", "MEMORY_MATCH"] as const).map((gameType) => {
+                    const scores = dailyLeaderboards[gameType] || [];
+                    const gameConfig: Record<string, { name: string; icon: string; color: string; colorHex: string; gradient: string; logo: string }> = {
+                      REFLEX_ARENA: {
+                        name: "Reflex Arena",
+                        icon: "⚡",
+                        color: "text-yellow-400",
+                        colorHex: "#eab308",
+                        gradient: "from-yellow-500/20 via-yellow-500/5 to-transparent",
+                        logo: "/assets/images/logos/game_logo/reflex_arena.png",
+                      },
+                      JUMP_MASTER: {
+                        name: "Jump Master",
+                        icon: "🚀",
+                        color: "text-cyan-400",
+                        colorHex: "#22d3ee",
+                        gradient: "from-cyan-500/20 via-cyan-500/5 to-transparent",
+                        logo: "/assets/images/logos/game_logo/jump_master.png",
+                      },
+                      MEMORY_MATCH: {
+                        name: "Memory Match",
+                        icon: "🧠",
+                        color: "text-purple-400",
+                        colorHex: "#c084fc",
+                        gradient: "from-purple-500/20 via-purple-500/5 to-transparent",
+                        logo: "/assets/images/logos/game_logo/memory_match.png",
+                      },
+                    };
+                    const game = gameConfig[gameType];
+                    return (
+                      <div key={gameType} className="relative overflow-hidden">
+                        {/* Game Section Header */}
+                        <div className="relative px-6 py-4 border-b border-white/5">
+                          <div className={`absolute inset-0 bg-gradient-to-r ${game.gradient}`} />
+                          <div className="absolute top-0 left-0 w-full h-px" style={{ background: `linear-gradient(90deg, ${game.colorHex}40, transparent)` }} />
+                          <div className="relative flex items-center gap-3">
+                            <div
+                              className="w-8 h-8 flex items-center justify-center skew-x-[-8deg] border"
+                              style={{ borderColor: `${game.colorHex}40`, background: `${game.colorHex}15` }}
+                            >
+                              <div className="relative w-5 h-5 skew-x-[8deg]">
+                                <Image src={game.logo} alt={game.name} fill sizes="20px" className="object-contain" />
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className={`font-black uppercase tracking-[0.15em] text-xs ${game.color}`}>
+                                {game.name}
+                              </h4>
+                              <p className="text-white/20 text-[8px] font-bold uppercase tracking-[0.2em]">
+                                {scores.length} competitor{scores.length !== 1 ? "s" : ""}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Scores */}
+                        {scores.length === 0 ? (
+                          <div className="py-16 text-center">
+                            <p className="text-white/15 text-[10px] font-bold uppercase tracking-[0.2em]">
+                              Awaiting competitors
+                            </p>
+                          </div>
+                        ) : (
+                          <div>
+                            {scores.slice(0, 10).map((s: any, i: number) => {
+                              const isTop3 = i < 3;
+                              const medals = ["🥇", "🥈", "🥉"];
+                              return (
+                                <m.div
+                                  key={`${gameType}-${i}`}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: i * 0.05 }}
+                                  className={`relative group px-6 py-3 transition-all duration-200 ${isTop3 ? "" : "hover:bg-white/[0.02]"}`}
+                                  style={isTop3 ? {
+                                    background: `linear-gradient(90deg, ${game.colorHex}${i === 0 ? "15" : i === 1 ? "0a" : "06"}, transparent)`,
+                                  } : undefined}
+                                >
+                                  {/* Active accent for top 3 */}
+                                  {isTop3 && (
+                                    <div
+                                      className="absolute left-0 top-0 bottom-0 w-[2px]"
+                                      style={{ backgroundColor: game.colorHex, opacity: 1 - i * 0.25 }}
+                                    />
+                                  )}
+
+                                  <div className="flex items-center justify-between gap-3">
+                                    {/* Rank */}
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                      <div className="w-8 flex-shrink-0 text-center">
+                                        {isTop3 ? (
+                                          <span className="text-lg">{medals[i]}</span>
+                                        ) : (
+                                          <span className="text-sm font-black italic text-white/25">
+                                            {(i + 1).toString().padStart(2, "0")}
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      {/* Player Info */}
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                          <span className={`font-black text-sm truncate ${isTop3 ? "text-white" : "text-white/70"}`}>
+                                            {s.username}
+                                          </span>
+                                        </div>
+                                        {s.country && (
+                                          <span className="text-white/20 text-[9px] font-bold uppercase tracking-wider">
+                                            {s.country}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Score */}
+                                    <div className="flex-shrink-0 text-right">
+                                      <span
+                                        className={`font-black text-base tabular-nums ${isTop3 ? game.color : "text-white/50"}`}
+                                        style={i === 0 ? { textShadow: `0 0 20px ${game.colorHex}60` } : undefined}
+                                      >
+                                        {s.score.toLocaleString()}
+                                      </span>
+                                      {i === 0 && (
+                                        <div className="text-[8px] font-black uppercase tracking-[0.15em] mt-0.5" style={{ color: `${game.colorHex}80` }}>
+                                          Daily Best
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </m.div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Bottom accent */}
+                        <div className="h-px" style={{ background: `linear-gradient(90deg, transparent, ${game.colorHex}20, transparent)` }} />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ) : (
             <div className="divide-y divide-white/5">
