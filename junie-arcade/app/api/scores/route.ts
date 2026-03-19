@@ -105,48 +105,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Update daily high score leaderboard
-    try {
-      const today = new Date()
-      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-
-      const existing = await prisma.dailyLeaderboard.findUnique({
-        where: { date_gameType: { date: startOfDay, gameType } },
-      })
-
-      type DailyScoreEntry = { playerId: string; username: string; score: number; country: string | null }
-      let topScores: DailyScoreEntry[] = existing ? (existing.topScores as DailyScoreEntry[]) : []
-
-      // Check if this player already has a score today for this game
-      const playerIndex = topScores.findIndex((s: DailyScoreEntry) => s.playerId === player.id)
-      if (playerIndex !== -1) {
-        // Only update if the new score is higher
-        if (score > topScores[playerIndex].score) {
-          topScores[playerIndex].score = score
-          topScores[playerIndex].username = player.username
-        }
-      } else {
-        topScores.push({
-          playerId: player.id,
-          username: player.username,
-          score,
-          country: player.country || null,
-        })
-      }
-
-      // Sort and keep top scores
-      topScores.sort((a: DailyScoreEntry, b: DailyScoreEntry) => b.score - a.score)
-
-      await prisma.dailyLeaderboard.upsert({
-        where: { date_gameType: { date: startOfDay, gameType } },
-        update: { topScores },
-        create: { date: startOfDay, gameType, topScores },
-      })
-    } catch (dailyError) {
-      // Don't fail the main score save if daily leaderboard update fails
-      console.error('Error updating daily leaderboard:', dailyError)
-    }
-
     return NextResponse.json({ success: true, score: newScore, playerId: player.id })
   } catch (error) {
     console.error('Error saving score:', error)

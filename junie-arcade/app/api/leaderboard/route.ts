@@ -13,21 +13,49 @@ export async function GET(request: NextRequest) {
     const playerId = searchParams.get('playerId') // get stats for specific player
     const dateParam = searchParams.get('date') // for daily leaderboard (YYYY-MM-DD)
 
-    // Daily leaderboard view — returns locked high scores for a specific date
+    // Daily leaderboard view — derives top scores from Score table filtered by date
     if (view === 'daily') {
       const targetDate = dateParam ? new Date(dateParam) : new Date()
-      // Normalize to start of day UTC
       const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate())
+      const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
 
-      const dailyEntries = await prisma.dailyLeaderboard.findMany({
+      // Fetch all scores for the selected day
+      const dayScores = await prisma.score.findMany({
         where: {
-          date: startOfDay,
+          createdAt: {
+            gte: startOfDay,
+            lt: endOfDay,
+          },
+        },
+        include: {
+          player: true,
+        },
+        orderBy: {
+          score: 'desc',
         },
       })
 
-      const result: Record<string, any> = {}
-      for (const entry of dailyEntries) {
-        result[entry.gameType] = entry.topScores
+      // Group by gameType, then best score per player
+      const result: Record<string, any[]> = {}
+      const gameTypes: GameType[] = ['REFLEX_ARENA', 'JUMP_MASTER', 'MEMORY_MATCH']
+
+      for (const gt of gameTypes) {
+        const gameScores = dayScores.filter((s) => s.gameType === gt)
+        const playerBest = new Map<string, { playerId: string; username: string; score: number; country: string | null }>()
+
+        for (const s of gameScores) {
+          const existing = playerBest.get(s.playerId)
+          if (!existing || s.score > existing.score) {
+            playerBest.set(s.playerId, {
+              playerId: s.playerId,
+              username: s.player.username,
+              score: s.score,
+              country: s.player.country || null,
+            })
+          }
+        }
+
+        result[gt] = Array.from(playerBest.values()).sort((a, b) => b.score - a.score)
       }
 
       const response = NextResponse.json({
