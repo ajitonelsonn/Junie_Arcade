@@ -42,11 +42,11 @@ export default function JumpMasterPage() {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [username, setUsername] = useState("");
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState("United States");
   const [countries, setCountries] = useState<
     Array<{ name: string; flag: string; code: string }>
   >([]);
-  const [countrySearch, setCountrySearch] = useState("");
+  const [countrySearch, setCountrySearch] = useState("United States");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [score, setScore] = useState(0);
   const [distance, setDistance] = useState(0);
@@ -183,6 +183,15 @@ export default function JumpMasterPage() {
     setDistance(finalDistance);
     setGameOver(true);
     setGameStarted(false);
+
+    // Track this game as played for camera trigger (only shows after all 3 games)
+    try {
+      const played = JSON.parse(localStorage.getItem("junie_played_games") || "[]");
+      if (!played.includes("JUMP_MASTER")) {
+        played.push("JUMP_MASTER");
+        localStorage.setItem("junie_played_games", JSON.stringify(played));
+      }
+    } catch { /* ignore */ }
   };
 
   const phaserConfig: any = {

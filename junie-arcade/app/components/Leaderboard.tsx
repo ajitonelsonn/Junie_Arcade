@@ -65,6 +65,7 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
     Array<{ name: string; flag: string; code: string }>
   >([]);
   const [currentPlayerStats, setCurrentPlayerStats] = useState<PlayerStats | null>(null);
+  const [totalPlayers, setTotalPlayers] = useState<number>(0);
 
   // State for tracking new top 3 entries (celebration effect)
   const previousTop3Ref = useRef<Record<string, string[]>>({});
@@ -151,6 +152,11 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
         setEntries([]);
         setLoading(false);
         return;
+      }
+
+      // Store total player count for placement context
+      if (data.totalPlayers !== undefined) {
+        setTotalPlayers(data.totalPlayers);
       }
 
       // Transform data based on view type
@@ -272,9 +278,32 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
     }
   }, [activeTab, getCountryCode]);
 
+  // Pause polling while user is scrolling to prevent disruptive refreshes
+  const isScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      isScrollingRef.current = true;
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 2000); // Consider scrolling "done" after 2s of inactivity
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     fetchLeaderboard();
-    const interval = setInterval(fetchLeaderboard, 10000);
+    const interval = setInterval(() => {
+      if (!isScrollingRef.current) {
+        fetchLeaderboard();
+      }
+    }, 30000); // Reduced from 10s to 30s to avoid excessive refreshes
     return () => clearInterval(interval);
   }, [activeTab, fetchLeaderboard]);
 
@@ -507,6 +536,11 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
           </div>
           <div className="col-span-7 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
             Competitor
+            {totalPlayers > 0 && (
+              <span className="ml-2 text-white/20 tracking-[0.15em] normal-case">
+                ({totalPlayers.toLocaleString()} total players)
+              </span>
+            )}
           </div>
           <div className="col-span-4 text-right text-[10px] font-black uppercase tracking-[0.3em] text-white/30">
             Rating
@@ -579,6 +613,11 @@ export default function Leaderboard({ onNewChampion, onPlayerStatsReady, showOve
                         >
                           {entry.rank.toString().padStart(2, "0")}
                         </span>
+                        {totalPlayers > 0 && (
+                          <div className="text-[8px] text-white/20 font-bold mt-0.5">
+                            of {totalPlayers}
+                          </div>
+                        )}
                       </div>
 
                       <div className="col-span-7 flex items-center gap-6">

@@ -24,6 +24,10 @@ export default class JumpMasterScene extends Phaser.Scene {
   private obstacleTimer!: Phaser.Time.TimerEvent;
   private collectibleTimer!: Phaser.Time.TimerEvent;
   private gameStarted = false; // NEW: Track if game has started after countdown
+  private lives = 3; // Lives system: player gets 3 lives
+  private maxLives = 3;
+  private lifeIndicators: Phaser.GameObjects.Image[] = [];
+  private isInvincible = false; // Brief invincibility after taking a hit
 
   constructor() {
     super({ key: "JumpMasterScene" });
@@ -65,6 +69,9 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.obstacleSpawnDelay = 1800;
     this.collectibleSpawnDelay = 1200;
     this.gameStarted = false; // NEW: Game hasn't started yet
+    this.lives = this.maxLives;
+    this.lifeIndicators = [];
+    this.isInvincible = false;
 
     // Background Music
     const music = this.sound.add("bgm", { loop: true, volume: 0.5 });
@@ -133,7 +140,7 @@ export default class JumpMasterScene extends Phaser.Scene {
     this.physics.add.overlap(
       this.player,
       this.obstacles,
-      this.endGame,
+      this.hitObstacle,
       undefined,
       this,
     );
@@ -201,12 +208,28 @@ export default class JumpMasterScene extends Phaser.Scene {
       this.jumpIndicators.push(junieIcon);
     }
 
+    // Life Indicators (hearts) - top right area below distance
+    const lifeIndicatorY = 65;
+    const lifeIndicatorStartX = this.scale.width - 30;
+    const lifeIndicatorSpacing = 40;
+
+    for (let i = 0; i < this.maxLives; i++) {
+      const heart = this.add.text(
+        lifeIndicatorStartX - i * lifeIndicatorSpacing,
+        lifeIndicatorY,
+        "❤️",
+        { fontSize: "28px" },
+      );
+      heart.setOrigin(0.5);
+      this.lifeIndicators.push(heart as any);
+    }
+
     // Instructions
     const instructions = this.add
       .text(
         this.scale.width / 2,
         100,
-        "Press SPACE or CLICK to Jump!\n3 Jumps Available in Air!",
+        "Press SPACE or CLICK to Jump!\n3 Jumps Available in Air!\n❤️ 3 Lives!",
         {
           fontSize: "24px",
           color: "#ffffff",
@@ -641,6 +664,73 @@ export default class JumpMasterScene extends Phaser.Scene {
         text.destroy();
         happyJunie.destroy();
       },
+    });
+  }
+
+  private hitObstacle(_player: any, obstacle: any) {
+    if (this.isGameOver || this.isInvincible) return;
+
+    // Destroy the obstacle that was hit
+    obstacle.destroy();
+
+    this.lives--;
+    this.sound.play("gameover", { volume: 0.4 });
+
+    // Update life indicators
+    for (let i = 0; i < this.maxLives; i++) {
+      if (i < this.lives) {
+        (this.lifeIndicators[i] as any).setText("❤️");
+        (this.lifeIndicators[i] as any).setAlpha(1);
+      } else {
+        (this.lifeIndicators[i] as any).setText("🖤");
+        (this.lifeIndicators[i] as any).setAlpha(0.4);
+      }
+    }
+
+    if (this.lives <= 0) {
+      // No lives left — game over
+      this.endGame();
+      return;
+    }
+
+    // Brief invincibility (1.5 seconds) with flashing effect
+    this.isInvincible = true;
+    this.player.setTint(0xff0000);
+    this.cameras.main.shake(200, 0.005);
+
+    // Show damage text
+    const dmgText = this.add
+      .text(this.player.x, this.player.y - 40, `❤️ ${this.lives} LEFT`, {
+        fontSize: "24px",
+        color: "#ff4444",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5);
+
+    this.tweens.add({
+      targets: dmgText,
+      y: dmgText.y - 50,
+      alpha: 0,
+      duration: 1000,
+      onComplete: () => dmgText.destroy(),
+    });
+
+    // Flash player during invincibility
+    const flashTimer = this.time.addEvent({
+      delay: 100,
+      callback: () => {
+        this.player.setAlpha(this.player.alpha === 1 ? 0.3 : 1);
+      },
+      repeat: 14, // 1.5 seconds of flashing
+    });
+
+    this.time.delayedCall(1500, () => {
+      this.isInvincible = false;
+      this.player.setAlpha(1);
+      this.player.clearTint();
+      flashTimer.destroy();
     });
   }
 

@@ -8,9 +8,36 @@ export const revalidate = 0
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const view = searchParams.get('view') || 'overall' // overall, reflex, jump, memory
+    const view = searchParams.get('view') || 'overall' // overall, reflex, jump, memory, daily
     const country = searchParams.get('country') // filter by country
     const playerId = searchParams.get('playerId') // get stats for specific player
+    const dateParam = searchParams.get('date') // for daily leaderboard (YYYY-MM-DD)
+
+    // Daily leaderboard view — returns locked high scores for a specific date
+    if (view === 'daily') {
+      const targetDate = dateParam ? new Date(dateParam) : new Date()
+      // Normalize to start of day UTC
+      const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate())
+
+      const dailyEntries = await prisma.dailyLeaderboard.findMany({
+        where: {
+          date: startOfDay,
+        },
+      })
+
+      const result: Record<string, any> = {}
+      for (const entry of dailyEntries) {
+        result[entry.gameType] = entry.topScores
+      }
+
+      const response = NextResponse.json({
+        type: 'daily',
+        date: startOfDay.toISOString().split('T')[0],
+        leaderboards: result,
+      })
+      response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120')
+      return response
+    }
 
     if (view === 'overall') {
       // If playerId is provided, we can fetch just that player for speed and accuracy
@@ -81,15 +108,15 @@ export async function GET(request: NextRequest) {
         .sort((a: any, b: any) => b.memoryScore - a.memoryScore)
         .map((p: any, index: number) => ({ playerId: p.playerId, rank: index + 1 }))
 
-      // Calculate champion points based on rankings
+      // Calculate champion points based on rankings — no rank decay
       const calculatePoints = (rank: number) => {
         if (rank === 1) return 100
         if (rank === 2) return 90
         if (rank === 3) return 80
         if (rank <= 10) return 100 - (rank * 5)
         if (rank <= 25) return 50 - ((rank - 10) * 2)
-        if (rank <= 50) return 20 - (rank - 25)
-        return Math.max(1, 10 - Math.floor(rank / 10))
+        // No further decay — everyone rank 26+ gets a flat minimum
+        return Math.max(5, 25 - (rank - 25))
       }
 
       const overallLeaderboard = playerStats.map((player: any) => {
@@ -134,7 +161,8 @@ export async function GET(request: NextRequest) {
 
       const response = NextResponse.json({
         type: 'overall',
-        leaderboard: sortedLeaderboard.slice(0, 100),
+        totalPlayers: sortedLeaderboard.length,
+        leaderboard: sortedLeaderboard,
         currentPlayer
       })
 
@@ -182,17 +210,20 @@ export async function GET(request: NextRequest) {
       })
 
       // Convert to array and add rankings
-      const leaderboard = Array.from(playerBestScores.values())
+      const sortedScores = Array.from(playerBestScores.values())
         .sort((a, b) => b.score - a.score)
         .map((entry, index) => ({
           ...entry,
           rank: index + 1
         }))
-        .slice(0, 100)
+
+      const totalPlayers = sortedScores.length
+      const leaderboard = sortedScores
 
       const response = NextResponse.json({
         type: view,
         gameType,
+        totalPlayers,
         leaderboard
       })
 

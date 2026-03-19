@@ -27,7 +27,7 @@ interface LeaderboardEntry {
 type TabType = "overall" | "reflex" | "jump" | "memory";
 
 const CYCLE_INTERVAL = 15000; // 15 seconds
-const POLL_INTERVAL = 10000; // 10 seconds
+const POLL_INTERVAL = 30000; // 30 seconds (reduced from 10s to avoid excessive refreshes)
 
 export default function LiveLeaderboardPage() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);

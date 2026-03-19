@@ -59,11 +59,11 @@ export default function MemoryMatchPage() {
 
   const [gameStarted, setGameStarted] = useState(false);
   const [username, setUsername] = useState("");
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState("United States");
   const [countries, setCountries] = useState<
     Array<{ name: string; flag: string; code: string }>
   >([]);
-  const [countrySearch, setCountrySearch] = useState("");
+  const [countrySearch, setCountrySearch] = useState("United States");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
@@ -131,7 +131,7 @@ export default function MemoryMatchPage() {
     }
   }, []);
 
-  // Fetch countries on mount
+  // Fetch countries and restore saved credentials on mount only
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -147,14 +147,15 @@ export default function MemoryMatchPage() {
     // Check for saved credentials
     const savedUsername = localStorage.getItem("junie_username");
     const savedCountry = localStorage.getItem("junie_country");
-    if (savedUsername && !username) {
+    if (savedUsername) {
       setUsername(savedUsername);
     }
-    if (savedCountry && !country) {
+    if (savedCountry) {
       setCountry(savedCountry);
       setCountrySearch(savedCountry);
     }
-  }, [username, country]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Clear player session if finishing or exiting
   const clearSession = () => {
@@ -197,18 +198,33 @@ export default function MemoryMatchPage() {
     };
   }, [gameStarted, gameOver, playGameMusic]);
 
-  // Play victory music when game ends
+  // Play victory music when game ends + track game completion
   useEffect(() => {
     if (gameOver) {
       stopAllMusic();
       playVictoryMusic();
+
+      // Track this game as played for camera trigger (only shows after all 3 games)
+      try {
+        const played = JSON.parse(localStorage.getItem("junie_played_games") || "[]");
+        if (!played.includes("MEMORY_MATCH")) {
+          played.push("MEMORY_MATCH");
+          localStorage.setItem("junie_played_games", JSON.stringify(played));
+        }
+      } catch { /* ignore */ }
     }
   }, [gameOver, playVictoryMusic]);
 
-  // Audio helpers
+  // Audio helpers — reuse audio objects to prevent memory leaks over long sessions
+  const audioCache = useRef<Map<string, HTMLAudioElement>>(new Map());
   const playSound = (path: string, volume = 0.5) => {
-    const audio = new Audio(path);
+    let audio = audioCache.current.get(path);
+    if (!audio) {
+      audio = new Audio(path);
+      audioCache.current.set(path, audio);
+    }
     audio.volume = volume;
+    audio.currentTime = 0;
     const playPromise = audio.play();
     if (playPromise !== undefined) {
       playPromise.catch((e) => console.error("Error playing sound:", e));
@@ -1230,6 +1246,14 @@ export default function MemoryMatchPage() {
                                     sizes="(max-width: 768px) 25vw, 200px"
                                     className="object-cover"
                                   />
+                                  {/* Player name overlay - larger and more visible */}
+                                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-6 pb-2 px-1 text-center">
+                                    <span className="text-white font-black text-sm sm:text-base md:text-lg uppercase tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                                      style={{ textShadow: '0 0 10px rgba(194, 132, 249, 0.8), 0 2px 4px rgba(0,0,0,0.9)' }}
+                                    >
+                                      {card.imageUrl.split('/').pop()?.replace('card-', '').replace('.png', '') || ''}
+                                    </span>
+                                  </div>
                                   {card.matched && (
                                     <m.div
                                       initial={{ scale: 0 }}

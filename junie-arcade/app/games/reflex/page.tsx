@@ -76,11 +76,11 @@ export default function ReflexArenaPage() {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [username, setUsername] = useState("");
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState("United States");
   const [countries, setCountries] = useState<
     Array<{ name: string; flag: string; code: string }>
   >([]);
-  const [countrySearch, setCountrySearch] = useState("");
+  const [countrySearch, setCountrySearch] = useState("United States");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(50);
@@ -204,19 +204,34 @@ export default function ReflexArenaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStarted, gameOver]);
 
-  // Play victory music when game ends
+  // Play victory music when game ends + track game completion
   useEffect(() => {
     if (gameOver) {
       stopAllMusic();
       playVictoryMusic();
+
+      // Track this game as played for camera trigger (only shows after all 3 games)
+      try {
+        const played = JSON.parse(localStorage.getItem("junie_played_games") || "[]");
+        if (!played.includes("REFLEX_ARENA")) {
+          played.push("REFLEX_ARENA");
+          localStorage.setItem("junie_played_games", JSON.stringify(played));
+        }
+      } catch { /* ignore */ }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameOver]);
 
-  // Audio helpers
+  // Audio helpers — reuse audio objects to prevent memory leaks over long sessions
+  const audioCache = useRef<Map<string, HTMLAudioElement>>(new Map());
   const playSound = (path: string, volume = 0.5) => {
-    const audio = new Audio(path);
+    let audio = audioCache.current.get(path);
+    if (!audio) {
+      audio = new Audio(path);
+      audioCache.current.set(path, audio);
+    }
     audio.volume = volume;
+    audio.currentTime = 0;
     const playPromise = audio.play();
     if (playPromise !== undefined) {
       playPromise.catch((e) => console.error("Error playing sound:", e));

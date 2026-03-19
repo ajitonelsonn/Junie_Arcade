@@ -20,6 +20,7 @@ interface GameOverCardProps {
   }[];
   onSaveScore: () => void | Promise<void>;
   isSaving: boolean;
+  cameraEnabled?: boolean; // Admin toggle: whether camera is enabled at all
 }
 
 // Esports-inspired accent colors per game type
@@ -70,6 +71,7 @@ export default function GameOverCard({
   stats,
   onSaveScore,
   isSaving,
+  cameraEnabled,
 }: GameOverCardProps) {
   const router = useRouter();
   const [showCamera, setShowCamera] = useState(false);
@@ -83,7 +85,6 @@ export default function GameOverCard({
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [hasAutoSaved, setHasAutoSaved] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [captureCountdown, setCaptureCountdown] = useState<number | null>(null);
   const [showExitModal, setShowExitModal] = useState(false);
   const [playerRank, setPlayerRank] = useState<number | null>(null);
   const [allRanks, setAllRanks] = useState<any>(null);
@@ -98,6 +99,35 @@ export default function GameOverCard({
   const [selectedHero, setSelectedHero] = useState<string>("");
   const [junieIndex, setJunieIndex] = useState(0);
   const [heroIndex, setHeroIndex] = useState(0);
+
+  // Camera admin toggle: check prop, fallback to localStorage setting
+  const isCameraEnabled = (() => {
+    if (cameraEnabled !== undefined) return cameraEnabled;
+    if (typeof window !== "undefined") {
+      const setting = localStorage.getItem("junie_camera_enabled");
+      if (setting !== null) return setting === "true";
+    }
+    return true; // default on
+  })();
+
+  // Camera should only trigger at end of all 3 games (not after each game)
+  const isAllGamesComplete = (() => {
+    if (gameType === "OVERALL") return true;
+    if (typeof window !== "undefined") {
+      try {
+        const played = JSON.parse(localStorage.getItem("junie_played_games") || "[]");
+        // Check if all 3 game types have been played
+        const required = ["REFLEX_ARENA", "JUMP_MASTER", "MEMORY_MATCH"];
+        return required.every((g) => played.includes(g));
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  })();
+
+  // Only show camera features if admin enabled AND all games are complete
+  const shouldShowCamera = isCameraEnabled && isAllGamesComplete;
 
   // Pre-load html-to-image for faster first save/download
   useEffect(() => {
@@ -248,18 +278,19 @@ export default function GameOverCard({
     saveAndFetchRankings();
   }, [hasAutoSaved, onSaveScore, gameType]);
 
-  // Auto-start camera with 5-second countdown when game over card appears
+  // Auto-start camera only when camera is enabled AND all 3 games are complete
   useEffect(() => {
+    if (!shouldShowCamera) return;
+
     // Small delay to allow initial animations to settle
     const timer = setTimeout(() => {
-      setCountdown(5);
+      setCountdown(3);
 
-      // Start countdown
+      // Start countdown (reduced from 5 to 3 for quicker start)
       const countdownInterval = setInterval(() => {
         setCountdown((prev) => {
           if (prev === null || prev <= 1) {
             clearInterval(countdownInterval);
-            // Auto-start camera when countdown reaches 0
             startCamera();
             return null;
           }
@@ -271,7 +302,7 @@ export default function GameOverCard({
     }, 500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [shouldShowCamera]);
 
   const getCountryCode = () => {
     // If country is already a 2-character code, return it
@@ -342,31 +373,20 @@ export default function GameOverCard({
     }
   };
 
+  // Instant capture — no countdown (items #6 & #7: "Take Now" + instant photo)
   const takeSelfie = () => {
-    setCaptureCountdown(5);
-
-    const countdownInterval = setInterval(() => {
-      setCaptureCountdown((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval);
-          // Take the photo
-          if (videoRef.current && canvasRef.current) {
-            const canvas = canvasRef.current;
-            const video = videoRef.current;
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext("2d");
-            if (ctx) {
-              ctx.drawImage(video, 0, 0);
-              const imageData = canvas.toDataURL("image/png");
-              setTempSelfie(imageData);
-            }
-          }
-          return null;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    if (videoRef.current && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const video = videoRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        const imageData = canvas.toDataURL("image/png");
+        setTempSelfie(imageData);
+      }
+    }
   };
 
   const confirmSelfie = () => {
@@ -379,7 +399,6 @@ export default function GameOverCard({
 
   const retakeSelfie = () => {
     setTempSelfie(null);
-    setCaptureCountdown(null);
     // Give React time to unmount the image and mount the video element
     setTimeout(() => {
       if (videoRef.current && streamRef.current) {
@@ -1058,18 +1077,18 @@ export default function GameOverCard({
           const qrY = allRanks ? statsY + 100 : statsY + 50;
 
           try {
-            // Draw Secure Code (QR) background
+            // Draw Club9 QR background
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
 
-            const qrImg = await loadImage(qrCodeUrl);
+            const qrImg = await loadImage(club9QrUrl);
             ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
-            // "SECURE CODE" text
+            // "JOIN CLUB9" text
             ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
             ctx.font = "bold 20px system-ui, -apple-system, sans-serif";
             ctx.textAlign = "right";
-            ctx.fillText("SECURE CODE", canvas.width - 60, qrY - 25);
+            ctx.fillText("JOIN CLUB9", canvas.width - 60, qrY - 25);
 
             // Note: Branding logos are displayed at the top of the card
           } catch (err) {
@@ -1142,12 +1161,8 @@ export default function GameOverCard({
     }
   };
 
-  const shareUrl =
-    uploadedUrl ||
-    (typeof window !== "undefined"
-      ? "https://www.juniearcade.fun/gallery"
-      : "");
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+  const club9QrUrl = "/assets/gg/gg_qr.png";
+  const qrCodeUrl = club9QrUrl;
 
   const getNextGame = () => {
     // We don't want to show a next game link if we're already on the OVERALL card
@@ -1612,8 +1627,8 @@ export default function GameOverCard({
 
                   {!selfieData && !showCamera && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
-                      {countdown !== null ? (
-                        // Countdown display (auto start)
+                      {shouldShowCamera && countdown !== null ? (
+                        // Countdown display (auto start) — only when camera enabled & all games done
                         <div className="flex flex-col items-center">
                           <div
                             className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex items-center justify-center mb-3 sm:mb-4 relative"
@@ -1654,7 +1669,7 @@ export default function GameOverCard({
                           </p>
                         </div>
                       ) : (
-                        // Default state (no countdown)
+                        // Default state
                         <>
                           <div
                             className="w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center mb-3 sm:mb-4"
@@ -1669,26 +1684,36 @@ export default function GameOverCard({
                           <h3 className="text-white font-black uppercase tracking-wider mb-1 sm:mb-2 text-sm sm:text-base">
                             Agent Profile
                           </h3>
-                          <p className="text-slate-500 text-[10px] sm:text-xs mb-4 sm:mb-6 max-w-[180px] sm:max-w-[200px]">
-                            Capture your victory pose for the arena records.
-                          </p>
-                          <m.button
-                            onClick={startCamera}
-                            data-export-hide="true"
-                            whileHover={{
-                              scale: 1.05,
-                              boxShadow: `0 0 30px ${theme.glow}`,
-                            }}
-                            whileTap={{ scale: 0.95 }}
-                            className="px-4 py-2 sm:px-6 sm:py-3 text-white font-black uppercase tracking-widest text-[10px] sm:text-xs"
-                            style={{
-                              background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
-                              clipPath:
-                                "polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
-                            }}
-                          >
-                            Initiate Capture
-                          </m.button>
+                          {shouldShowCamera ? (
+                            <>
+                              <p className="text-slate-500 text-[10px] sm:text-xs mb-4 sm:mb-6 max-w-[180px] sm:max-w-[200px]">
+                                Capture your victory pose for the arena records.
+                              </p>
+                              <m.button
+                                onClick={startCamera}
+                                data-export-hide="true"
+                                whileHover={{
+                                  scale: 1.05,
+                                  boxShadow: `0 0 30px ${theme.glow}`,
+                                }}
+                                whileTap={{ scale: 0.95 }}
+                                className="px-4 py-2 sm:px-6 sm:py-3 text-white font-black uppercase tracking-widest text-[10px] sm:text-xs"
+                                style={{
+                                  background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                                  clipPath:
+                                    "polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
+                                }}
+                              >
+                                Initiate Capture
+                              </m.button>
+                            </>
+                          ) : (
+                            <p className="text-slate-500 text-[10px] sm:text-xs max-w-[180px] sm:max-w-[200px]">
+                              {!isCameraEnabled
+                                ? "Camera is disabled by admin."
+                                : "Complete all 3 games to unlock the victory photo!"}
+                            </p>
+                          )}
                         </>
                       )}
                     </div>
@@ -1751,57 +1776,35 @@ export default function GameOverCard({
                       exit={{ opacity: 0 }}
                       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 md:p-8"
                     >
-                      <div className="relative h-[85vh] aspect-[4/5] bg-slate-900 border border-white/10 overflow-hidden shadow-2xl">
+                      <div className="relative h-[85vh] max-h-[800px] aspect-[4/5] bg-slate-900 border border-white/10 overflow-hidden shadow-2xl mx-auto">
                         {!tempSelfie ? (
                           <div className="absolute inset-0">
                             <video
                               ref={videoRef}
                               className="w-full h-full object-cover grayscale brightness-110 contrast-125"
+                              style={{ transform: "scaleX(-1)" }}
                               autoPlay
                               playsInline
                               muted
                             />
                             <div className="absolute inset-0 border-[20px] md:border-[40px] border-[#0f1923]/80 pointer-events-none" />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#ff4655]/20 to-transparent pointer-events-none" />
+                            {/* Center guide crosshair */}
+                            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 pointer-events-none opacity-30">
+                              <div className="absolute top-0 left-1/2 w-px h-full bg-white/50" />
+                              <div className="absolute top-1/2 left-0 w-full h-px bg-white/50" />
+                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full border border-white/40" />
+                            </div>
                             <canvas ref={canvasRef} className="hidden" />
 
-                            {/* Capture Countdown Overlay - Bottom Position */}
-                            {captureCountdown !== null && (
-                              <div className="absolute bottom-0 left-0 right-0 pb-24 z-50">
-                                <div className="flex flex-col items-center">
-                                  <div className="w-32 h-32 rounded-full border-4 border-[#ff4655] flex items-center justify-center mb-3 bg-[#ff4655]/10 relative backdrop-blur-sm">
-                                    <m.span
-                                      key={captureCountdown}
-                                      initial={{ scale: 1.5, opacity: 0 }}
-                                      animate={{ scale: 1, opacity: 1 }}
-                                      transition={{ duration: 0.3 }}
-                                      className="text-7xl font-black text-[#ff4655]"
-                                    >
-                                      {captureCountdown}
-                                    </m.span>
-                                    <div className="absolute inset-0 rounded-full border-4 border-[#ff4655] animate-ping opacity-20" />
-                                  </div>
-                                  <div className="bg-black/80 backdrop-blur-md px-6 py-2 rounded-full">
-                                    <h3 className="text-white font-black uppercase tracking-wider text-lg mb-1">
-                                      Get Ready!
-                                    </h3>
-                                    <p className="text-slate-300 text-xs text-center">
-                                      Strike your best pose...
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Camera Controls */}
+                            {/* Camera Controls — instant capture, no countdown */}
                             <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 px-6">
                               <button
                                 onClick={takeSelfie}
-                                disabled={captureCountdown !== null}
-                                className="w-full max-w-xs py-4 bg-white text-black font-black uppercase tracking-[0.2em] text-sm skew-x-[-10deg] hover:bg-[#ff4655] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full max-w-xs py-4 bg-white text-black font-black uppercase tracking-[0.2em] text-sm skew-x-[-10deg] hover:bg-[#ff4655] hover:text-white transition-colors"
                               >
                                 <span className="inline-block skew-x-[10deg]">
-                                  Capture Victory
+                                  Take Now
                                 </span>
                               </button>
                               <button
@@ -2278,6 +2281,10 @@ export default function GameOverCard({
 
                   {/* Save & Export Row */}
                   {!isCalculating && (
+                    <div>
+                      <p className="text-slate-500 text-[8px] sm:text-[9px] uppercase tracking-wider mb-1.5 sm:mb-2 text-center">
+                        Save your card to the gallery, then download it
+                      </p>
                     <div className="grid grid-cols-2 gap-2 sm:gap-3">
                       <m.button
                         onClick={saveCardToS3}
@@ -2321,9 +2328,9 @@ export default function GameOverCard({
                             </>
                           ) : (
                             <>
-                              <span>💾</span>
-                              <span className="hidden xs:inline">Save Card</span>
-                              <span className="xs:hidden">Save</span>
+                              <span>☁️</span>
+                              <span className="hidden xs:inline">Save to Cloud</span>
+                              <span className="xs:hidden">Cloud</span>
                             </>
                           )}
                         </div>
@@ -2360,7 +2367,7 @@ export default function GameOverCard({
                           ) : (
                             <>
                               <span>⬇</span>
-                              Export
+                              Download PNG
                             </>
                           )}
                         </div>
@@ -2370,6 +2377,7 @@ export default function GameOverCard({
                           style={{ backgroundColor: theme.primary }}
                         />
                       </m.button>
+                    </div>
                     </div>
                   )}
                 </div>
@@ -2383,7 +2391,7 @@ export default function GameOverCard({
                         style={{ backgroundColor: theme.primary }}
                       />
                       <span className="text-[8px] sm:text-[10px] font-black text-white/50 uppercase tracking-[0.1em] sm:tracking-[0.15em]">
-                        Share Victory
+                        Cloud9 Club9
                       </span>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3 opacity-60">
@@ -2441,30 +2449,27 @@ export default function GameOverCard({
 
                     <div className="text-center sm:text-left flex-1">
                       <h4 className="text-white font-black uppercase tracking-wider text-xs sm:text-sm mb-0.5 sm:mb-1">
-                        Challenge Issued
+                        Join Club9
                       </h4>
                       <p className="text-slate-500 text-[9px] sm:text-[10px] leading-relaxed mb-2 sm:mb-4 max-w-[180px] sm:max-w-[200px] mx-auto sm:mx-0">
-                        Scan to share your victory or copy the secure link
-                        below.
+                        Scan to join the Cloud9 Fan Loyalty program and unlock
+                        exclusive rewards!
                       </p>
-                      <m.button
-                        onClick={() => {
-                          navigator.clipboard.writeText(shareUrl);
-                        }}
+                      <m.a
+                        href="https://club9.gg"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         data-export-hide="true"
-                        disabled={!uploadedUrl}
-                        whileHover={{ scale: uploadedUrl ? 1.02 : 1 }}
-                        whileTap={{ scale: uploadedUrl ? 0.98 : 1 }}
-                        className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-3 py-1.5 sm:px-4 sm:py-2 transition-all disabled:opacity-30"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="inline-block text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-3 py-1.5 sm:px-4 sm:py-2 transition-all"
                         style={{
-                          color: uploadedUrl
-                            ? theme.primary
-                            : "rgba(255,255,255,0.4)",
-                          border: `1px solid ${uploadedUrl ? theme.primary + "50" : "rgba(255,255,255,0.2)"}`,
+                          color: theme.primary,
+                          border: `1px solid ${theme.primary}50`,
                         }}
                       >
-                        {uploadedUrl ? "Copy URL" : "Save Card First"}
-                      </m.button>
+                        club9.gg
+                      </m.a>
                     </div>
                   </m.div>
                 </div>
