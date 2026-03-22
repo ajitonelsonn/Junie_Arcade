@@ -111,12 +111,12 @@ export default function GameOverCard({
   })();
 
   // Camera should only trigger at end of all 3 games (not after each game)
-  const isAllGamesComplete = (() => {
+  // Use state so it reacts to localStorage updates from the game page's useEffect
+  const [isAllGamesComplete, setIsAllGamesComplete] = useState(() => {
     if (gameType === "OVERALL") return true;
     if (typeof window !== "undefined") {
       try {
         const played = JSON.parse(localStorage.getItem("junie_played_games") || "[]");
-        // Check if all 3 game types have been played
         const required = ["REFLEX_ARENA", "JUMP_MASTER", "MEMORY_MATCH"];
         return required.every((g) => played.includes(g));
       } catch {
@@ -124,7 +124,25 @@ export default function GameOverCard({
       }
     }
     return false;
-  })();
+  });
+
+  // Re-check after mount in case the useEffect in the game page wrote to localStorage
+  // after this component's initial render
+  useEffect(() => {
+    if (gameType === "OVERALL") return;
+    const checkPlayed = () => {
+      try {
+        const played = JSON.parse(localStorage.getItem("junie_played_games") || "[]");
+        const required = ["REFLEX_ARENA", "JUMP_MASTER", "MEMORY_MATCH"];
+        if (required.every((g) => played.includes(g))) {
+          setIsAllGamesComplete(true);
+        }
+      } catch { /* ignore */ }
+    };
+    // Check after a short delay to allow the game page's useEffect to write first
+    const timer = setTimeout(checkPlayed, 100);
+    return () => clearTimeout(timer);
+  }, [gameType]);
 
   // Only show camera features if admin enabled AND all games are complete
   const shouldShowCamera = isCameraEnabled && isAllGamesComplete;
