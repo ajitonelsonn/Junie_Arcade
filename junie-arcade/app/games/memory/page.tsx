@@ -157,6 +157,14 @@ export default function MemoryMatchPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Keep countrySearch in sync when country is selected from dropdown
+  useEffect(() => {
+    if (!showCountryDropdown) {
+      setCountrySearch(country || "United States");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [country]);
+
   // Clear player session if finishing or exiting
   const clearSession = () => {
     setPlayerId(null);
@@ -977,7 +985,15 @@ export default function MemoryMatchPage() {
                           setCountrySearch(e.target.value);
                           setShowCountryDropdown(true);
                         }}
-                        onFocus={() => !playerId && setShowCountryDropdown(true)}
+                        onFocus={() => {
+                          if (!playerId) {
+                            setCountrySearch("");
+                            setShowCountryDropdown(true);
+                          }
+                        }}
+                        onBlur={() => {
+                          setTimeout(() => setShowCountryDropdown(false), 200);
+                        }}
                         placeholder={country || "Search your country"}
                         disabled={!!playerId}
                         className="w-full pl-14 pr-6 py-4 text-lg text-left border-2 border-[#c284f9]/30 bg-white/5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#c284f9]/50 focus:border-[#c284f9]/50 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1021,7 +1037,7 @@ export default function MemoryMatchPage() {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setCountry(c.name);
-                                  setCountrySearch("");
+                                  setCountrySearch(c.name);
                                   setShowCountryDropdown(false);
                                 }}
                                 className="w-full px-6 py-3 text-left hover:bg-[#c284f9]/20 transition-colors text-white flex items-center gap-3 border-b border-white/5 last:border-0"
